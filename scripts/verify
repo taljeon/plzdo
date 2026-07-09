@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+
+required=(
+  "README.md"
+  "LICENSE"
+  "AGENTS.md"
+  "CHECKS.md"
+  "TASKS/current.md"
+  "docs/architecture.md"
+  "docs/case-study.md"
+  "docs/what-not-to-automate.md"
+  "docs/external-review-policy.md"
+  "examples/basic-project/AGENTS.md"
+  "examples/basic-project/CHECKS.md"
+  "examples/basic-project/TASKS/current.md"
+  "examples/basic-project/docs/requirements.md"
+  "examples/basic-project/docs/technical-design.md"
+  "examples/basic-project/scripts/verify"
+  "scripts/check-release-leaks"
+  "scripts/install-codex-skills"
+  "scripts/plzdo"
+  ".github/workflows/verify.yml"
+  "resources/codex-skills/README.md"
+  "resources/codex-skills/adaptive-project-harness/SKILL.md"
+  "resources/codex-skills/external-review-router/SKILL.md"
+  "resources/codex-skills/external-review-router/references/boundaries.md"
+  "resources/codex-skills/external-review-router/references/providers.md"
+  "review/REVIEW-PROMPT.md"
+)
+
+for path in "${required[@]}"; do
+  if [[ ! -f "$path" ]]; then
+    echo "missing required file: $path" >&2
+    exit 1
+  fi
+done
+
+if find . -type l -print | grep -q .; then
+  echo "verification failed: symlink found" >&2
+  find . -type l -print >&2
+  exit 1
+fi
+
+./examples/basic-project/scripts/verify
+./scripts/check-release-leaks --quiet-warnings
+./scripts/check-release-leaks --self-test
+./scripts/plzdo check . >/dev/null
+
+tmp_project="$(mktemp -d)"
+tmp_home=""
+trap 'rm -rf "$tmp_project" ${tmp_home:+"$tmp_home"}' EXIT
+./scripts/plzdo init "$tmp_project/project" >/dev/null
+./scripts/plzdo check "$tmp_project/project" >/dev/null
+
+tmp_home="$(mktemp -d)"
+CODEX_HOME="$tmp_home/codex-home" ./scripts/install-codex-skills --dry-run adaptive-project-harness external-review-router >/dev/null
+CODEX_HOME="$tmp_home/codex-home" ./scripts/install-codex-skills adaptive-project-harness external-review-router >/dev/null
+test -f "$tmp_home/codex-home/skills/adaptive-project-harness/SKILL.md"
+test -f "$tmp_home/codex-home/skills/external-review-router/SKILL.md"
+
+grep -R -n "External AI reviewers are advisory evidence only" README.md docs resources/codex-skills >/dev/null
+grep -R -n "memory.*not source of truth\\|not source of truth.*memory" AGENTS.md docs resources/codex-skills >/dev/null
+
+echo "plzdo verification passed"

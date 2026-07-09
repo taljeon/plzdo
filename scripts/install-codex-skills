@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+skills_root="$root/resources/codex-skills"
+
+dry_run=false
+force=false
+list=false
+skills=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run)
+      dry_run=true
+      shift
+      ;;
+    --force)
+      force=true
+      shift
+      ;;
+    --list)
+      list=true
+      shift
+      ;;
+    -*)
+      echo "unknown option: $1" >&2
+      exit 2
+      ;;
+    *)
+      skills+=("$1")
+      shift
+      ;;
+  esac
+done
+
+available_skills() {
+  find "$skills_root" -mindepth 2 -maxdepth 2 -name SKILL.md -print |
+    sed "s#^$skills_root/##; s#/SKILL.md\$##" |
+    sort
+}
+
+if [[ "$list" == true ]]; then
+  if [[ ${#skills[@]} -gt 0 ]]; then
+    echo "--list cannot be combined with skill install arguments" >&2
+    exit 2
+  fi
+  available_skills
+  exit 0
+fi
+
+if [[ ${#skills[@]} -eq 0 ]]; then
+  echo "usage: CODEX_HOME=<path> $0 [--list] [--dry-run] [--force] <skill>..." >&2
+  exit 2
+fi
+
+if [[ -z "${CODEX_HOME:-}" ]]; then
+  echo "CODEX_HOME is required" >&2
+  exit 2
+fi
+
+dest_root="$CODEX_HOME/skills"
+
+for skill in "${skills[@]}"; do
+  case "$skill" in
+    *..*|/*|*/*)
+      echo "invalid skill name: $skill" >&2
+      exit 2
+      ;;
+  esac
+  src="$skills_root/$skill"
+  if [[ ! -f "$src/SKILL.md" ]]; then
+    echo "unknown skill: $skill" >&2
+    exit 2
+  fi
+  dest="$dest_root/$skill"
+  echo "$src -> $dest"
+  if [[ "$dry_run" == true ]]; then
+    continue
+  fi
+  if [[ -e "$dest" && "$force" != true ]]; then
+    echo "destination exists, pass --force to overwrite: $dest" >&2
+    exit 1
+  fi
+  mkdir -p "$dest_root"
+  if [[ -e "$dest" ]]; then
+    rm -rf "$dest"
+  fi
+  cp -R "$src" "$dest"
+done

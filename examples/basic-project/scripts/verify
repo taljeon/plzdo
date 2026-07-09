@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+
+required=(
+  "AGENTS.md"
+  "CHECKS.md"
+  "TASKS/current.md"
+  "docs/requirements.md"
+  "docs/technical-design.md"
+)
+
+for path in "${required[@]}"; do
+  if [[ ! -f "$path" ]]; then
+    echo "missing required file: $path" >&2
+    exit 1
+  fi
+done
+
+echo "basic project verification passed"

@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/plzdo init <target-dir> [--force]
+  scripts/plzdo check [target-dir]
+
+Commands:
+  init   Copy the public PlzDo template into a target directory.
+  check  Verify that a target directory has the minimal PlzDo control files.
+
+The tool is local-only. It does not call providers, install hooks, start daemons,
+or mutate production services.
+USAGE
+}
+
+copy_file() {
+  local src="$1"
+  local dst="$2"
+  local force="$3"
+
+  if [[ -e "$dst" && "$force" != "true" ]]; then
+    echo "refusing to overwrite existing file: $dst" >&2
+    echo "rerun with --force if replacement is intentional" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$dst")"
+  cp "$src" "$dst"
+}
+
+init_target() {
+  if [[ $# -lt 1 || $# -gt 2 ]]; then
+    usage >&2
+    exit 2
+  fi
+
+  local target="$1"
+  local force="false"
+  if [[ $# -eq 2 ]]; then
+    if [[ "$2" != "--force" ]]; then
+      usage >&2
+      exit 2
+    fi
+    force="true"
+  fi
+
+  mkdir -p "$target"
+  copy_file "$root/AGENTS.md" "$target/AGENTS.md" "$force"
+  copy_file "$root/CHECKS.md" "$target/CHECKS.md" "$force"
+  copy_file "$root/TASKS/current.md" "$target/TASKS/current.md" "$force"
+  copy_file "$root/docs/architecture.md" "$target/docs/architecture.md" "$force"
+  copy_file "$root/docs/what-not-to-automate.md" "$target/docs/what-not-to-automate.md" "$force"
+  copy_file "$root/docs/external-review-policy.md" "$target/docs/external-review-policy.md" "$force"
+
+  echo "plzdo template installed: $target"
+  echo "next: scripts/plzdo check \"$target\""
+}
+
+check_target() {
+  local target="${1:-.}"
+  local required=(
+    "AGENTS.md"
+    "CHECKS.md"
+    "TASKS/current.md"
+    "docs/architecture.md"
+    "docs/what-not-to-automate.md"
+    "docs/external-review-policy.md"
+  )
+
+  for path in "${required[@]}"; do
+    if [[ ! -f "$target/$path" ]]; then
+      echo "missing plzdo file: $target/$path" >&2
+      exit 1
+    fi
+  done
+
+  grep -q "Do not run unbounded loops" "$target/AGENTS.md"
+  grep -q "External AI reviewers are advisory evidence only" "$target/AGENTS.md"
+  grep -qi "not source of truth" "$target/AGENTS.md"
+  grep -qi "not source of truth" "$target/docs/architecture.md"
+
+  if find "$target" -type l -print | grep -q .; then
+    echo "plzdo check failed: symlink found in target" >&2
+    find "$target" -type l -print >&2
+    exit 1
+  fi
+
+  echo "plzdo target check passed: $target"
+}
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+case "$1" in
+  init)
+    shift
+    init_target "$@"
+    ;;
+  check)
+    shift
+    check_target "$@"
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

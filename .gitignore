@@ -1,0 +1,16 @@
+.DS_Store
+*.pyc
+__pycache__/
+.env
+.env.*
+*.db
+*.sqlite
+*.sqlite3
+*.log
+tmp/
+dist/
+review/*review*.md
+review/*review*.json
+review/*REVIEW*.md
+review/*REVIEW*.json
+review/*plan*.md
