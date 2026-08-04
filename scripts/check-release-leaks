@@ -1,135 +1,20 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
+root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
 
-mode="scan"
-quiet_warnings=false
-
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --self-test)
-      mode="self-test"
-      shift
-      ;;
-    --quiet-warnings)
-      quiet_warnings=true
-      shift
-      ;;
-    *)
-      echo "unknown option: $1" >&2
-      exit 2
-      ;;
-  esac
+python_bin=""
+for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+    if [ -x "$candidate" ]; then
+        python_bin="$candidate"
+        break
+    fi
 done
-
-scan_paths() {
-  python3 - "$quiet_warnings" "$@" <<'PY'
-import os
-import re
-import sys
-from pathlib import Path
-
-quiet_warnings = sys.argv[1].lower() == "true"
-paths = [Path(p) for p in sys.argv[2:]]
-if not paths:
-    raw = []
-    import subprocess
-    out = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"])
-    raw = [p for p in out.decode().split("\0") if p]
-    paths = [Path(p) for p in raw]
-
-unix_user_pattern = "/" + "Users/" + r"[A-Za-z0-9._-]+|" + "/" + "home/" + r"[A-Za-z0-9._-]+"
-windows_user_pattern = r"C:\\+Users\\+[^\\\s]+"
-hard_patterns = [
-    ("private-unix-user-path", re.compile(unix_user_pattern)),
-    ("private-windows-user-path", re.compile(windows_user_pattern)),
-    ("private-key-header", re.compile(r"BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY")),
-    ("github-token", re.compile(r"ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}")),
-    ("aws-access-key", re.compile(r"AKIA[0-9A-Z]{16}")),
-    ("openai-style-token", re.compile(r"\bsk-[A-Za-z0-9_-]{16,}")),
-    ("browser-profile-path", re.compile(r"(?:/|\\\\|~)[^\\n]{0,80}(?:Chrome|Chromium|Firefox|browser-profile|browser_agent|browser-agent|Login Data|Cookies)", re.I)),
-]
-email_pattern = re.compile(r"\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
-allowed_email_domains = {"example.com", "example.org", "example.net"}
-blocked_suffixes = {".db", ".sqlite", ".sqlite3", ".log", ".pem", ".key", ".p12", ".pfx"}
-blocked_names = {".env", ".env.local", ".env.production", "cookies", "login data"}
-
-failures = []
-warnings = []
-
-for path in paths:
-    if not path.exists() or path.is_dir():
-        continue
-    rel = path.as_posix()
-    lower_name = path.name.lower()
-    if lower_name in blocked_names or path.suffix.lower() in blocked_suffixes:
-        failures.append((rel, 0, "blocked-file-kind"))
-        continue
-    try:
-        data = path.read_bytes()
-    except OSError as exc:
-        failures.append((rel, 0, f"unreadable:{type(exc).__name__}"))
-        continue
-    if b"\0" in data:
-        failures.append((rel, 0, "binary-file"))
-        continue
-    text = data.decode("utf-8", errors="replace")
-    for line_no, line in enumerate(text.splitlines(), 1):
-        for name, pattern in hard_patterns:
-            if pattern.search(line):
-                failures.append((rel, line_no, name))
-        for match in email_pattern.finditer(line):
-            domain = match.group(1).lower()
-            if domain not in allowed_email_domains:
-                failures.append((rel, line_no, "real-email"))
-        if re.search(r"\b(token|session|cookie|secret)\b", line, re.I):
-            warnings.append((rel, line_no, "ambiguous-sensitive-word"))
-
-for rel, line_no, name in failures:
-    loc = f"{rel}:{line_no}" if line_no else rel
-    print(f"FAIL {loc}: {name}")
-if quiet_warnings:
-    if warnings:
-        print(f"WARN ambiguous-sensitive-word: {len(warnings)} warn-only occurrences hidden; run scripts/check-release-leaks directly to inspect")
-else:
-    for rel, line_no, name in warnings:
-        print(f"WARN {rel}:{line_no}: {name}")
-
-raise SystemExit(1 if failures else 0)
-PY
-}
-
-if [[ "$mode" == "self-test" ]]; then
-  tmpdir="$(mktemp -d)"
-  trap 'rm -rf "$tmpdir"' EXIT
-  cases=(
-    "fake-github-token.txt"
-    "fake-unix-path.txt"
-    "fake-windows-path.txt"
-    "fake-private-key.txt"
-    "fake-email.txt"
-  )
-  printf 'fake leaked token: %s%s\n' 'ghp_' '1234567890abcdef1234567890abcdef1234' > "$tmpdir/${cases[0]}"
-  printf 'fake home path: /%s/%s/project\n' 'Users' 'demo-user' > "$tmpdir/${cases[1]}"
-  printf 'fake windows path: C:\\%s\\demo-user\\project\n' 'Users' > "$tmpdir/${cases[2]}"
-  printf '%s%s%s\n' '-----BEGIN ' 'PRIVATE KEY' '-----' > "$tmpdir/${cases[3]}"
-  printf 'fake email: person@%s\n' 'not-example.invalid' > "$tmpdir/${cases[4]}"
-  for case_file in "${cases[@]}"; do
-    output="$(scan_paths "$tmpdir/$case_file" 2>&1)" && scan_status=0 || scan_status=$?
-    if [[ "$scan_status" -eq 0 ]]; then
-      echo "self-test failed: fake leak was not rejected: $case_file" >&2
-      exit 1
-    fi
-    if ! grep -q '^FAIL ' <<<"$output"; then
-      echo "self-test failed: scanner exited nonzero without FAIL evidence: $case_file" >&2
-      exit 1
-    fi
-  done
-  echo "leak scanner self-test passed"
-  exit 0
+if [ -z "$python_bin" ]; then
+    echo "leak-check: Python 3 was not found in a supported system location" >&2
+    exit 1
 fi
 
-scan_paths
-echo "release leak check passed"
+unset PYTHONHOME PYTHONOPTIMIZE PYTHONPATH PYTHONSTARTUP PYTHONUSERBASE PYTHONWARNINGS
+exec "$python_bin" -B -I "$root/scripts/check_release_leaks.py" "$@"

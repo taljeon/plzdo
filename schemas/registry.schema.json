@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "canonicalLocalPath": {
+      "format": "plzdo-canonical-local-path",
+      "maxLength": 4096,
+      "minLength": 2,
+      "pattern": "^/(?!/).+",
+      "type": "string"
+    },
+    "project": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "items": {
+            "$ref": "#/$defs/safeId"
+          },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "area": {
+          "$ref": "#/$defs/safeId"
+        },
+        "domain": {
+          "$ref": "#/$defs/safeId"
+        },
+        "id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "path": {
+          "$ref": "#/$defs/canonicalLocalPath"
+        },
+        "repositoryId": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/safeId"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "active",
+            "archived"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "aliases",
+        "domain",
+        "area",
+        "path",
+        "repositoryId",
+        "state"
+      ],
+      "type": "object"
+    },
+    "safeId": {
+      "maxLength": 64,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "projects": {
+      "items": {
+        "$ref": "#/$defs/project"
+      },
+      "maxItems": 1024,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.registry.v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projects"
+  ],
+  "title": "PlzDo Local registry v1",
+  "type": "object"
+}

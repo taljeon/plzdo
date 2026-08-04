@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
+root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
+
+python_bin=""
+for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+    if [ -x "$candidate" ]; then
+        python_bin="$candidate"
+        break
+    fi
+done
+if [ -z "$python_bin" ]; then
+    echo "plzdo: Python 3 was not found in a supported system location" >&2
+    exit 1
+fi
+
+unset PYTHONHOME PYTHONOPTIMIZE PYTHONPATH PYTHONSTARTUP PYTHONUSERBASE PYTHONWARNINGS
+exec "$python_bin" -B -I "$root/bin/plzdo_entry.py" "$@"

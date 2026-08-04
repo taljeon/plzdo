@@ -1,0 +1,58 @@
+{
+  "catalog": "sources",
+  "entries": [
+    {
+      "decision": "reference",
+      "description": "A public convention for repository-scoped agent instructions.",
+      "id": "agents-md-specification",
+      "licenseStatus": "review-required",
+      "licenseUrl": "https://github.com/agentsmd/agents.md/blob/main/LICENSE",
+      "name": "AGENTS.md",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "unversioned",
+      "revisionKind": "unversioned",
+      "sourceUrl": "https://agents.md/",
+      "tags": [
+        "agents",
+        "instructions",
+        "policy"
+      ]
+    },
+    {
+      "decision": "adopt",
+      "description": "The schema dialect used for exact durable JSON contracts.",
+      "id": "json-schema-2020-12",
+      "licenseStatus": "verified-open",
+      "licenseUrl": "https://github.com/json-schema-org/json-schema-spec/blob/main/LICENSE",
+      "name": "JSON Schema Draft 2020-12",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "draft-2020-12",
+      "revisionKind": "spec-version",
+      "sourceUrl": "https://json-schema.org/draft/2020-12",
+      "tags": [
+        "json",
+        "schema",
+        "validation"
+      ]
+    },
+    {
+      "decision": "adopt",
+      "description": "The dependency-free runtime baseline for local file and process control.",
+      "id": "python-standard-library",
+      "licenseStatus": "review-required",
+      "licenseUrl": "https://docs.python.org/3/license.html",
+      "name": "Python Standard Library",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "unversioned",
+      "revisionKind": "unversioned",
+      "sourceUrl": "https://docs.python.org/3.9/library/",
+      "tags": [
+        "local",
+        "python",
+        "standard-library"
+      ]
+    }
+  ],
+  "localOnly": true,
+  "schemaVersion": "plzdo-local.static-catalog.v1"
+}

@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
+root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
+
+python_bin=""
+for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+    if [ -x "$candidate" ]; then
+        python_bin="$candidate"
+        break
+    fi
+done
+if [ -z "$python_bin" ]; then
+    echo "check-publication: Python 3 was not found in a supported system location" >&2
+    exit 1
+fi
+
+unset PYTHONHOME PYTHONOPTIMIZE PYTHONPATH PYTHONSTARTUP PYTHONUSERBASE PYTHONWARNINGS
+unset GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_ASKPASS GIT_COMMON_DIR GIT_CONFIG_COUNT
+unset GIT_CONFIG_GLOBAL GIT_CONFIG_KEY_0 GIT_CONFIG_NOSYSTEM GIT_CONFIG_SYSTEM
+unset GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_REPLACE_REF_BASE
+unset GIT_SHALLOW_FILE GIT_WORK_TREE
+exec "$python_bin" -B -I "$root/scripts/check_publication.py" "$@"

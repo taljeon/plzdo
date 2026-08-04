@@ -1,0 +1,30 @@
+{
+  "repositories": [
+    {
+      "id": "operational-example",
+      "outputs": [
+        "AGENTS.md",
+        "CHECKS.md",
+        "TASKS",
+        "docs",
+        "scripts"
+      ],
+      "path": "REPLACE_WITH_CANONICAL_ABSOLUTE_PATH",
+      "protectedPaths": [],
+      "realApply": {
+        "approval": {
+          "approvalHash": "REPLACE_WITH_64_LOWERCASE_HEX_CHARACTERS",
+          "approvedAt": "REPLACE_WITH_RFC3339_TIMESTAMP",
+          "id": "replace-approval-id"
+        },
+        "enabled": true,
+        "operatorOnly": true
+      },
+      "rolloutTier": "enforced",
+      "sourceOfTruth": [],
+      "state": "active",
+      "workflowLane": "operational"
+    }
+  ],
+  "schemaVersion": "plzdo-local.catalog.v1"
+}

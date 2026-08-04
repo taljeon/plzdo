@@ -1,0 +1,557 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural interchange contract; runtime validation is authoritative for cross-field, chronology, digest, identity, and sensitive-content semantics.",
+  "$defs": {
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approvalHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "approvedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "operatorConfirmed": {
+          "const": true
+        }
+      },
+      "required": [
+        "operatorConfirmed",
+        "approvedAt",
+        "approvalHash"
+      ],
+      "type": "object"
+    },
+    "completion": {
+      "additionalProperties": false,
+      "properties": {
+        "completedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "evidenceReference": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidenceSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidenceReference",
+        "evidenceSha256",
+        "completedAt"
+      ],
+      "type": "object"
+    },
+    "projectResolution": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "attached"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "candidateIds": {
+                "maxItems": 1,
+                "minItems": 1
+              },
+              "projectId": {
+                "$ref": "#/$defs/safeId"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "ask"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "candidateIds": {
+                "minItems": 1
+              },
+              "projectId": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "create"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "candidateIds": {
+                "maxItems": 0
+              },
+              "projectId": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "candidateIds": {
+          "items": {
+            "$ref": "#/$defs/safeId"
+          },
+          "maxItems": 1024,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "decision": {
+          "enum": [
+            "attached",
+            "ask",
+            "create"
+          ]
+        },
+        "projectId": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/safeId"
+            }
+          ]
+        },
+        "reason": {
+          "maxLength": 240,
+          "minLength": 1,
+          "type": "string"
+        },
+        "ruleId": {
+          "$ref": "#/$defs/ruleId"
+        },
+        "schemaVersion": {
+          "const": "plzdo-local.project-resolution.v1"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "decision",
+        "projectId",
+        "candidateIds",
+        "ruleId",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "route": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "weight": {
+                "const": "goal"
+              }
+            },
+            "required": [
+              "weight"
+            ]
+          },
+          "then": {
+            "properties": {
+              "formalizationRequired": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "boundedLoop": {
+                "const": true
+              }
+            },
+            "required": [
+              "boundedLoop"
+            ]
+          },
+          "then": {
+            "properties": {
+              "formalizationRequired": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "boundedLoop": {
+                "const": false
+              },
+              "weight": {
+                "enum": [
+                  "quick",
+                  "plan"
+                ]
+              }
+            },
+            "required": [
+              "weight",
+              "boundedLoop"
+            ]
+          },
+          "then": {
+            "properties": {
+              "formalizationRequired": {
+                "const": false
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "boundedLoop": {
+          "type": "boolean"
+        },
+        "explanation": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "formalizationRequired": {
+          "type": "boolean"
+        },
+        "projectDecision": {
+          "$ref": "#/$defs/projectResolution"
+        },
+        "recommendedEvidence": {
+          "items": {
+            "$ref": "#/$defs/ruleId"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "ruleIds": {
+          "items": {
+            "$ref": "#/$defs/ruleId"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "schemaVersion": {
+          "const": "plzdo-local.execution-route.v1"
+        },
+        "weight": {
+          "enum": [
+            "quick",
+            "plan",
+            "goal"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "weight",
+        "boundedLoop",
+        "projectDecision",
+        "ruleIds",
+        "explanation",
+        "formalizationRequired",
+        "recommendedEvidence"
+      ],
+      "type": "object"
+    },
+    "ruleId": {
+      "maxLength": 96,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]+$",
+      "type": "string"
+    },
+    "safeId": {
+      "maxLength": 64,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "type": "string"
+    },
+    "supersession": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "supersededAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "required": [
+        "reason",
+        "supersededAt"
+      ],
+      "type": "object"
+    },
+    "textItem": {
+      "maxLength": 1000,
+      "minLength": 1,
+      "type": "string"
+    },
+    "textList": {
+      "items": {
+        "$ref": "#/$defs/textItem"
+      },
+      "maxItems": 64,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "timestamp": {
+      "format": "date-time",
+      "maxLength": 64,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "draft"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "approved",
+              "completed"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "$ref": "#/$defs/approval"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "approved"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completion": {
+            "type": "null"
+          },
+          "supersession": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completion": {
+            "$ref": "#/$defs/completion"
+          },
+          "supersession": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completion": {
+            "type": "null"
+          },
+          "supersession": {
+            "$ref": "#/$defs/supersession"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "approval": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/approval"
+        }
+      ]
+    },
+    "completion": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/completion"
+        }
+      ]
+    },
+    "constraints": {
+      "$ref": "#/$defs/textList"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "criteria": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/textList"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "evidenceContract": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/textList"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "id": {
+      "$ref": "#/$defs/safeId"
+    },
+    "nonGoals": {
+      "$ref": "#/$defs/textList"
+    },
+    "objective": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "type": "string"
+    },
+    "plan": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/textList"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "projectId": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/safeId"
+        }
+      ]
+    },
+    "route": {
+      "$ref": "#/$defs/route"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.formalization.v1"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved",
+        "completed",
+        "superseded"
+      ]
+    },
+    "supersession": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/supersession"
+        }
+      ]
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "projectId",
+    "status",
+    "objective",
+    "criteria",
+    "nonGoals",
+    "constraints",
+    "route",
+    "plan",
+    "evidenceContract",
+    "approval",
+    "completion",
+    "supersession",
+    "createdAt",
+    "updatedAt"
+  ],
+  "title": "PlzDo Local formalization v1",
+  "type": "object"
+}

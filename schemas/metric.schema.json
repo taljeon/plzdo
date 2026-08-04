@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural Draft 2020-12 interchange contract. Integral JSON numbers such as 0.0 satisfy integer; runtime validation is authoritative and intentionally rejects booleans and every float for exact host-integer fields, in addition to enforcing cross-field, chronology, digest, identity, and sensitive-content semantics.",
+  "$id": "https://example.invalid/plzdo-local/metric.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "boundedLoop": {"type": "boolean"},
+    "changedFileCount": {"maximum": 100000, "minimum": 0, "type": "integer"},
+    "checkCount": {"maximum": 100000, "minimum": 0, "type": "integer"},
+    "durationMs": {"maximum": 604800000, "minimum": 0, "type": "integer"},
+    "findingCount": {"maximum": 100000, "minimum": 0, "type": "integer"},
+    "projectId": {"anyOf": [{"pattern": "^[a-z][a-z0-9-]{1,63}$", "type": "string"}, {"type": "null"}]},
+    "recordedAt": {"format": "date-time", "type": "string"},
+    "route": {"enum": ["quick", "plan", "goal"]},
+    "routeFeedback": {"enum": ["correct", "under-routed", "over-routed"]},
+    "runId": {"pattern": "^[a-z][a-z0-9-]{1,63}$", "type": "string"},
+    "schemaVersion": {"const": "plzdo-local.metric.v1"},
+    "sourceOfTruth": {"const": false},
+    "status": {"enum": ["succeeded", "failed", "skipped", "blocked"]}
+  },
+  "required": ["schemaVersion", "runId", "projectId", "route", "boundedLoop", "status", "routeFeedback", "durationMs", "changedFileCount", "checkCount", "findingCount", "recordedAt", "sourceOfTruth"],
+  "title": "PlzDo Local Metric Record",
+  "type": "object"
+}

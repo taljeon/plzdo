@@ -1,0 +1,85 @@
+{
+  "$id": "https://example.invalid/plzdo-local/managed-install.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural validation only. Apply plzdo_local.managed_install.validate_managed_install_marker for unique and sorted paths, resource identity, fixed agent destinations, and resourceDigest semantics.",
+  "x-plzdo-semanticValidator": "plzdo_local.managed_install.validate_managed_install_marker",
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "enum": [
+              420,
+              493
+            ],
+            "type": "integer"
+          },
+          "path": {
+            "maxLength": 240,
+            "minLength": 1,
+            "pattern": "^(?!\\.plzdo-local-managed\\.json(?:/|$))(?:[A-Za-z0-9_-][A-Za-z0-9._-]*|\\.[A-Za-z0-9_-][A-Za-z0-9._-]*)(?:/(?:[A-Za-z0-9_-][A-Za-z0-9._-]*|\\.[A-Za-z0-9_-][A-Za-z0-9._-]*))*(?![\\s\\S])$",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])$",
+            "type": "string"
+          },
+          "sizeBytes": {
+            "maximum": 524288,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "sizeBytes",
+          "mode"
+        ],
+        "type": "object"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "type": "array"
+    },
+    "managedBy": {
+      "const": "plzdo-local"
+    },
+    "releaseVersion": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001f]+(?![\\s\\S])$",
+      "type": "string"
+    },
+    "resourceDigest": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])$",
+      "type": "string"
+    },
+    "resourceName": {
+      "pattern": "^[a-z][a-z0-9-]{1,63}(?![\\s\\S])$",
+      "type": "string"
+    },
+    "resourceType": {
+      "enum": [
+        "skill",
+        "agent"
+      ]
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.managed-install.v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "managedBy",
+    "resourceType",
+    "resourceName",
+    "releaseVersion",
+    "resourceDigest",
+    "files"
+  ],
+  "title": "PlzDo Local Managed Install Marker",
+  "type": "object"
+}

@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural Draft 2020-12 interchange contract. Integral JSON numbers such as 0.0 satisfy integer; runtime validation is authoritative and intentionally rejects booleans and every float for exact host-integer fields, in addition to enforcing cross-field, chronology, digest, identity, and sensitive-content semantics.",
+  "$defs": {
+    "capabilityDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "authoritative": {
+          "const": false
+        },
+        "inputBytes": {
+          "maximum": 524288,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "authoritative",
+        "algorithm",
+        "sha256",
+        "inputBytes"
+      ],
+      "type": "object"
+    },
+    "controlText": {
+      "additionalProperties": false,
+      "properties": {
+        "AGENTS.md": {
+          "$ref": "#/$defs/controlTextValue"
+        },
+        "CHECKS.md": {
+          "$ref": "#/$defs/controlTextValue"
+        },
+        "TASKS/current.md": {
+          "$ref": "#/$defs/controlTextValue"
+        },
+        "docs/requirements.md": {
+          "$ref": "#/$defs/controlTextValue"
+        },
+        "docs/technical-design.md": {
+          "$ref": "#/$defs/controlTextValue"
+        }
+      },
+      "required": [
+        "AGENTS.md",
+        "CHECKS.md",
+        "TASKS/current.md",
+        "docs/requirements.md",
+        "docs/technical-design.md"
+      ],
+      "type": "object"
+    },
+    "controlTextValue": {
+      "maxLength": 262144,
+      "minLength": 1,
+      "type": "string"
+    },
+    "nonAuthoritativeProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "authoritative": {
+          "const": false
+        },
+        "value": true
+      },
+      "required": [
+        "authoritative",
+        "value"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sourceEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "maximum": 262144,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "enum": [
+            "AGENTS.md",
+            "CHECKS.md",
+            "TASKS/current.md",
+            "docs/requirements.md",
+            "docs/technical-design.md"
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "summary": {
+          "maxLength": 1200,
+          "pattern": "^[^\\r\\n]*$",
+          "type": "string"
+        },
+        "summaryTruncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "bytes",
+        "sha256",
+        "summary",
+        "summaryTruncated"
+      ],
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "compact"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "controlText": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "full"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "controlText": {
+            "$ref": "#/$defs/controlText"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "activeFormalization": {
+      "$ref": "#/$defs/nonAuthoritativeProjection"
+    },
+    "authoritative": {
+      "const": false
+    },
+    "capabilityDigest": {
+      "$ref": "#/$defs/capabilityDigest"
+    },
+    "controlText": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/controlText"
+        }
+      ]
+    },
+    "generatedAt": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{6})?Z$",
+      "type": "string"
+    },
+    "localOnly": {
+      "const": true
+    },
+    "mode": {
+      "enum": [
+        "compact",
+        "full"
+      ]
+    },
+    "project": {
+      "$ref": "#/$defs/nonAuthoritativeProjection"
+    },
+    "route": {
+      "$ref": "#/$defs/nonAuthoritativeProjection"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.context.v1"
+    },
+    "sourceManifest": {
+      "items": false,
+      "maxItems": 5,
+      "minItems": 5,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/sourceEntry"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "AGENTS.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/sourceEntry"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "CHECKS.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/sourceEntry"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "TASKS/current.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/sourceEntry"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "docs/requirements.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/sourceEntry"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "docs/technical-design.md"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "type": "array"
+    },
+    "stateSummary": {
+      "$ref": "#/$defs/nonAuthoritativeProjection"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "mode",
+    "generatedAt",
+    "authoritative",
+    "localOnly",
+    "sourceManifest",
+    "controlText",
+    "project",
+    "route",
+    "activeFormalization",
+    "stateSummary",
+    "capabilityDigest"
+  ],
+  "title": "PlzDo Local context pack v1",
+  "type": "object"
+}

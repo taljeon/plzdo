@@ -1,24 +1,17 @@
 # What Not To Automate
 
-Automation is useful only when the authority boundary is clear. This template defaults to observation, verification, and evidence. It does not default to mutation or external egress.
+PlzDo Local automates repeatable local bookkeeping. It deliberately keeps irreversible or authority-bearing decisions with the operator.
 
 Do not automate:
 
-- reading or exporting secrets, auth stores, cookies, private keys, raw private logs, live databases, or full private documents;
-- scheduled external-provider sends;
-- browser sessions with logged-in accounts;
-- provider output as a default verification gate;
-- watchers, hooks, launch agents, daemons, MCP servers, or browser extensions;
-- memory writes that claim source-of-truth status;
-- target repository mutation without an explicit apply path;
-- self-expanding loops with no max iteration count, timeout, checkpoint, or stop condition.
+- approval of a Goal, bounded loop, or real apply policy;
+- production writes, deployment, billing, mail, or account changes;
+- secret, credential, cookie, browser-profile, or live-database collection;
+- external AI review sends or uploads;
+- background context checkpoints, memory writes, or monitoring;
+- package, plugin, MCP, hook, daemon, scheduler, or shell-profile installation;
+- acceptance of worker or reviewer output as source of truth;
+- removal of drifted or unmanaged user files;
+- retries that consume a bounded attempt without recording the failure.
 
-Allowed by default:
-
-- local read-only verification;
-- deterministic scripts with no credentials;
-- toy examples;
-- advisory reports that do not mutate targets;
-- explicit operator-approved actions in the active session.
-
-External AI can be helpful, but it must stay advisory. A reviewer can say "this looks risky"; it cannot become the source of truth or directly trigger edits.
+Prefer an explicit plan, a visible local command, typed evidence, and a stop condition. A future wrapper may make an approved command easier to invoke, but it must not widen the command's authority or turn active-session work into an unattended lane.

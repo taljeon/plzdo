@@ -1,68 +1,62 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
+root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
+export PATH="/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin"
 
-required=(
-  "README.md"
-  "LICENSE"
-  "AGENTS.md"
-  "CHECKS.md"
-  "TASKS/current.md"
-  "docs/architecture.md"
-  "docs/case-study.md"
-  "docs/what-not-to-automate.md"
-  "docs/external-review-policy.md"
-  "examples/basic-project/AGENTS.md"
-  "examples/basic-project/CHECKS.md"
-  "examples/basic-project/TASKS/current.md"
-  "examples/basic-project/docs/requirements.md"
-  "examples/basic-project/docs/technical-design.md"
-  "examples/basic-project/scripts/verify"
-  "scripts/check-release-leaks"
-  "scripts/install-codex-skills"
-  "scripts/plzdo"
-  ".github/workflows/verify.yml"
-  "resources/codex-skills/README.md"
-  "resources/codex-skills/adaptive-project-harness/SKILL.md"
-  "resources/codex-skills/external-review-router/SKILL.md"
-  "resources/codex-skills/external-review-router/references/boundaries.md"
-  "resources/codex-skills/external-review-router/references/providers.md"
-  "review/REVIEW-PROMPT.md"
-)
-
-for path in "${required[@]}"; do
-  if [[ ! -f "$path" ]]; then
-    echo "missing required file: $path" >&2
-    exit 1
+python_bin=""
+for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+  if [ -x "$candidate" ]; then
+    python_bin="$candidate"
+    break
   fi
 done
-
-if find . -type l -print | grep -q .; then
-  echo "verification failed: symlink found" >&2
-  find . -type l -print >&2
+if [ -z "$python_bin" ]; then
+  echo "FAIL Python 3 was not found in a supported system location" >&2
   exit 1
 fi
 
-./examples/basic-project/scripts/verify
-./scripts/check-release-leaks --quiet-warnings
-./scripts/check-release-leaks --self-test
-./scripts/plzdo check . >/dev/null
+if [ -e "$root/.git" ] && [ "${PLZDO_VERIFY_EXPORTED:-0}" != "1" ]; then
+  if [ ! -d "$root/.git" ] || [ -L "$root/.git" ]; then
+    echo "FAIL root Git metadata must be a real directory" >&2
+    exit 1
+  fi
+  export_tmp="$(mktemp -d)"
+  trap 'rm -rf "$export_tmp"' EXIT
+  "$python_bin" -B -I "$root/scripts/export_worktree.py" "$root" "$export_tmp/tree"
+  PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify"
+  exit $?
+fi
 
-tmp_project="$(mktemp -d)"
-tmp_home=""
-trap 'rm -rf "$tmp_project" ${tmp_home:+"$tmp_home"}' EXIT
-./scripts/plzdo init "$tmp_project/project" >/dev/null
-./scripts/plzdo check "$tmp_project/project" >/dev/null
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
 
-tmp_home="$(mktemp -d)"
-CODEX_HOME="$tmp_home/codex-home" ./scripts/install-codex-skills --dry-run adaptive-project-harness external-review-router >/dev/null
-CODEX_HOME="$tmp_home/codex-home" ./scripts/install-codex-skills adaptive-project-harness external-review-router >/dev/null
-test -f "$tmp_home/codex-home/skills/adaptive-project-harness/SKILL.md"
-test -f "$tmp_home/codex-home/skills/external-review-router/SKILL.md"
+export HOME="$tmp/home"
+export PLZDO_HOME="$tmp/state"
+unset PYTHONOPTIMIZE PYTHONHOME PYTHONPATH PYTHONSTARTUP PYTHONUSERBASE PYTHONWARNINGS
+mkdir -p "$HOME"
 
-grep -R -n "External AI reviewers are advisory evidence only" README.md docs resources/codex-skills >/dev/null
-grep -R -n "memory.*not source of truth\\|not source of truth.*memory" AGENTS.md docs resources/codex-skills >/dev/null
+if find "$root" -type d -name __pycache__ -print | grep -q .; then
+  echo "FAIL pre-existing Python cache found" >&2
+  exit 1
+fi
 
-echo "plzdo verification passed"
+"$root/scripts/release-manifest" --check
+"$python_bin" -B -I "$root/tests/contract_check.py"
+"$python_bin" -B -I "$root/tests/smoke_check.py"
+"$python_bin" -B -I "$root/tests/phase2_check.py"
+"$python_bin" -B -I "$root/tests/phase3_check.py"
+"$python_bin" -B -I "$root/tests/phase4_check.py"
+"$python_bin" -B -I "$root/tests/phase5_check.py"
+"$python_bin" -B -I "$root/tests/local_ops_check.py"
+"$python_bin" -B -I "$root/tests/release_check.py"
+"$root/scripts/check-release-leaks" --root "$root" --quiet-warnings
+"$root/scripts/check-release-leaks" --self-test
+
+if find "$root" -type d -name __pycache__ -print | grep -q .; then
+  echo "FAIL generated Python cache found" >&2
+  exit 1
+fi
+
+echo "plzdo local integrated verification passed"

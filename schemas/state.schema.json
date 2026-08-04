@@ -1,0 +1,560 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural Draft 2020-12 interchange contract. Integral JSON numbers such as 0.0 satisfy integer; runtime validation is authoritative and intentionally rejects booleans and every float for exact host-integer fields, in addition to enforcing cross-field, chronology, digest, identity, and sensitive-content semantics.",
+  "$defs": {
+    "contextCheckpoint": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "operator-observed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effectiveThresholdPercent": {
+                "const": 70
+              },
+              "interactiveTty": {
+                "const": true
+              },
+              "marginPercent": {
+                "const": 0
+              },
+              "maxTokens": {
+                "type": "null"
+              },
+              "percent": {
+                "minimum": 70,
+                "type": "integer"
+              },
+              "usedTokens": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "token-count"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effectiveThresholdPercent": {
+                "const": 70
+              },
+              "interactiveTty": {
+                "type": "null"
+              },
+              "marginPercent": {
+                "const": 0
+              },
+              "maxTokens": {
+                "maximum": 9223372036854775807,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "percent": {
+                "minimum": 70
+              },
+              "usedTokens": {
+                "maximum": 9223372036854775807,
+                "minimum": 1,
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "self-estimate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effectiveThresholdPercent": {
+                "const": 75
+              },
+              "interactiveTty": {
+                "type": "null"
+              },
+              "marginPercent": {
+                "const": 5
+              },
+              "maxTokens": {
+                "type": "null"
+              },
+              "percent": {
+                "minimum": 75,
+                "type": "integer"
+              },
+              "usedTokens": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "effectiveThresholdPercent": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "interactiveTty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "marginPercent": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maxTokens": {
+          "maximum": 9223372036854775807,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "percent": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "source": {
+          "enum": [
+            "operator-observed",
+            "token-count",
+            "self-estimate"
+          ]
+        },
+        "thresholdPercent": {
+          "const": 70
+        },
+        "usedTokens": {
+          "maximum": 9223372036854775807,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "percent",
+        "thresholdPercent",
+        "effectiveThresholdPercent",
+        "marginPercent",
+        "usedTokens",
+        "maxTokens",
+        "interactiveTty",
+        "createdAt"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "recordedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "summary": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/safeId"
+        }
+      },
+      "required": [
+        "type",
+        "summary",
+        "recordedAt"
+      ],
+      "type": "object"
+    },
+    "loopState": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "status": {
+                  "const": "active"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "enum": [
+                  "approval-required",
+                  "blocked",
+                  "clean-no-op",
+                  "max-iterations",
+                  "stagnated",
+                  "stagnation-limit",
+                  "success",
+                  "timeout"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "success"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "const": "success"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "clean-no-op"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "const": "clean-no-op"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "blocked"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "const": "blocked"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "approval-required"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "const": "approval-required"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "exhausted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "enum": [
+                  "max-iterations",
+                  "timeout"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "stagnated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stopReason": {
+                "enum": [
+                  "stagnated",
+                  "stagnation-limit"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "approvalHash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "checkpointIteration": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "elapsedSeconds": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "explicitStopRequired": {
+          "const": true
+        },
+        "formalizationId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "formalizationStatus": {
+          "const": "approved"
+        },
+        "iteration": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastEvidence": {
+          "items": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "type": "array"
+        },
+        "lastEvidenceDigest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "maxIterations": {
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "modelProcessTerminationClaimed": {
+          "const": false
+        },
+        "schemaVersion": {
+          "const": "plzdo-local.bounded-loop.v1"
+        },
+        "stagnationCount": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stagnationLimit": {
+          "const": 2
+        },
+        "startedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "success",
+            "clean-no-op",
+            "blocked",
+            "approval-required",
+            "exhausted",
+            "stagnated"
+          ]
+        },
+        "stopReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timeoutSeconds": {
+          "maximum": 604800,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "trackingOnly": {
+          "const": true
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "formalizationId",
+        "formalizationStatus",
+        "approvalHash",
+        "maxIterations",
+        "timeoutSeconds",
+        "iteration",
+        "checkpointIteration",
+        "startedAt",
+        "updatedAt",
+        "elapsedSeconds",
+        "status",
+        "stopReason",
+        "lastEvidence",
+        "lastEvidenceDigest",
+        "stagnationCount",
+        "stagnationLimit",
+        "explicitStopRequired",
+        "trackingOnly",
+        "modelProcessTerminationClaimed"
+      ],
+      "type": "object"
+    },
+    "safeId": {
+      "maxLength": 64,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "maxLength": 64,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archivedEvidenceCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "constraints": {
+      "items": {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 32,
+      "type": "array"
+    },
+    "contextCheckpoint": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/contextCheckpoint"
+        }
+      ]
+    },
+    "current": {
+      "maxLength": 1000,
+      "minLength": 1,
+      "type": "string"
+    },
+    "lastEvidence": {
+      "items": {
+        "$ref": "#/$defs/evidence"
+      },
+      "maxItems": 40,
+      "type": "array"
+    },
+    "lastEvidenceBytes": {
+      "maximum": 16384,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "lastEvidenceCount": {
+      "maximum": 40,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "loopState": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/loopState"
+        }
+      ]
+    },
+    "next": {
+      "maxLength": 1000,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.state.v1"
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "workId": {
+      "$ref": "#/$defs/safeId"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "workId",
+    "current",
+    "next",
+    "constraints",
+    "lastEvidence",
+    "lastEvidenceCount",
+    "lastEvidenceBytes",
+    "archivedEvidenceCount",
+    "contextCheckpoint",
+    "loopState",
+    "updatedAt"
+  ],
+  "title": "PlzDo Local state v1",
+  "type": "object"
+}

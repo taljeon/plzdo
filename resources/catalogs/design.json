@@ -1,0 +1,58 @@
+{
+  "catalog": "design",
+  "entries": [
+    {
+      "decision": "reference",
+      "description": "A service-focused component system with accessibility and content guidance.",
+      "id": "govuk-design-system",
+      "licenseStatus": "review-required",
+      "licenseUrl": "https://github.com/alphagov/govuk-frontend/blob/main/LICENSE.txt",
+      "name": "GOV.UK Design System",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "unversioned",
+      "revisionKind": "unversioned",
+      "sourceUrl": "https://design-system.service.gov.uk/",
+      "tags": [
+        "accessibility",
+        "components",
+        "services"
+      ]
+    },
+    {
+      "decision": "reference",
+      "description": "An open icon set suitable for familiar interface controls.",
+      "id": "lucide-icons",
+      "licenseStatus": "review-required",
+      "licenseUrl": "https://github.com/lucide-icons/lucide/blob/main/LICENSE",
+      "name": "Lucide",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "unversioned",
+      "revisionKind": "unversioned",
+      "sourceUrl": "https://lucide.dev/",
+      "tags": [
+        "icons",
+        "interface",
+        "svg"
+      ]
+    },
+    {
+      "decision": "adopt",
+      "description": "The accessibility recommendation baseline for public user interfaces.",
+      "id": "wcag-2-2",
+      "licenseStatus": "verified-open",
+      "licenseUrl": "https://www.w3.org/copyright/document-license-2023/",
+      "name": "Web Content Accessibility Guidelines 2.2",
+      "reviewedDate": "2026-08-05",
+      "reviewedRevision": "2.2",
+      "revisionKind": "spec-version",
+      "sourceUrl": "https://www.w3.org/TR/WCAG22/",
+      "tags": [
+        "accessibility",
+        "standards",
+        "web"
+      ]
+    }
+  ],
+  "localOnly": true,
+  "schemaVersion": "plzdo-local.static-catalog.v1"
+}

@@ -1,0 +1,581 @@
+{
+  "$defs": {
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approvalHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "approvedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "id": {
+          "$ref": "#/$defs/safeId"
+        }
+      },
+      "required": [
+        "id",
+        "approvedAt",
+        "approvalHash"
+      ],
+      "type": "object"
+    },
+    "confirmation": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "plan-fingerprint"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "nullableByteCount": {
+      "oneOf": [
+        {
+          "maximum": 1048576,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableMode": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/mode"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableSha256": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mode": {
+      "pattern": "^0[0-7]{3}$",
+      "type": "string"
+    },
+    "gitDirectoryIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "inode": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "path": {
+          "maxLength": 4096,
+          "minLength": 2,
+          "pattern": "^/(?!/).+",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "device",
+        "inode"
+      ],
+      "type": "object"
+    },
+    "gitIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "commonDirectory": {
+          "$ref": "#/$defs/gitDirectoryIdentity"
+        },
+        "gitDirectory": {
+          "$ref": "#/$defs/gitDirectoryIdentity"
+        },
+        "topLevel": {
+          "maxLength": 4096,
+          "minLength": 2,
+          "pattern": "^/(?!/).+",
+          "type": "string"
+        }
+      },
+      "required": [
+        "topLevel",
+        "gitDirectory",
+        "commonDirectory"
+      ],
+      "type": "object"
+    },
+    "plannedFile": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "previous": {
+                "properties": {
+                  "exists": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "exists"
+                ]
+              }
+            },
+            "required": [
+              "previous"
+            ]
+          },
+          "then": {
+            "properties": {
+              "action": {
+                "const": "create"
+              },
+              "previous": {
+                "properties": {
+                  "bytes": {
+                    "type": "null"
+                  },
+                  "mode": {
+                    "type": "null"
+                  },
+                  "sha256": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "previous": {
+                "properties": {
+                  "exists": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "exists"
+                ]
+              }
+            },
+            "required": [
+              "previous"
+            ]
+          },
+          "then": {
+            "properties": {
+              "action": {
+                "enum": [
+                  "no-change",
+                  "update",
+                  "update-mode"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "create",
+            "no-change",
+            "update",
+            "update-mode"
+          ]
+        },
+        "bytes": {
+          "maximum": 1048576,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contentBase64": {
+          "maxLength": 1398104,
+          "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/mode"
+        },
+        "path": {
+          "enum": [
+            "AGENTS.md",
+            "CHECKS.md",
+            "TASKS/current.md",
+            "docs/requirements.md",
+            "docs/technical-design.md",
+            "scripts/verify"
+          ]
+        },
+        "previous": {
+          "$ref": "#/$defs/previousState"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "templateSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "path",
+        "action",
+        "mode",
+        "bytes",
+        "sha256",
+        "contentBase64",
+        "templateSha256",
+        "previous"
+      ],
+      "type": "object"
+    },
+    "previousState": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "$ref": "#/$defs/nullableByteCount"
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "mode": {
+          "$ref": "#/$defs/nullableMode"
+        },
+        "sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        }
+      },
+      "required": [
+        "exists",
+        "mode",
+        "bytes",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "project": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "objective": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "objective"
+      ],
+      "type": "object"
+    },
+    "relativePath": {
+      "maxLength": 256,
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*//)(?!.*\\\\)[^\\u0000]+$",
+      "type": "string"
+    },
+    "safeId": {
+      "maxLength": 64,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "type": "string"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "fingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "force": {
+          "type": "boolean"
+        },
+        "project": {
+          "$ref": "#/$defs/project"
+        },
+        "rendererVersion": {
+          "const": "plzdo-local.renderer.v1"
+        },
+        "targetState": {
+          "enum": [
+            "missing",
+            "empty",
+            "unmanaged",
+            "managed"
+          ]
+        }
+      },
+      "required": [
+        "rendererVersion",
+        "targetState",
+        "force",
+        "project",
+        "fingerprint"
+      ],
+      "type": "object"
+    },
+    "target": {
+      "additionalProperties": false,
+      "properties": {
+        "head": {
+          "pattern": "^[0-9a-f]{40,64}$",
+          "type": "string"
+        },
+        "gitIdentity": {
+          "$ref": "#/$defs/gitIdentity"
+        },
+        "missingDirectories": {
+          "maxItems": 3,
+          "oneOf": [
+            {
+              "const": []
+            },
+            {
+              "const": [
+                "TASKS"
+              ]
+            },
+            {
+              "const": [
+                "docs"
+              ]
+            },
+            {
+              "const": [
+                "scripts"
+              ]
+            },
+            {
+              "const": [
+                "TASKS",
+                "docs"
+              ]
+            },
+            {
+              "const": [
+                "TASKS",
+                "scripts"
+              ]
+            },
+            {
+              "const": [
+                "docs",
+                "scripts"
+              ]
+            },
+            {
+              "const": [
+                "TASKS",
+                "docs",
+                "scripts"
+              ]
+            }
+          ],
+          "type": "array",
+          "uniqueItems": true
+        },
+        "root": {
+          "maxLength": 4096,
+          "minLength": 2,
+          "pattern": "^/(?!/).+",
+          "type": "string"
+        },
+        "rootFingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "stateFingerprint": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "root",
+        "rootFingerprint",
+        "head",
+        "gitIdentity",
+        "stateFingerprint",
+        "missingDirectories"
+      ],
+      "type": "object"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "maxLength": 64,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Structural apply-plan contract. plzdo_local.apply_gate.validate_apply_plan is additionally authoritative for canonical Base64, hashes, self-fingerprints, renderer-owned bytes, path relationships, and other runtime semantics; the two validators are not claimed to be equivalent.",
+  "properties": {
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "catalogFingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "confirmation": {
+      "$ref": "#/$defs/confirmation"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "files": {
+      "items": false,
+      "maxItems": 6,
+      "minItems": 6,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "AGENTS.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "CHECKS.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "TASKS/current.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "docs/requirements.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "docs/technical-design.md"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/plannedFile"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "scripts/verify"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "type": "array"
+    },
+    "planFingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "planId": {
+      "pattern": "^apply-[0-9a-f]{24}$",
+      "type": "string"
+    },
+    "plannedBytesFingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "repositoryId": {
+      "$ref": "#/$defs/safeId"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.apply-plan.v2"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "target": {
+      "$ref": "#/$defs/target"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "planId",
+    "planFingerprint",
+    "createdAt",
+    "repositoryId",
+    "catalogFingerprint",
+    "approval",
+    "confirmation",
+    "target",
+    "source",
+    "plannedBytesFingerprint",
+    "files"
+  ],
+  "title": "PlzDo Local apply plan v2",
+  "type": "object",
+  "x-runtime-semantic-validator": "plzdo_local.apply_gate.validate_apply_plan"
+}

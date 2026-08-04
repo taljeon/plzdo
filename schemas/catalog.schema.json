@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approvalHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "approvedAt": {
+          "format": "date-time",
+          "maxLength": 64,
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/safeId"
+        }
+      },
+      "required": [
+        "id",
+        "approvedAt",
+        "approvalHash"
+      ],
+      "type": "object"
+    },
+    "canonicalLocalPath": {
+      "format": "plzdo-canonical-local-path",
+      "maxLength": 4096,
+      "minLength": 2,
+      "pattern": "^/(?!/).+",
+      "type": "string"
+    },
+    "realApply": {
+      "additionalProperties": false,
+      "properties": {
+        "approval": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/approval"
+            }
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "operatorOnly": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled",
+        "operatorOnly",
+        "approval"
+      ],
+      "type": "object"
+    },
+    "relativePath": {
+      "format": "plzdo-relative-posix-path",
+      "maxLength": 256,
+      "minLength": 1,
+      "type": "string"
+    },
+    "repository": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "realApply": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "realApply": {
+                "properties": {
+                  "approval": {
+                    "$ref": "#/$defs/approval"
+                  },
+                  "operatorOnly": {
+                    "const": true
+                  }
+                }
+              },
+              "rolloutTier": {
+                "const": "enforced"
+              },
+              "state": {
+                "const": "active"
+              },
+              "workflowLane": {
+                "const": "operational"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "outputs": {
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "path": {
+          "$ref": "#/$defs/canonicalLocalPath"
+        },
+        "protectedPaths": {
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "realApply": {
+          "$ref": "#/$defs/realApply"
+        },
+        "rolloutTier": {
+          "enum": [
+            "observe",
+            "enforced"
+          ]
+        },
+        "sourceOfTruth": {
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          },
+          "maxItems": 128,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "state": {
+          "enum": [
+            "active",
+            "archived"
+          ]
+        },
+        "workflowLane": {
+          "enum": [
+            "standard",
+            "operational"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "state",
+        "workflowLane",
+        "rolloutTier",
+        "sourceOfTruth",
+        "outputs",
+        "protectedPaths",
+        "realApply"
+      ],
+      "type": "object"
+    },
+    "safeId": {
+      "maxLength": 64,
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "repositories": {
+      "items": {
+        "$ref": "#/$defs/repository"
+      },
+      "maxItems": 256,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "plzdo-local.catalog.v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "repositories"
+  ],
+  "title": "PlzDo Local catalog v1",
+  "type": "object"
+}

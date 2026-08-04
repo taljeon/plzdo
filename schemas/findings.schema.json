@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Structural interchange contract; runtime validation is authoritative for cross-field, chronology, digest, identity, and sensitive-content semantics.",
+  "$id": "https://example.invalid/plzdo-local/findings.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "findings": {
+      "items": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {"const": "open"}
+              },
+              "required": ["status"]
+            },
+            "then": {
+              "properties": {
+                "resolution": {"type": "null"}
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {"enum": ["closed", "accepted-risk"]}
+              },
+              "required": ["status"]
+            },
+            "then": {
+              "properties": {
+                "resolution": {"maxLength": 500, "minLength": 1, "type": "string"}
+              }
+            }
+          }
+        ],
+        "properties": {
+          "createdAt": {"format": "date-time", "type": "string"},
+          "evidence": {
+            "items": {"maxLength": 300, "minLength": 1, "type": "string"},
+            "maxItems": 32,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "id": {"pattern": "^[a-z][a-z0-9-]{1,63}$", "type": "string"},
+          "resolution": {"anyOf": [{"maxLength": 500, "minLength": 1, "type": "string"}, {"type": "null"}]},
+          "severity": {"enum": ["low", "medium", "high", "blocking"]},
+          "sourceOfTruth": {"const": false},
+          "status": {"enum": ["open", "closed", "accepted-risk"]},
+          "title": {"maxLength": 160, "minLength": 1, "type": "string"},
+          "updatedAt": {"format": "date-time", "type": "string"}
+        },
+        "required": ["id", "severity", "title", "status", "evidence", "resolution", "createdAt", "updatedAt", "sourceOfTruth"],
+        "type": "object"
+      },
+      "maxItems": 512,
+      "type": "array"
+    },
+    "schemaVersion": {"const": "plzdo-local.findings.v1"},
+    "sourceOfTruth": {"const": false}
+  },
+  "required": ["schemaVersion", "sourceOfTruth", "findings"],
+  "title": "PlzDo Local Findings Ledger",
+  "type": "object"
+}
