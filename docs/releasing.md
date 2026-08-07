@@ -43,3 +43,15 @@ Any content change after manifest generation invalidates the manifest and all re
 - explicit operator authorization to publish.
 
 Record commit, tag, CI, and GitHub release facts in Git/GitHub. Do not put future release claims into `TASKS/current.md`.
+
+## Single-Maintainer Integration
+
+For the owner-operated repository, keep CI without asking GitHub to create a merge commit:
+
+1. finish the change on a feature branch and run the full local privacy and release gates;
+2. push the feature branch and wait for its GitHub Actions checks;
+3. advance local `main` with `git merge --ff-only <feature-branch>` and push `main`;
+4. create and push an annotated tag using the configured GitHub noreply identity;
+5. publish the GitHub release from that tag and verify a fresh clone.
+
+Do not use GitHub-generated merge commits for this repository. When collaboration needs a pull request, use it for review and CI, then integrate the already-reviewed commit with a rebase or fast-forward path that preserves its noreply author identity.
