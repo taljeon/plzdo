@@ -66,6 +66,7 @@ def main() -> int:
     checks = [
         ("public resources and marker schema are exact", check_public_resources),
         ("install and uninstall dry-runs write nothing", check_dry_run_purity),
+        ("fresh destination roots support first local installation", check_fresh_destination_installation),
         ("unmanaged destinations always refuse collision", check_unmanaged_collision),
         ("managed drift blocks overwrite and exact-only removal", check_managed_drift),
         ("managed mutations bind quarantine snapshots and preserve rollback state", check_quarantine_transactions),
@@ -217,6 +218,41 @@ def check_dry_run_purity() -> None:
         absent_plan = uninstall_resource("skill", "project-start", skills, dry_run=True)
         require(absent_plan["operation"] == "absent" and not absent_plan["changed"], "absent removal plan")
         require(tree_snapshot(base) == before, "absent uninstall dry-run wrote destination")
+
+
+def check_fresh_destination_installation() -> None:
+    with tempfile.TemporaryDirectory(prefix="plzdo-phase5-fresh-root-") as temporary:
+        base = Path(temporary).resolve()
+        skills = base / "codex" / "skills"
+        agents = base / "codex" / "agents"
+
+        skill_result = install_skill("plzdo-project-harness", skills)
+        require(skill_result["operation"] == "create", "fresh skill installation did not create")
+        require(inspect_resource("skill", "plzdo-project-harness", skills)["status"] == "managed", "fresh skill installation")
+
+        agent_result = install_agent("explorer", agents)
+        require(agent_result["operation"] == "create", "fresh agent installation did not create")
+        require(inspect_resource("agent", "explorer", agents)["status"] == "managed", "fresh agent installation")
+
+        uninstall_agent("explorer", agents)
+        uninstall_skill("plzdo-project-harness", skills)
+        require(inspect_resource("agent", "explorer", agents)["status"] == "absent", "fresh agent removal")
+        require(inspect_resource("skill", "plzdo-project-harness", skills)["status"] == "absent", "fresh skill removal")
+
+    with tempfile.TemporaryDirectory(prefix="plzdo-phase5-fresh-root-race-") as temporary:
+        base = Path(temporary).resolve()
+        outside = base / "outside"
+        outside.mkdir()
+        agents = base / "codex" / "agents"
+
+        def replace_parent(event: str, paths: object) -> None:
+            if event == "before-root-create":
+                (base / "codex").symlink_to(outside, target_is_directory=True)
+
+        with mock.patch.object(managed_install_module, "_TEST_OPERATION_HOOK", replace_parent):
+            expect_error(ManagedInstallPathError, lambda: install_agent("explorer", agents))
+        require(not (outside / "agents").exists(), "fresh-root race wrote through a replaced parent")
+        require(not (outside / "explorer.toml").exists(), "fresh-root race published an agent")
 
 
 def check_unmanaged_collision() -> None:

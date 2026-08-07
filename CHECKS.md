@@ -10,6 +10,12 @@ Run:
 
 The gate must pass from a checked-out Git tree and from its sanitized exported worktree. It must not require credentials, a network provider, browser state, target project execution, a package download, hook, daemon, scheduler, or production data.
 
+This local gate is the acceptance authority for changes. Hosted CI, external AI
+review, and remote validation services are neither required nor bundled. For a
+pull request, commit the candidate and run
+`./scripts/verify --acceptance <full-commit-sha>`. Acceptance fails on a staged,
+unstaged, untracked, or mismatched-HEAD state.
+
 Before running any suite, the integrated gate verifies the current
 `SHA256SUMS`; a stale or incomplete manifest is a hard failure.
 

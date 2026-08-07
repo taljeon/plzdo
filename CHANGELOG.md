@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.2
+
+- Make the checked-in local gate authoritative for changes and releases.
+- Remove the bundled hosted-CI workflow and remote status-check dependency.
+- Add restricted-environment setup guidance using only repository-owned skills and agents.
+- Add an evidence-oriented pull-request template and reviewer-local verification flow.
+- Keep Git remotes as explicit operator-owned collaboration surfaces rather than runtime dependencies.
+- Fix first-time managed agent installation and create missing local roots with no-follow descriptor traversal.
+- Bind acceptance evidence to a clean exact commit and reject staged, unstaged, untracked, or mismatched states.
+
 ## 0.2.1
 
 - Pin GitHub Actions to immutable commit SHAs.

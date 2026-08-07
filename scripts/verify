@@ -5,6 +5,14 @@ script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
 root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
 export PATH="/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin"
 
+acceptance_expected=""
+if [ "$#" -eq 2 ] && [ "$1" = "--acceptance" ]; then
+  acceptance_expected=$2
+elif [ "$#" -ne 0 ]; then
+  echo "usage: verify [--acceptance <full-commit-sha>]" >&2
+  exit 2
+fi
+
 python_bin=""
 for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
   if [ -x "$candidate" ]; then
@@ -17,6 +25,11 @@ if [ -z "$python_bin" ]; then
   exit 1
 fi
 
+acceptance_head=""
+if [ -n "$acceptance_expected" ]; then
+  acceptance_head=$("$python_bin" -B -I "$root/scripts/check_acceptance.py" "$root" "$acceptance_expected")
+fi
+
 if [ -e "$root/.git" ] && [ "${PLZDO_VERIFY_EXPORTED:-0}" != "1" ]; then
   if [ ! -d "$root/.git" ] || [ -L "$root/.git" ]; then
     echo "FAIL root Git metadata must be a real directory" >&2
@@ -25,8 +38,28 @@ if [ -e "$root/.git" ] && [ "${PLZDO_VERIFY_EXPORTED:-0}" != "1" ]; then
   export_tmp="$(mktemp -d)"
   trap 'rm -rf "$export_tmp"' EXIT
   "$python_bin" -B -I "$root/scripts/export_worktree.py" "$root" "$export_tmp/tree"
+  if [ -n "$acceptance_expected" ]; then
+    acceptance_after_export=$("$python_bin" -B -I "$root/scripts/check_acceptance.py" "$root" "$acceptance_expected")
+    if [ "$acceptance_after_export" != "$acceptance_head" ]; then
+      echo "FAIL acceptance commit changed during export" >&2
+      exit 1
+    fi
+  fi
   PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify"
-  exit $?
+  if [ -n "$acceptance_expected" ]; then
+    acceptance_after_verify=$("$python_bin" -B -I "$root/scripts/check_acceptance.py" "$root" "$acceptance_expected")
+    if [ "$acceptance_after_verify" != "$acceptance_head" ]; then
+      echo "FAIL acceptance commit changed during verification" >&2
+      exit 1
+    fi
+    printf 'plzdo local acceptance verification passed: %s\n' "$acceptance_head"
+  fi
+  exit 0
+fi
+
+if [ -n "$acceptance_expected" ]; then
+  echo "FAIL acceptance requires a checked-out Git repository" >&2
+  exit 1
 fi
 
 tmp="$(mktemp -d)"

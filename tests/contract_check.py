@@ -10,7 +10,7 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 REQUIRED_FILES = {
-    ".github/workflows/verify.yml",
+    ".github/PULL_REQUEST_TEMPLATE.md",
     ".gitignore",
     "AGENTS.md",
     "CHANGELOG.md",
@@ -31,6 +31,7 @@ REQUIRED_FILES = {
     "docs/portability.md",
     "docs/real-apply.md",
     "docs/releasing.md",
+    "docs/restricted-environment.md",
     "docs/state-and-memory.md",
     "docs/what-not-to-automate.md",
     "examples/basic-project/AGENTS.md",
@@ -82,6 +83,7 @@ REQUIRED_FILES = {
     "scripts/check_publication.py",
     "scripts/check_release_leaks.py",
     "scripts/check-publication",
+    "scripts/check_acceptance.py",
     "scripts/export_worktree.py",
     "scripts/verify",
     "schemas/catalog.schema.json",
@@ -660,6 +662,7 @@ def check_phase5_bindings(failures: list[str]) -> None:
         {
             "check_public_resources",
             "check_dry_run_purity",
+            "check_fresh_destination_installation",
             "check_unmanaged_collision",
             "check_managed_drift",
             "check_roundtrip_restoration",
@@ -687,8 +690,9 @@ def check_release_bindings(failures: list[str]) -> None:
         "tests/release_check.py",
         {
             "check_exact_object_audit",
+            "check_acceptance_binding",
             "check_git_environment_isolation",
-            "check_integrated_release_path",
+            "check_local_acceptance_path",
             "check_installer_removed",
             "check_manifest_negatives",
             "check_metadata_collision_and_symlink",
@@ -721,11 +725,13 @@ def check_release_bindings(failures: list[str]) -> None:
     verify = (ROOT / "scripts/verify").read_text(encoding="utf-8")
     if '"$root/scripts/release-manifest" --check' not in verify:
         failures.append("release-integrated-manifest-check-missing")
-    workflow = (ROOT / ".github/workflows/verify.yml").read_text(encoding="utf-8")
-    if 'scripts/export_worktree.py . "${RUNNER_TEMP}/plzdo-export"' not in workflow:
-        failures.append("release-ci-export-missing")
-    if workflow.count("working-directory: ${{ runner.temp }}/plzdo-export") != 3:
-        failures.append("release-ci-export-binding")
+    workflow_root = ROOT / ".github/workflows"
+    if workflow_root.exists() and any(path.is_file() for path in workflow_root.rglob("*")):
+        failures.append("release-hosted-workflow-present")
+    pull_request = (ROOT / ".github/PULL_REQUEST_TEMPLATE.md").read_text(encoding="utf-8")
+    for token in ("./scripts/verify", "Exact commit", "Skipped checks", "Residual risk"):
+        if token not in pull_request:
+            failures.append(f"release-pr-local-evidence-missing:{token}")
     command_reference = (ROOT / "docs/command-reference.md").read_text(encoding="utf-8")
     if "project register` and `project archive` update the local registry" not in command_reference:
         failures.append("release-project-write-doc-missing")

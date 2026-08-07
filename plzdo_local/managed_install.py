@@ -223,6 +223,7 @@ def install_resource(
     source_files = prepared["sourceFiles"]
     manifest = prepared["manifest"]
     inspection = prepared["inspection"]
+    _run_operation_hook("before-root-create", kind, resource_name, root)
     _prepare_writable_root(root)
     root_fd = _open_directory_descriptor(root, label="managed destination root")
     try:
@@ -583,12 +584,7 @@ def _prepare_uninstall(
 
 def _inspect_installation(kind: str, name: str, root: Path) -> Dict[str, Any]:
     if not _lexists(root):
-        state = {
-            "targetKind": "absent",
-            "records": {},
-            "files": {},
-            "snapshot": (kind, "absent", ()),
-        }
+        state = _empty_installation_state(kind)
         result = _inspect_captured_installation(kind, name, state)
         result["snapshot"] = state["snapshot"]
         result["_state"] = state
@@ -1487,7 +1483,20 @@ def _run_operation_hook(
 
 
 def _prepare_writable_root(root: Path) -> None:
-    root.mkdir(parents=True, exist_ok=True)
+    anchor = Path(root.anchor)
+    descriptor = _open_directory_descriptor(anchor, label="managed destination anchor")
+    try:
+        for part in root.relative_to(anchor).parts:
+            try:
+                os.mkdir(part, mode=0o755, dir_fd=descriptor)
+            except FileExistsError:
+                pass
+            child_fd = _open_directory_at(descriptor, part, label="managed destination component")
+            os.close(descriptor)
+            descriptor = child_fd
+        _require_root_identity(root, descriptor)
+    finally:
+        os.close(descriptor)
     checked = _normalize_destination_root(root)
     if checked != root or not root.is_dir():
         raise ManagedInstallPathError("destination root changed while preparing installation")
@@ -1591,17 +1600,26 @@ def _normalize_catalog_name(value: str) -> str:
 
 def _capture_installation_state(kind: str, name: str, root: Path) -> Dict[str, Any]:
     if not _lexists(root):
-        return {
-            "targetKind": "absent",
-            "records": {},
-            "files": {},
-            "snapshot": (kind, "absent", ()),
-        }
+        return _empty_installation_state(kind)
     root_fd = _open_directory_descriptor(root, label="managed destination root")
     try:
         return _capture_installation_state_at(kind, name, root_fd)
     finally:
         os.close(root_fd)
+
+
+def _empty_installation_state(kind: str) -> Dict[str, Any]:
+    snapshot: Tuple[Any, ...]
+    if kind == RESOURCE_SKILL:
+        snapshot = (RESOURCE_SKILL, "absent", ())
+    else:
+        snapshot = (RESOURCE_AGENT, ())
+    return {
+        "targetKind": "absent",
+        "records": {},
+        "files": {},
+        "snapshot": snapshot,
+    }
 
 
 def _capture_installation_state_at(kind: str, name: str, root_fd: int) -> Dict[str, Any]:

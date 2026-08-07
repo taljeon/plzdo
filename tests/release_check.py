@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import check_publication
 import check_release_leaks
+import check_acceptance
 import export_worktree
 import release_manifest
 
@@ -37,7 +38,8 @@ def main() -> int:
         ("publication audit detects ref drift before success", check_ref_drift),
         ("release scanner covers path and credential classes without echoing private values", check_scanner_coverage),
         ("publication wrapper starts under isolated Python", check_publication_isolated_bootstrap),
-        ("integrated release path binds manifest CI export and documented writes", check_integrated_release_path),
+        ("acceptance binds a clean tree to one full commit", check_acceptance_binding),
+        ("local acceptance path binds manifest PR evidence and documented writes", check_local_acceptance_path),
         ("release ceremony stays in maintainer documentation", check_release_document_separation),
         ("public usage has no optional prefix installer", check_installer_removed),
     ]
@@ -284,30 +286,66 @@ def check_publication_isolated_bootstrap() -> None:
         "publication wrapper did not reach the isolated Python entry point",
     )
 
-def check_integrated_release_path() -> None:
+
+def check_acceptance_binding() -> None:
+    with publication_fixture() as fixture:
+        repository, base_commit, _denylist = fixture
+        require(check_acceptance.check_acceptance(repository, base_commit) == base_commit, "clean acceptance")
+        expect_error(
+            check_acceptance.AcceptanceError,
+            lambda: check_acceptance.check_acceptance(repository, "0" * len(base_commit)),
+        )
+
+    with publication_fixture() as fixture:
+        repository, base_commit, _denylist = fixture
+        (repository / "README.md").write_text("unstaged fixture\n", encoding="utf-8")
+        expect_error(
+            check_acceptance.AcceptanceError,
+            lambda: check_acceptance.check_acceptance(repository, base_commit),
+        )
+
+    with publication_fixture() as fixture:
+        repository, base_commit, _denylist = fixture
+        (repository / "README.md").write_text("staged fixture\n", encoding="utf-8")
+        git(repository, "add", "README.md")
+        expect_error(
+            check_acceptance.AcceptanceError,
+            lambda: check_acceptance.check_acceptance(repository, base_commit),
+        )
+
+    with publication_fixture() as fixture:
+        repository, base_commit, _denylist = fixture
+        (repository / "untracked.txt").write_text("untracked fixture\n", encoding="utf-8")
+        expect_error(
+            check_acceptance.AcceptanceError,
+            lambda: check_acceptance.check_acceptance(repository, base_commit),
+        )
+
+
+def check_local_acceptance_path() -> None:
     verify = (ROOT / "scripts/verify").read_text(encoding="utf-8")
     require(
         '"$root/scripts/release-manifest" --check' in verify,
         "integrated gate does not verify the frozen manifest",
     )
+    require("--acceptance" in verify, "integrated gate has no exact-commit acceptance mode")
+    require(verify.count("scripts/check_acceptance.py") == 3, "acceptance is not checked before export and after verification")
 
-    workflow = (ROOT / ".github/workflows/verify.yml").read_text(encoding="utf-8")
+    workflow_root = ROOT / ".github/workflows"
     require(
-        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" in workflow,
-        "checkout action is not pinned to a full commit",
+        not workflow_root.exists() or not any(path.is_file() for path in workflow_root.rglob("*")),
+        "hosted workflow is bundled despite local-only acceptance",
     )
-    require(
-        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" in workflow,
-        "setup-python action is not pinned to a full commit",
+
+    pull_request = (ROOT / ".github/PULL_REQUEST_TEMPLATE.md").read_text(encoding="utf-8")
+    for token in ("./scripts/verify", "Exact commit", "Skipped checks", "Residual risk"):
+        require(token in pull_request, f"pull request template missing local evidence field: {token}")
+
+    restricted = " ".join(
+        (ROOT / "docs/restricted-environment.md").read_text(encoding="utf-8").split()
     )
-    require(
-        'scripts/export_worktree.py . "${RUNNER_TEMP}/plzdo-export"' in workflow,
-        "CI does not export source before direct contract execution",
-    )
-    require(
-        workflow.count("working-directory: ${{ runner.temp }}/plzdo-export") == 3,
-        "CI checks do not share the Git-metadata-free exported tree",
-    )
+    for token in ("no package download", "approved remote", "local acceptance contract"):
+        require(token in restricted, f"restricted setup contract missing: {token}")
 
     command_reference = (ROOT / "docs/command-reference.md").read_text(encoding="utf-8")
     require(
@@ -331,6 +369,10 @@ def check_release_document_separation() -> None:
     require("release candidate" not in task, "current task still claims a released version is a candidate")
     require("Current release:" not in task and "v0.2.0" not in task, "current task duplicates VERSION")
     require("docs/releasing.md" in checks and "docs/releasing.md" in task, "release documentation pointer missing")
+    require(
+        "hosted ci" in checks.casefold() and "hosted ci" in contributing.casefold(),
+        "local acceptance boundary is not documented",
+    )
 
 
 def check_installer_removed() -> None:

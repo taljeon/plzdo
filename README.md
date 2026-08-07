@@ -1,8 +1,5 @@
 # PlzDo Local
 
-[![verify](https://github.com/taljeon/plzdo/actions/workflows/verify.yml/badge.svg)](https://github.com/taljeon/plzdo/actions/workflows/verify.yml)
-[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 PlzDo Local is a local-first control plane for AI-assisted engineering. It adds deterministic project routing, bounded durable work, explicit authority, and evidence-backed completion without adding a model provider, daemon, scheduler, telemetry client, or package downloader.
 
 It is not an AI model, editor, deployment system, or operating-system sandbox. It gives an existing coding agent and repository a compact working contract.
@@ -18,6 +15,11 @@ cd plzdo
 ./bin/plzdo doctor
 ./bin/plzdo --help
 ```
+
+The clone is the only network-dependent step in this example. After obtaining a
+reviewed checkout through an approved source, setup, verification, state, and
+managed-resource installation run locally without package downloads or hosted
+services. See [Restricted Environment Setup](docs/restricted-environment.md).
 
 Use the checked-in `./bin/plzdo` wrapper from a reviewed checkout. PlzDo does not provide a prefix installer, edit shell startup files, or create a global launcher.
 
@@ -95,6 +97,12 @@ Checked-in PlzDo commands use local files and explicitly bounded local subproces
 
 A hosted coding agent still uses its own vendor for inference. PlzDo's local-only claim is about the shipped control-plane commands, not the surrounding agent or an OS firewall. See [Local-Only Boundary](docs/local-only-boundary.md) and [Data and Privacy](docs/data-and-privacy.md).
 
+No hosted CI, external AI reviewer, or remote validation service is required to
+accept a change. A Git push or pull request is an explicit code-transfer event
+and should target only a repository approved for that code. Authors and
+reviewers run the same checked-in local gate against the exact commit under
+review.
+
 ## Managed Skills And Agents
 
 The repository includes four small public skills and five agent role files. List them before installing:
@@ -122,6 +130,13 @@ Run the integrated gate:
 ```
 
 It covers contracts, command lifecycles, routing, durable state, P5 refusal and rollback paths, managed resources, local review and monitoring, privacy scanning, release inventory, and negative fixtures. Tests use temporary synthetic data and no provider credentials.
+
+For collaboration, record the exact commit and local gate result in the pull
+request. A reviewer should check out that commit and run
+`./scripts/verify --acceptance <full-commit-sha>` locally. The acceptance mode
+rejects staged, unstaged, untracked, and mismatched-HEAD states.
+Remote status checks may be added by a downstream repository under its own
+policy, but they are not part of PlzDo Local's acceptance contract.
 
 Before publishing a Git checkout, use an external private denylist whose values never enter the repository or scanner output:
 
@@ -151,6 +166,8 @@ See [What Not to Automate](docs/what-not-to-automate.md).
 - [Real Apply](docs/real-apply.md)
 - [Data and Privacy](docs/data-and-privacy.md)
 - [Portability](docs/portability.md)
+- [Restricted Environment Setup](docs/restricted-environment.md)
+- [Contributing](CONTRIBUTING.md)
 - [Checks](CHECKS.md)
 - [Security Policy](SECURITY.md)
 
