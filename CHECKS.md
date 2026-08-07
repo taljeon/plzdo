@@ -38,39 +38,6 @@ The gate runs these executable contracts:
 - Managed resource install/uninstall remains inside a bound destination root.
 - P5 accepts only the fixed managed frame and an operator-enabled exact plan; it is not an arbitrary command runner.
 
-## Privacy Gate
+## Maintainer Release Checks
 
-Run a public-tree scan with a private denylist stored outside the repository:
-
-```bash
-./scripts/check-release-leaks \
-  --root . \
-  --private-denylist /absolute/path/to/private-denylist.json \
-  --require-private-denylist
-```
-
-The scanner rejects sensitive paths, secret shapes, real email domains, personal paths, provider session identifiers, private repository URLs, binary or oversized artifacts, symlinks, and private denylist values. It reports only opaque denylist IDs, never the private values.
-
-## Release Gate
-
-After the final file inventory is frozen:
-
-```bash
-./scripts/release-manifest --write
-./scripts/release-manifest --check
-./scripts/check-publication \
-  --private-denylist /absolute/path/to/private-denylist.json
-```
-
-Publication requires:
-
-- the pinned existing public root commit and no side history reachable from local refs;
-- a clean worktree and stable HEAD/ref snapshot throughout the audit;
-- noreply author, committer, and annotated-tag identities;
-- bounded scans of HEAD history, local refs, annotated tags, tree paths, and unique blobs;
-- no symlink, gitlink, special file, nested Git metadata, generated cache, or manifest omission;
-- five complete integrated-gate runs on the final bytes;
-- a fresh clone that passes the integrated gate and checksum verification;
-- explicit operator authorization to publish.
-
-Any content change after manifest generation invalidates the manifest and the five-run evidence.
+The integrated gate above is the contributor contract. Privacy review, exact release freezing, five-run evidence, Git metadata checks, tagging, and publication are maintainer procedures documented separately in [docs/releasing.md](docs/releasing.md).

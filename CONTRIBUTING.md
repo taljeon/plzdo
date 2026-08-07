@@ -16,14 +16,7 @@ Run the integrated gate:
 ./scripts/verify
 ```
 
-For a proposed public release, also run the leak scanner with a private denylist stored outside the repository:
-
-```bash
-./scripts/check-publication \
-  --private-denylist /absolute/path/to/private-denylist.json
-```
-
-The publication check pins the audited public root commit, requires noreply commit and annotated-tag metadata, and scans the exact paths and blobs in every reachable commit. It also scans ref names and raw commit/tag objects, rejects Git indirection and non-file tree entries, and revalidates HEAD and refs before returning. Git archive attributes cannot omit or transform the audited evidence. The denylist itself must never be committed.
+Maintainers preparing a public release must follow the separate [release procedure](docs/releasing.md).
 
 ## Pull Requests
 

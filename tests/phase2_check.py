@@ -50,6 +50,7 @@ def main() -> int:
         ("execution route covers quick plan goal and bounded loop", check_execution_routes),
         ("project rendering is deterministic and dry-run only", check_renderer_determinism),
         ("fixture materialization validates exact managed bytes", check_renderer_fixture_materialization),
+        ("project templates remain product specific and examples match exact renders", check_project_templates_are_product_specific),
         ("generated verifier anchors reads to no-follow descriptors", check_generated_verifier_descriptor_reads),
         ("renderer rejects partial and symlinked control frames", check_renderer_safety),
         ("init and new commands plan without target writes", check_cli_plan_only),
@@ -221,6 +222,35 @@ def check_renderer_fixture_materialization() -> None:
         verifier_text = (target / "scripts/verify").read_text(encoding="utf-8")
         for token in ("dir_fd=parent_fd", "O_NOFOLLOW", "_read_regular_at", "--self-test"):
             require(token in verifier_text, f"generated verifier misses descriptor guard: {token}")
+
+
+def check_project_templates_are_product_specific() -> None:
+    agents = (ROOT / "templates/project-harness/AGENTS.md").read_text(encoding="utf-8")
+    requirements = (ROOT / "templates/project-harness/docs/requirements.md").read_text(encoding="utf-8")
+    design = (ROOT / "templates/project-harness/docs/technical-design.md").read_text(encoding="utf-8")
+    require("Keep default checks local and network-independent" in agents, "local safety boundary missing")
+    require("## User Outcomes" in requirements and "## Functional Requirements" in requirements, "requirements scaffold is not product specific")
+    require("## Components And Interfaces" in design and "## Data And State" in design, "design scaffold is not product specific")
+    require("## Functional Baseline" not in requirements, "generic control-plane requirements survived")
+    require("## Control Flow" not in design, "generic harness control flow survived")
+    for policy_phrase in (
+        "Protect secrets",
+        "Keep default checks local",
+        "Reject unsafe paths",
+        "This frame does not grant",
+    ):
+        require(policy_phrase not in requirements, f"harness policy leaked into requirements: {policy_phrase}")
+    for policy_phrase in ("Validate complete bytes", "Keep checks local"):
+        require(policy_phrase not in design, f"harness policy leaked into technical design: {policy_phrase}")
+
+    rendered = render_project_frame(
+        "basic-project",
+        objective="Demonstrate a local, evidence-backed project frame.",
+    )
+    require(tuple(rendered) == PROJECT_FRAME_PATHS, "rendered project frame inventory changed")
+    for relative, expected in rendered.items():
+        actual = (ROOT / "examples/basic-project" / relative).read_bytes()
+        require(actual == expected, f"example drifted from renderer: {relative}")
 
 
 def check_generated_verifier_descriptor_reads() -> None:

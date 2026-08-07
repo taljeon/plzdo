@@ -25,7 +25,7 @@ flowchart TD
 
 The runtime is intentionally split into three layers:
 
-1. **Policy kernel:** root `AGENTS.md`, `TASKS/current.md`, and `CHECKS.md`, plus requirements and technical design inside each attached project frame.
+1. **Policy kernel:** root `AGENTS.md`, `TASKS/current.md`, and `CHECKS.md`. Each attached project owns its project-specific requirements and technical design; those files are product source of truth, not reusable global policy.
 2. **Local control plane:** catalog, registry, route selection, formalization, context, state, memory, findings, metrics, monitoring, review preparation, and managed resources.
 3. **Evidence layer:** executable checks, exact hashes, typed reports, rollback artifacts, and release scans.
 

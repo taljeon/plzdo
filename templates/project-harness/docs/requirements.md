@@ -5,27 +5,25 @@
 
 {{PROJECT_OBJECTIVE}}
 
-## Functional Baseline
+## User Outcomes
 
-- Keep the operator's latest approved request as the highest task intent below hard safety boundaries.
-- Make project behavior explicit, testable, and traceable to this document or an approved task.
-- Preserve deterministic local operation for control-plane functions.
+- [Describe who benefits and what successful use changes for them.]
+- [Describe the observable result, not the implementation.]
 
-## Safety And Privacy
+## Functional Requirements
 
-- Do not expose secrets, credentials, auth state, private logs, live databases, or full private documents.
-- Keep default checks local and free of network, credential, production, deployment, and background-process dependencies.
-- Require explicit approval and evidence for any separately designed high-risk write gate.
-- Reject unsafe paths, symlink escapes, and unvalidated persistent bytes.
+- [List required behavior with stable identifiers when useful.]
+- [State inputs, outputs, and failure behavior that users can observe.]
 
-## Acceptance
+## Acceptance Criteria
 
-- Required checks are declared in `CHECKS.md` and pass with recorded evidence.
-- Documentation and implementation agree before completion is claimed.
-- Changed files, skipped checks, operator impact, and residual risk are reported.
+- [Map each requirement to a deterministic check or inspectable artifact.]
+
+## Constraints
+
+- [List product, regulatory, compatibility, latency, cost, or accessibility constraints.]
 
 ## Non-Goals
 
-- This frame does not choose a language, framework, hosting provider, or model provider.
-- This frame does not grant deployment, production, remote-service, or cross-repository write authority.
+- [State tempting adjacent work that is intentionally excluded.]
 <!-- END PLZDO-LOCAL:project-frame.requirements.v1 -->

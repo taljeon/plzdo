@@ -38,6 +38,7 @@ def main() -> int:
         ("release scanner covers path and credential classes without echoing private values", check_scanner_coverage),
         ("publication wrapper starts under isolated Python", check_publication_isolated_bootstrap),
         ("integrated release path binds manifest CI export and documented writes", check_integrated_release_path),
+        ("release ceremony stays in maintainer documentation", check_release_document_separation),
         ("public usage has no optional prefix installer", check_installer_removed),
     ]
     failures = []  # type: list[str]
@@ -292,6 +293,14 @@ def check_integrated_release_path() -> None:
 
     workflow = (ROOT / ".github/workflows/verify.yml").read_text(encoding="utf-8")
     require(
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" in workflow,
+        "checkout action is not pinned to a full commit",
+    )
+    require(
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" in workflow,
+        "setup-python action is not pinned to a full commit",
+    )
+    require(
         'scripts/export_worktree.py . "${RUNNER_TEMP}/plzdo-export"' in workflow,
         "CI does not export source before direct contract execution",
     )
@@ -305,6 +314,23 @@ def check_integrated_release_path() -> None:
         "project register` and `project archive` update the local registry" in command_reference,
         "project registry writes are not documented",
     )
+
+
+def check_release_document_separation() -> None:
+    checks = (ROOT / "CHECKS.md").read_text(encoding="utf-8")
+    contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    releasing = (ROOT / "docs/releasing.md").read_text(encoding="utf-8")
+    task = (ROOT / "TASKS/current.md").read_text(encoding="utf-8")
+    for token in ("--private-denylist", "five complete integrated-gate runs", "explicit operator authorization"):
+        require(token in releasing, f"maintainer release procedure missing: {token}")
+        require(token not in checks, f"maintainer ceremony leaked into contributor checks: {token}")
+        require(token not in contributing, f"maintainer ceremony leaked into contributing guide: {token}")
+    require("scripts/export_worktree.py" in releasing, "release privacy gate does not export a Git-free tree")
+    require('--root "$export_root"' in releasing, "release privacy gate does not scan the exported tree")
+    require("--root ." not in releasing, "release privacy gate still scans the Git checkout directly")
+    require("release candidate" not in task, "current task still claims a released version is a candidate")
+    require("Current release:" not in task and "v0.2.0" not in task, "current task duplicates VERSION")
+    require("docs/releasing.md" in checks and "docs/releasing.md" in task, "release documentation pointer missing")
 
 
 def check_installer_removed() -> None:

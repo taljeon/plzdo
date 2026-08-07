@@ -1,22 +1,14 @@
 # Current Task
 
-## Release State
+## Repository State
 
-- Version: `0.2.0`
-- Status: release candidate
+- Status: released public project
 - Scope: local-first full control plane
 
-## Active Work
+## Current Work
 
-Freeze the public tree, complete privacy and external advisory review, verify the exact release bytes five times, publish the reviewed commit, and confirm the public CI and fresh-clone checks.
+No repository-wide implementation task is active. New work starts from an accepted issue or an explicit operator request and must declare its own scope and evidence.
 
-## Completion Evidence
+## Evidence
 
-The release is complete only when the pre-publication review records the frozen
-scope, privacy scan, and external advisory integration; the release procedure
-then verifies the checksum manifest, five integrated runs, noreply Git commit,
-publication audit, GitHub CI, tag/release, and remote fresh clone. Commit and CI
-facts are recorded in Git/GitHub rather than self-referenced from the commit
-they describe.
-
-No product feature work is authorized by this task.
+Contributor verification is defined in `CHECKS.md`. Maintainer-only publication steps are defined in `docs/releasing.md`. Release versions and publication facts belong in `VERSION`, Git, and GitHub rather than in this current-task file.
