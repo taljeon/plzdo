@@ -42,7 +42,7 @@ The gate runs these executable contracts:
 - Review preparation sanitizes before persistence and never sends a provider request.
 - Monitoring is manual and read-only.
 - Managed resource install/uninstall remains inside a bound destination root.
-- P5 accepts only the fixed managed frame and an operator-enabled exact plan; it is not an arbitrary command runner.
+- P5 accepts only the fixed managed frame and an operator-enabled exact plan whose approval is bound to the current repository profile; it is not an arbitrary command runner.
 
 ## Maintainer Release Checks
 

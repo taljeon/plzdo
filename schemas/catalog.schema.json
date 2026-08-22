@@ -14,6 +14,11 @@
         },
         "id": {
           "$ref": "#/$defs/safeId"
+        },
+        "profileSha256": {
+          "description": "Canonical repository-profile digest required by the P5 runtime before a new write can be planned or authorized.",
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
         }
       },
       "required": [

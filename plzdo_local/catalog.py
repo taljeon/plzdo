@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
 from datetime import datetime
@@ -124,6 +125,25 @@ def default_real_apply_policy() -> dict[str, Any]:
     return {"enabled": False, "operatorOnly": True, "approval": None}
 
 
+def repository_profile_digest(repository: dict[str, Any]) -> str:
+    """Hash repository policy while excluding its self-referential profile digest."""
+
+    payload = copy.deepcopy(repository)
+    real_apply = payload.get("realApply")
+    if isinstance(real_apply, dict):
+        approval = real_apply.get("approval")
+        if isinstance(approval, dict):
+            approval.pop("profileSha256", None)
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def build_catalog(repositories: Iterable[dict[str, Any]] = ()) -> dict[str, Any]:
     """Build a deterministic catalog from already-shaped repository profiles."""
 
@@ -241,7 +261,14 @@ def _validate_real_apply(value: Any, *, repository: dict[str, Any], label: str) 
     approval = policy["approval"]
     if approval is not None:
         approval_object = _require_object(approval, label=f"{label}.approval")
-        _require_exact_keys(approval_object, {"id", "approvedAt", "approvalHash"}, label=f"{label}.approval")
+        required = {"id", "approvedAt", "approvalHash"}
+        allowed = required | {"profileSha256"}
+        missing = sorted(required - set(approval_object))
+        extra = sorted(set(approval_object) - allowed)
+        if missing or extra:
+            raise CatalogValidationError(
+                f"{label}.approval keys mismatch: missing={missing}, extra={extra}"
+            )
         _require_safe_id(approval_object["id"], label=f"{label}.approval.id")
         _require_timestamp(approval_object["approvedAt"], label=f"{label}.approval.approvedAt")
         approval_hash = _require_plain_text(
@@ -251,6 +278,17 @@ def _validate_real_apply(value: Any, *, repository: dict[str, Any], label: str) 
         )
         if _SHA256.fullmatch(approval_hash) is None:
             raise CatalogValidationError(f"{label}.approval.approvalHash must be a lowercase SHA-256 hex digest")
+        profile_sha256 = approval_object.get("profileSha256")
+        if profile_sha256 is not None:
+            profile_sha256 = _require_plain_text(
+                profile_sha256,
+                label=f"{label}.approval.profileSha256",
+                maximum=64,
+            )
+            if _SHA256.fullmatch(profile_sha256) is None:
+                raise CatalogValidationError(
+                    f"{label}.approval.profileSha256 must be a lowercase SHA-256 hex digest"
+                )
     if enabled:
         if not operator_only:
             raise CatalogValidationError(f"{label}.operatorOnly must be true when real apply is enabled")

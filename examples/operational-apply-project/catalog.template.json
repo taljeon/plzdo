@@ -15,7 +15,8 @@
         "approval": {
           "approvalHash": "REPLACE_WITH_64_LOWERCASE_HEX_CHARACTERS",
           "approvedAt": "REPLACE_WITH_RFC3339_TIMESTAMP",
-          "id": "replace-approval-id"
+          "id": "replace-approval-id",
+          "profileSha256": "REPLACE_WITH_CANONICAL_PROFILE_SHA256"
         },
         "enabled": true,
         "operatorOnly": true

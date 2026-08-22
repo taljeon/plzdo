@@ -604,9 +604,13 @@ def check_phase3_bindings(failures: list[str]) -> None:
 
 
 def check_phase4_bindings(failures: list[str]) -> None:
-    source = (ROOT / "plzdo_local/apply_gate.py").read_text(encoding="utf-8")
+    source = "\n".join(
+        (ROOT / relative).read_text(encoding="utf-8")
+        for relative in ("plzdo_local/apply_gate.py", "plzdo_local/catalog.py")
+    )
     for label, token in {
         "operator-only": 'policy["operatorOnly"] is not True',
+        "profile-approval-binding": "profile-approval-required",
         "clean-git": "target Git worktree must be clean",
         "backup-first": "backup report could not be persisted before target writes",
         "no-arbitrary-command": "unsupported Git operation",
@@ -625,6 +629,7 @@ def check_phase4_bindings(failures: list[str]) -> None:
         ("schema-runtime-boundary", '"x-runtime-semantic-validator"', schema_source),
         ("schema-prefix-order", '"prefixItems"', schema_source),
         ("shared-schema-corpus", '"runtime-hash"', test_source),
+        ("profile-approval-test", '"profileSha256"', test_source),
         ("real-process-termination", "os.WIFSIGNALED", test_source),
         ("descendant-termination", "descendant survived after the Git leader exited", test_source),
     ):

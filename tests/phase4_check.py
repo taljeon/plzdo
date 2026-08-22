@@ -7,6 +7,7 @@ import io
 import json
 import os
 import re
+import shutil
 import signal
 import stat
 import subprocess
@@ -43,7 +44,12 @@ from plzdo_local.apply_gate import (
     rollback_apply,
     validate_apply_plan,
 )
-from plzdo_local.catalog import build_catalog, build_repository
+from plzdo_local.catalog import (
+    build_catalog,
+    build_repository,
+    repository_profile_digest,
+    validate_repository,
+)
 from plzdo_local.renderer import FILE_MODES, PROJECT_FRAME_PATHS, plan_project_frame
 
 
@@ -69,6 +75,7 @@ def main() -> int:
     checks = [
         ("apply schema and exact planned bytes are bound", check_schema_and_plan_bytes),
         ("default and policy gates fail closed", check_negative_policy_gates),
+        ("P5 approval is bound to the repository profile", check_profile_approval_binding),
         ("clean Git and foreground fingerprint confirmation are mandatory", check_clean_git_and_confirmation),
         ("target source catalog and plan drift are rejected", check_fingerprint_drift),
         ("post-plan target symlinks cannot redirect writes", check_symlink_substitution),
@@ -108,6 +115,7 @@ def check_schema_and_plan_bytes() -> None:
     )
     require("not claimed to be equivalent" in schema["description"], "schema overclaims runtime equivalence")
     require("command" not in json.dumps(schema, sort_keys=True), "apply schema exposes command execution")
+    require("profileSha256" in schema["$defs"]["approval"]["properties"], "profile approval schema binding")
 
     with git_fixture(enabled=True) as fixture:
         plan = make_plan(fixture)
@@ -116,7 +124,19 @@ def check_schema_and_plan_bytes() -> None:
         require(fixture_git(fixture.target, "status") == "", "apply planning changed the target")
         validate_apply_plan(plan)
         require(plan["confirmation"] == {"type": "plan-fingerprint"}, "confirmation binding")
-        require(plan["approval"] == APPROVAL, "approval metadata was not bound")
+        require(
+            plan["approval"] == fixture.catalog["repositories"][0]["realApply"]["approval"],
+            "approval metadata was not bound",
+        )
+
+        legacy_plan = copy.deepcopy(plan)
+        legacy_plan["approval"].pop("profileSha256")
+        legacy_plan.pop("planId")
+        legacy_plan.pop("planFingerprint")
+        legacy_plan["planId"] = "apply-" + apply_gate._json_fingerprint(legacy_plan)[:24]
+        legacy_plan["planFingerprint"] = apply_gate._json_fingerprint(legacy_plan)
+        validate_apply_plan(legacy_plan)
+        require(_schema_accepts(schema, legacy_plan), "legacy plan shape is no longer readable")
         require(plan["source"]["project"] == PROJECT, "validated project input was not bound")
         require(plan["target"]["missingDirectories"] == ["TASKS", "docs", "scripts"], "frame parents")
         require(plan["target"]["gitIdentity"]["topLevel"] == str(fixture.target), "Git top-level binding")
@@ -146,6 +166,7 @@ def check_schema_and_plan_bytes() -> None:
             real_apply={"enabled": True, "operatorOnly": True, "approval": copy.deepcopy(APPROVAL)},
             path_must_exist=True,
         )
+        bind_profile_approval(alternate_repository)
         alternate_plan = plan_apply(
             build_catalog([alternate_repository]),
             "alternate-repo",
@@ -307,11 +328,74 @@ def check_negative_policy_gates() -> None:
             real_apply={"enabled": True, "operatorOnly": True, "approval": copy.deepcopy(APPROVAL)},
             path_must_exist=True,
         )
+        bind_profile_approval(repository)
         catalog = build_catalog([repository])
         expect_error(
             ApplyGitError,
             lambda: plan_apply(catalog, "fixture-repo", PROJECT, force=True, created_at=PLAN_TIME),
             code="git-failed",
+        )
+
+
+def check_profile_approval_binding() -> None:
+    with git_fixture(enabled=True) as fixture:
+        repository = fixture.catalog["repositories"][0]
+        approval = repository["realApply"]["approval"]
+        require(
+            approval["profileSha256"] == repository_profile_digest(repository),
+            "fixture approval is not bound to its repository profile",
+        )
+
+        missing = copy.deepcopy(fixture.catalog)
+        del missing["repositories"][0]["realApply"]["approval"]["profileSha256"]
+        expect_error(
+            ApplyPolicyError,
+            lambda: plan_apply(missing, "fixture-repo", PROJECT, force=True, created_at=PLAN_TIME),
+            code="profile-approval-required",
+        )
+
+        alternate_target = fixture.base / "alternate-target"
+        shutil.copytree(fixture.target, alternate_target, symlinks=True)
+        mutations = []
+
+        changed_path = copy.deepcopy(fixture.catalog)
+        changed_path["repositories"][0]["path"] = str(alternate_target)
+        mutations.append(("path", changed_path))
+
+        changed_outputs = copy.deepcopy(fixture.catalog)
+        changed_outputs["repositories"][0]["outputs"] = list(PROJECT_FRAME_PATHS[:-1])
+        mutations.append(("outputs", changed_outputs))
+
+        changed_protected = copy.deepcopy(fixture.catalog)
+        changed_protected["repositories"][0]["protectedPaths"] = ["private"]
+        mutations.append(("protectedPaths", changed_protected))
+
+        for label, candidate in mutations:
+            expect_error(
+                ApplyPolicyError,
+                lambda candidate=candidate: plan_apply(
+                    candidate,
+                    "fixture-repo",
+                    PROJECT,
+                    force=True,
+                    created_at=PLAN_TIME,
+                ),
+                code="profile-approval-drift",
+            )
+
+        renewed = copy.deepcopy(changed_protected)
+        bind_profile_approval(renewed["repositories"][0])
+        renewed_plan = plan_apply(
+            renewed,
+            "fixture-repo",
+            PROJECT,
+            force=True,
+            created_at=PLAN_TIME,
+        )
+        require(
+            renewed_plan["approval"]["profileSha256"]
+            == repository_profile_digest(renewed["repositories"][0]),
+            "renewed profile approval was not carried into the plan",
         )
 
 
@@ -392,6 +476,7 @@ def check_fingerprint_drift() -> None:
         authorize(fixture, plan)
         changed_catalog = copy.deepcopy(fixture.catalog)
         changed_catalog["repositories"][0]["realApply"]["approval"]["approvalHash"] = "b" * 64
+        bind_profile_approval(changed_catalog["repositories"][0])
         expect_error(
             ApplyFingerprintError,
             lambda: execute_with_catalog(plan, changed_catalog),
@@ -523,6 +608,7 @@ def check_successful_apply_and_rollback() -> None:
 
         changed_catalog = copy.deepcopy(fixture.catalog)
         changed_catalog["repositories"][0]["realApply"]["approval"]["approvalHash"] = "c" * 64
+        bind_profile_approval(changed_catalog["repositories"][0])
         require(apply_status(report_path, changed_catalog)["state"] == "drifted", "catalog drift was not reported")
 
         copied_report = fixture.target / "copied-apply-report.json"
@@ -1146,11 +1232,20 @@ def git_fixture(
             real_apply=real_apply,
             path_must_exist=True,
         )
+        if enabled:
+            bind_profile_approval(repository)
         catalog = build_catalog([repository])
         frame = plan_project_frame(target, PROJECT, force=True)
         fixture = Fixture(base, target, base / "state", catalog, frame)
         with mock.patch.object(apply_gate, "resolve_state_root", return_value=fixture.state):
             yield fixture
+
+
+def bind_profile_approval(repository: dict[str, Any]) -> dict[str, Any]:
+    approval = repository["realApply"]["approval"]
+    approval["profileSha256"] = repository_profile_digest(repository)
+    validate_repository(repository)
+    return repository
 
 
 def fixture_git(root: Path, operation: str, *, value: Optional[str] = None) -> str:

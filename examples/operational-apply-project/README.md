@@ -6,7 +6,19 @@ The template is intentionally invalid until an operator supplies:
 
 - a canonical absolute path to a local Git worktree;
 - a unique repository and catalog approval identity;
-- reviewed catalog approval metadata.
+- reviewed catalog approval metadata;
+- `approval.profileSha256` computed from the final reviewed repository profile.
+
+After replacing every other profile value, an operator can print the candidate
+digest without writing the catalog:
+
+```bash
+python -c 'import json; from pathlib import Path; from plzdo_local.catalog import repository_profile_digest; p=Path("catalog.json"); r=json.loads(p.read_text())["repositories"][0]; print(repository_profile_digest(r))'
+```
+
+Place that digest in `profileSha256`, then validate and review the complete
+entry again. The digest detects stale profile approval; computing it is not
+itself approval and does not authorize an agent to enable P5.
 
 Catalog approval metadata alone cannot execute a plan. Run the focused flow with absolute paths:
 

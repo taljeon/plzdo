@@ -10,9 +10,24 @@ The catalog entry must be active and declare all of the following:
 - `rolloutTier=enforced`;
 - `realApply.enabled=true`;
 - `realApply.operatorOnly=true`;
-- valid catalog approval metadata.
+- valid catalog approval metadata;
+- `realApply.approval.profileSha256` matching the complete reviewed repository profile.
 
-Catalog approval metadata is a policy prerequisite, not execution authority. An agent cannot set or infer these values for itself.
+Catalog approval metadata is a policy prerequisite, not execution authority.
+Computing a candidate digest does not let an agent approve or enable P5 for
+itself; the operator must review and supply the complete policy entry.
+
+`profileSha256` is the canonical SHA-256 of the repository profile after
+removing only that self-referential field. It therefore binds the approved
+target path, outputs, protected paths, source-of-truth list, lane, rollout
+tier, and remaining approval metadata. Changing any of those values requires
+an operator-reviewed digest renewal before P5 can create a new plan. The hash
+provides stale-edit integrity, not human identity or cryptographic
+non-repudiation.
+
+Legacy plans and reports without `profileSha256` remain readable for status and
+rollback. A new plan, authorization, or execution fails closed until the
+current profile receives renewed bound approval metadata.
 
 ## Operator Authorization
 
@@ -33,7 +48,7 @@ The integrity key is a random 32-byte owner-only file in canonical PLZDO state. 
 ```text
 render exact bytes in memory
     -> build apply plan
-    -> bind project input, bundled templates, target root, Git top-level, Git-dir/common-dir identities, HEAD, and clean status
+    -> bind approved repository profile, project input, bundled templates, target root, Git top-level, Git-dir/common-dir identities, HEAD, and clean status
     -> operator authorizes the exact plan fingerprint at the foreground TTY
     -> execute confirms the same fingerprint and consumes the one-time grant
     -> write a MACed rollback-in-progress report with deterministic target-temp identities
@@ -61,7 +76,7 @@ Git runs in a separate process group with a fixed timeout, bounded stdout/stderr
 
 ## Refusal Cases
 
-Apply stops before target mutation when policy is disabled, authorization is absent/expired/consumed, the foreground TTY is unavailable, Git is dirty, a gitlink/submodule or process/worktree-redirection configuration exists, HEAD or Git metadata identity moved, the root or a file changed, a symlink or special file is present, protected paths are selected, bundled templates drifted, or rollback evidence cannot be prepared.
+Apply stops before target mutation when policy is disabled, profile approval is absent or stale, authorization is absent/expired/consumed, the foreground TTY is unavailable, Git is dirty, a gitlink/submodule or process/worktree-redirection configuration exists, HEAD or Git metadata identity moved, the root or a file changed, a symlink or special file is present, protected paths are selected, bundled templates drifted, or rollback evidence cannot be prepared.
 
 ## Trust Boundary
 

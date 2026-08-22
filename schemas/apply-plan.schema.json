@@ -11,6 +11,10 @@
         },
         "id": {
           "$ref": "#/$defs/safeId"
+        },
+        "profileSha256": {
+          "description": "Optional only for legacy plan/report readability; new P5 plans require this profile binding.",
+          "$ref": "#/$defs/sha256"
         }
       },
       "required": [

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Bind new P5 plans to the operator-reviewed repository profile and reject stale approval after target, output, or protected-path changes.
+
 ## 0.2.2
 
 - Make the checked-in local gate authoritative for changes and releases.

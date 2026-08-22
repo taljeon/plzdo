@@ -21,7 +21,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Mapping, Optional, Sequence
 
 from .atomic_io import atomic_write_json, exclusive_file_lock
-from .catalog import CatalogError, get_repository, validate_catalog
+from .catalog import CatalogError, get_repository, repository_profile_digest, validate_catalog
 from .paths import PathPolicyError, ensure_contained, resolve_state_root
 from .renderer import (
     FILE_MODES,
@@ -271,10 +271,15 @@ def validate_apply_plan(value: Any) -> None:
     _require_match(plan["catalogFingerprint"], _SHA256, "apply plan catalogFingerprint")
 
     approval = _object(plan["approval"], "apply plan approval")
-    _exact_keys(approval, {"id", "approvedAt", "approvalHash"}, "apply plan approval")
+    required_approval = {"id", "approvedAt", "approvalHash"}
+    allowed_approval = required_approval | {"profileSha256"}
+    if not required_approval.issubset(approval) or not set(approval).issubset(allowed_approval):
+        raise ApplyPlanError("plan-approval", "apply plan approval keys are invalid")
     _require_match(approval["id"], _SAFE_ID, "apply plan approval.id")
     _require_timestamp(approval["approvedAt"], "apply plan approval.approvedAt")
     _require_match(approval["approvalHash"], _SHA256, "apply plan approval.approvalHash")
+    if "profileSha256" in approval:
+        _require_match(approval["profileSha256"], _SHA256, "apply plan approval.profileSha256")
 
     confirmation = _object(plan["confirmation"], "apply plan confirmation")
     _exact_keys(confirmation, {"type"}, "apply plan confirmation")
@@ -816,6 +821,17 @@ def _require_enabled_repository(catalog: Mapping[str, Any], repository_id: str) 
         raise ApplyPolicyError("operator-only", "real apply requires operatorOnly=true")
     if not isinstance(policy["approval"], dict):
         raise ApplyPolicyError("approval-required", "real apply requires approval metadata")
+    profile_sha256 = policy["approval"].get("profileSha256")
+    if not isinstance(profile_sha256, str):
+        raise ApplyPolicyError(
+            "profile-approval-required",
+            "real apply requires approval metadata bound to the repository profile",
+        )
+    if profile_sha256 != repository_profile_digest(repository):
+        raise ApplyPolicyError(
+            "profile-approval-drift",
+            "real apply approval no longer matches the repository profile",
+        )
     return repository
 
 
