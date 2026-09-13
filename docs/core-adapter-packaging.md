@@ -102,7 +102,8 @@ The existing compact `ponytail` skill is included among managed public resources
 Generated project guidance reuses its minimality rule without copying the whole
 policy or setting a test-count target. Safety and required evidence remain intact.
 
-The harness retains the repository's original MIT notice in `LICENSE`.
+The original core retains the repository's MIT notice in `LICENSE`; this source
+preview does not assign consolidated distribution-license metadata.
 The local runtime and external integration projects are not included in this
 harness source preview. Installable companion artifacts and their provenance
 remain a separate release; this preview supplies no wheelhouse or live-model

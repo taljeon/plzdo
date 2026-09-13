@@ -191,6 +191,6 @@ See [What Not to Automate](docs/what-not-to-automate.md).
 
 ## License
 
-The harness retains the existing MIT license in [LICENSE](LICENSE). Models,
+The original core retains its existing MIT notice in [LICENSE](LICENSE). Models,
 provider tools and the deferred runtime/integration projects are not included
 or licensed by this repository.
