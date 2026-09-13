@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plzdo"
+version = "0.3.0"
+description = "Provider-free local control plane and fixed parent approval adapter"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+local = ["plzdo-local-runtime==0.3.0"]
+
+[tool.setuptools]
+packages = ["plzdo_local", "plzdo_local_code_adapter"]
+script-files = ["bin/plzdo", "bin/plzdo-local-code-adapter", "bin/plzdo_entry.py", "bin/plzdo_adapter_entry.py"]
+include-package-data = false

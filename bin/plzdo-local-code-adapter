@@ -4,15 +4,15 @@ set -eu
 script_dir=$(CDPATH= cd -- "${0%/*}" && pwd -P)
 python_bin=""
 for candidate in "$script_dir/python3" /usr/local/bin/python3 /opt/homebrew/bin/python3 /usr/bin/python3; do
-    if [ -x "$candidate" ] && "$candidate" -I -S -B -c 'import sys; raise SystemExit(sys.version_info < (3, 9))' 2>/dev/null; then
+    if [ -x "$candidate" ] && "$candidate" -I -S -B -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' 2>/dev/null; then
         python_bin="$candidate"
         break
     fi
 done
 if [ -z "$python_bin" ]; then
-    echo "plzdo: Python 3.9+ was not found beside the launcher or in a supported system location" >&2
+    echo "plzdo-local-code-adapter: Python 3.11+ was not found beside the launcher or in a supported system location" >&2
     exit 1
 fi
 
 unset PYTHONHOME PYTHONOPTIMIZE PYTHONPATH PYTHONSTARTUP PYTHONUSERBASE PYTHONWARNINGS
-exec "$python_bin" -B -I -S "$script_dir/plzdo_entry.py" "$@"
+exec "$python_bin" -B -I -S "$script_dir/plzdo_adapter_entry.py" "$@"

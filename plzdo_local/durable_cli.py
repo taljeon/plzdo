@@ -311,21 +311,30 @@ def _formalize(args: argparse.Namespace) -> int:
         payload = record
     elif args.formalize_command == "approve":
         current = _load_formalization(args.formalization_id)
-        digest = approval_hash(current)
-        phrase = f"APPROVE {current['id']} {digest[:12]}"
-        if not sys.stdin.isatty():
-            raise DurableCommandError("formalization approval requires an interactive TTY")
-        typed = input(f"Type {phrase}: ")
-        if typed != phrase:
-            raise DurableCommandError("formalization approval phrase did not match")
-        payload = _update_formalization(
-            current["id"],
-            lambda value: approve_formalization(
-                value,
-                operator_confirmed=True,
-                approved_at=_now(),
-            ),
-        )
+        if current["status"] != "draft":
+            # A validated approval is a read-only no-op; terminal states still fail.
+            payload = approve_formalization(current, operator_confirmed=False)
+        else:
+            digest = approval_hash(current)
+            phrase = f"APPROVE {current['id']} {digest[:12]}"
+            if not sys.stdin.isatty():
+                raise DurableCommandError("formalization approval requires an interactive TTY")
+            typed = input(f"Type {phrase}: ")
+            if typed != phrase:
+                raise DurableCommandError("formalization approval phrase did not match")
+
+            def approve_observed(value: dict[str, Any]) -> dict[str, Any]:
+                if approval_hash(value) != digest or any(
+                    value[field] != current[field] for field in ("id", "projectId", "createdAt")
+                ):
+                    raise DurableCommandError("formalization changed after approval was requested")
+                return approve_formalization(
+                    value,
+                    operator_confirmed=True,
+                    approved_at=_now(),
+                )
+
+            payload = _update_formalization(current["id"], approve_observed)
     elif args.formalize_command == "complete":
         evidence = _read_regular_bytes(Path(args.evidence), label="completion evidence")
         digest = hashlib.sha256(evidence).hexdigest()
@@ -672,7 +681,8 @@ def _update_formalization(
     with exclusive_file_lock(_formalizations_lock_path(), allowed_root=state_root):
         current = _load_formalization(formalization_id)
         updated = transition(current)
-        atomic_write_json(path, updated, allowed_root=state_root, validator=validate_formalization)
+        if updated != current:
+            atomic_write_json(path, updated, allowed_root=state_root, validator=validate_formalization)
     return updated
 
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import hashlib
 import re
 import stat
 from pathlib import Path
@@ -106,6 +107,7 @@ REQUIRED_FILES = {
 }
 EXECUTABLE_FILES = {
     "bin/plzdo",
+    "bin/plzdo-local-code-adapter",
     "scripts/check-release-leaks",
     "scripts/check-publication",
     "scripts/release-manifest",
@@ -124,6 +126,63 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "socket",
     "urllib",
     "webbrowser",
+}
+# These are source-bound exceptions for the fixed installed package loaders and
+# owned subprocess fixtures. A changed byte requires review of the exception;
+# new symbols/imports still go through the ordinary deny rules. The separately
+# distributed runtime subtree is checked by its own local-engine/artifact gate.
+SOURCE_BOUND_COMPONENTS = {
+    'scripts/check_release_leaks.py': '73dc6c5c7d43d84a6d5da3f588daf798bbe90d042723c24b322babca1a9de1e6',
+    'bin/plzdo_entry.py': '2f50dc1fefff3512c557398a69f8a761c067c1cecb77951a5900f41170aad3da',
+    'bin/plzdo_adapter_entry.py': 'e6708d7a6fd578e99a69c66d7b7a5a8897213119b3c999ed96d5bc10a98634a3',
+    'plzdo_local_code_adapter/cli.py': '97bd78499463b0bdf121b82ed3db76f0802bef7369855b0092602b87309bd1d5',
+    'plzdo_local_code_adapter/codec.py': '897921439470d2ba6db478cbf390da407a63ca03bab48ea2d13f898c2ff8d653',
+    'plzdo_local_code_adapter/core_entry.py': '053e73601d909e7fb3b7f13b130819b372287797a17129bd3605b80ef1393a48',
+    'plzdo_local_code_adapter/verify_parent.py': '27ac976132c6ab72226c1fe50f077f32c19051b8967c21550f50823891da7c27',
+    'tests/adapter/fixtures.py': 'bc0847c94237238aa7bb3ab4d4080f58f1c1bfdbee3868afc819f4b60d00f985',
+    'tests/adapter/test_codec.py': 'e6c6998d1819c682050ae34cf529939d438af599e9778cc1d0c815cb85746615',
+    'tests/adapter/test_integration.py': '977ee0d769a21eb12de33c9576f6fddd873623c47ac5e7cd3bc628d589a173b9',
+    'tests/adapter/test_runtime_bridge.py': '51177ab2eacfa360e7bb5ba87d82e401a3994cfa539897c98d2e953a407a5f40',
+    'tests/core_packaging_check.py': '358735a1a9254a1be84f1c27585508f40e413bde5c4a1800bd2a9a95c5a0e148',
+    'tests/release_check.py': 'babdbf9c8e511ba0311d13ca6fcdba180fd5a5bb6367bf8d5e6ba978b61ad554',
+}
+SOURCE_BOUND_SHELL = {
+    'bin/plzdo': '6ef6fd092c0077f46123d99d59330ee553a3fdb79b96f7bcb5da47541c0fc28f',
+    'bin/plzdo-local-code-adapter': 'b0506c5e1517102a3da388b3420f10c29d984fe72ba569742292a483d3c8076c',
+    'scripts/verify': 'f8b05f272e3a50972273fca0acca8edf7e64e57c958761eecf6b572d6a061a4e',
+}
+COMPONENT_IMPORTS = {
+    ("bin/plzdo_entry.py", "importlib"): "main: one of two literal package entry modules",
+    ("bin/plzdo_entry.py", "importlib.util"): "main: exact package file spec after -I -S startup",
+    ("bin/plzdo_adapter_entry.py", "importlib.util"): "module: fixed sibling bootstrap only",
+    ("plzdo_local_code_adapter/core_entry.py", "importlib"): "main: fixed read-only core CLI",
+    ("plzdo_local_code_adapter/core_entry.py", "importlib.util"): "main: validated core package file spec",
+    ("plzdo_local_code_adapter/verify_parent.py", "importlib.util"): "module: pinned sibling codec only",
+    ("tests/adapter/test_runtime_bridge.py", "importlib.util"): "historical fixture dependency availability check",
+}
+COMPONENT_PROCESS_PURPOSES = {
+    ("plzdo_local_code_adapter/codec.py", "bounded_process", "subprocess.Popen"):
+        "Fixed core read-only command map; timeout, streams, no-shell and process-group cleanup",
+    ("tests/adapter/fixtures.py", "fixture", "subprocess.run"):
+        "Configure the fixed adapter using an owned interpreter/state fixture",
+    ("tests/adapter/test_integration.py", "call", "subprocess.run"):
+        "Run one isolated fixed verifier against synthetic parent state",
+    ("tests/adapter/test_integration.py", "test_no_runtime_or_core_import_in_adapter", "subprocess.run"):
+        "Check the adapter import boundary without runtime/provider startup",
+    ("tests/adapter/test_integration.py", "test_outer_session_cancellation_reaches_running_core", "subprocess.Popen"):
+        "Observe cancellation of an owned synthetic process group",
+    ("tests/adapter/test_runtime_bridge.py", "cli", "subprocess.run"):
+        "Historical v1 compatibility fixture, excluded from the current core executable gate",
+    ("tests/adapter/test_runtime_bridge.py", "test_cli_reference_reuses_fixed_verifier_for_next_goal", "subprocess.run"):
+        "Historical fixture reference command; fixed source adapter entry",
+    ("tests/core_packaging_check.py", "test_staged_install_resources_and_isolated_entries", "subprocess.run"):
+        "Owned staged-venv launch, parent verification and synthetic site-startup positive control",
+    ("tests/core_packaging_check.py", "test_direct_nonisolated_entry_refuses_before_cli", "subprocess.run"):
+        "Assert direct nonisolated entries fail before application import",
+    ("tests/core_packaging_check.py", "test_python39_rejects_optional_entries", "subprocess.run"):
+        "Run fixed optional entry files under actual Python 3.9 and require version refusal",
+    ("tests/release_check.py", "check_empty_acceptance_refusal", "subprocess.run"):
+        "Run an owned launcher copy with empty acceptance against export/verification sentinels and a five-second deadline",
 }
 PROCESS_APIS = {
     "Popen",
@@ -220,6 +279,15 @@ ALLOWED_SHELL_ABSOLUTE_PATHS = {
         "/usr/local/bin/python3",
     },
 }
+ALLOWED_SHELL_ABSOLUTE_PATHS["bin/plzdo-local-code-adapter"] = set(ALLOWED_SHELL_ABSOLUTE_PATHS["bin/plzdo"])
+ALLOWED_SHELL_ABSOLUTE_PATHS["scripts/verify"].update({
+    "/usr/local/bin/python3.9", "/opt/homebrew/bin/python3.9", "/usr/bin/python3.9",
+})
+for _wrapper in ("bin/plzdo", "bin/plzdo-local-code-adapter", "scripts/verify"):
+    ALLOWED_SHELL_ABSOLUTE_PATHS[_wrapper].add("/dev/null")
+REQUIRED_FILES.update({"pyproject.toml", "setup.py", "build_support.py", "MANIFEST.in",
+    "bin/plzdo-local-code-adapter", "bin/plzdo_adapter_entry.py", "tests/adapter_check.py",
+    "tests/core_packaging_check.py", "docs/core-adapter-packaging.md"})
 
 
 def main() -> int:
@@ -232,6 +300,7 @@ def main() -> int:
     check_runtime_ast(failures)
     check_shell_runtime(failures)
     check_guard_self_tests(failures)
+    check_component_guard_self_tests(failures)
     check_bootstrap_contract(failures)
     check_review_bindings(failures)
     check_phase2_bindings(failures)
@@ -264,7 +333,7 @@ def check_executable_bits(failures: list[str]) -> None:
 
 def check_executable_inventory(failures: list[str]) -> None:
     for path in ROOT.rglob("*"):
-        if not path.is_file() or ".git" in path.parts:
+        if not path.is_file() or ".git" in path.parts or _runtime_component(path):
             continue
         if path.stat().st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH):
             relative = path.relative_to(ROOT).as_posix()
@@ -294,15 +363,22 @@ def check_version_parity(failures: list[str]) -> None:
 def check_runtime_ast(failures: list[str]) -> None:
     runtime_paths = sorted((ROOT / "plzdo_local").rglob("*.py")) + [
         ROOT / "bin/plzdo_entry.py",
+        ROOT / "bin/plzdo_adapter_entry.py",
+        ROOT / "setup.py", ROOT / "build_support.py",
         ROOT / "scripts/check_publication.py",
         ROOT / "scripts/check_release_leaks.py",
         ROOT / "scripts/export_worktree.py",
         ROOT / "scripts/release_manifest.py",
-    ]
+    ] + sorted((ROOT / "plzdo_local_code_adapter").glob("*.py"))
     verification_paths = sorted((ROOT / "tests").rglob("*.py"))
     for path in runtime_paths + verification_paths:
         relative = path.relative_to(ROOT).as_posix()
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=relative, feature_version=(3, 9))
+        raw = path.read_bytes()
+        optional_adapter = (relative.startswith(("plzdo_local_code_adapter/", "tests/adapter/"))
+                            or relative == "bin/plzdo_adapter_entry.py")
+        grammar = (3, 11) if optional_adapter else (3, 9)
+        tree = ast.parse(raw.decode("utf-8"), filename=relative, feature_version=grammar)
+        source_bound = _source_binding(relative, raw, SOURCE_BOUND_COMPONENTS, failures)
         aliases = _import_aliases(tree)
         function_map = _function_map(tree)
         if relative == ALLOWED_GIT_POPEN_FUNCTION[0]:
@@ -312,15 +388,25 @@ def check_runtime_ast(failures: list[str]) -> None:
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.name.split(".")[0] in FORBIDDEN_RUNTIME_IMPORTS:
+                    if alias.name.split(".")[0] in FORBIDDEN_RUNTIME_IMPORTS and not (
+                            source_bound and (relative, alias.name) in COMPONENT_IMPORTS):
                         failures.append(f"forbidden-runtime-import:{relative}:{alias.name}")
+                    if path in runtime_paths and alias.name.split(".")[0] in {"local_coding", "plzdo_private_overlay"}:
+                        failures.append(f"core-runtime-dependency:{relative}:{alias.name}")
             if isinstance(node, ast.ImportFrom) and node.module:
-                if node.module.split(".")[0] in FORBIDDEN_RUNTIME_IMPORTS:
+                if node.module.split(".")[0] in FORBIDDEN_RUNTIME_IMPORTS and not (
+                        source_bound and (relative, node.module) in COMPONENT_IMPORTS):
                     failures.append(f"forbidden-runtime-import:{relative}:{node.module}")
+                if path in runtime_paths and node.module.split(".")[0] in {"local_coding", "plzdo_private_overlay"}:
+                    failures.append(f"core-runtime-dependency:{relative}:{node.module}")
             if not isinstance(node, ast.Call):
                 continue
             call_name = _resolved_call_name(node.func, aliases)
             function_name = function_map.get(node, "")
+            if source_bound and (relative, function_name, call_name) in COMPONENT_PROCESS_PURPOSES:
+                # The complete reviewed source bytes bind argv/env/limits. The
+                # exception never applies to another file, symbol or API.
+                continue
             if path in runtime_paths:
                 _check_runtime_process_call(node, relative, aliases, failures, function_name=function_name)
             if path in verification_paths and _is_process_api(call_name):
@@ -334,10 +420,41 @@ def check_runtime_ast(failures: list[str]) -> None:
 
 def check_shell_runtime(failures: list[str]) -> None:
     for relative in sorted(EXECUTABLE_FILES):
-        source = (ROOT / relative).read_text(encoding="utf-8")
+        raw = (ROOT / relative).read_bytes()
+        source = raw.decode("utf-8")
+        _source_binding(relative, raw, SOURCE_BOUND_SHELL, failures)
         if not source.startswith(("#!/bin/sh", "#!/usr/bin/env bash", "#!/bin/bash")):
             continue
         failures.extend(_shell_source_failures(relative, source))
+
+
+def _runtime_component(path: Path) -> bool:
+    return path.relative_to(ROOT).parts[:2] == ("packages", "local-runtime")
+
+
+def _source_binding(relative, raw, bindings, failures):
+    expected = bindings.get(relative)
+    if expected is None:
+        return False
+    matched = hashlib.sha256(raw).hexdigest() == expected
+    if not matched:
+        failures.append("source-bound-exception-drift:" + relative)
+    return matched
+
+
+def check_component_guard_self_tests(failures):
+    for relative, marker in (("bin/plzdo_entry.py", b"\nimport urllib.request\n"),
+                             ("plzdo_local_code_adapter/codec.py", b"\nsubprocess.Popen(['unreviewed'])\n"),
+                             ("tests/core_packaging_check.py", b"\nsubprocess.run(['unreviewed'])\n"),
+                             ("tests/release_check.py", b"\nsubprocess.run(['unreviewed'])\n")):
+        probe = []
+        _source_binding(relative, (ROOT / relative).read_bytes() + marker, SOURCE_BOUND_COMPONENTS, probe)
+        if not probe:
+            failures.append("component-source-exception-self-test:" + relative)
+    probe = []
+    _source_binding("scripts/verify", (ROOT / "scripts/verify").read_bytes() + b"\n$unreviewed\n", SOURCE_BOUND_SHELL, probe)
+    if not probe:
+        failures.append("component-shell-exception-self-test")
 
 
 def check_guard_self_tests(failures: list[str]) -> None:
@@ -391,12 +508,33 @@ def check_bootstrap_contract(failures: list[str]) -> None:
     scanner = (ROOT / "scripts/check-release-leaks").read_text(encoding="utf-8")
     verify = (ROOT / "scripts/verify").read_text(encoding="utf-8")
     publication = (ROOT / "scripts/check-publication").read_text(encoding="utf-8")
-    for label, source in (("cli", wrapper), ("scanner", scanner), ("publication", publication)):
+    adapter_wrapper = (ROOT / "bin/plzdo-local-code-adapter").read_text(encoding="utf-8")
+    for label, source in (("cli", wrapper), ("adapter", adapter_wrapper), ("scanner", scanner), ("publication", publication)):
         if 'exec "$python_bin" -B -I ' not in source:
             failures.append(f"isolated-bootstrap-missing:{label}")
         for variable in ("PYTHONHOME", "PYTHONPATH", "PYTHONUSERBASE"):
             if variable not in source:
                 failures.append(f"bootstrap-unset-missing:{label}:{variable}")
+        if label in {"cli", "adapter"} and 'exec "$python_bin" -B -I -S ' not in source:
+            failures.append(f"site-free-bootstrap-missing:{label}")
+    if "sys.version_info < (3, 11)" not in verify:
+        failures.append("verify-python-baseline-missing")
+    if "sys.version_info < (3, 9)" not in wrapper:
+        failures.append("core-python39-baseline-missing")
+    if "sys.version_info < (3, 11)" not in adapter_wrapper:
+        failures.append("adapter-python311-baseline-missing")
+    if "sys.version_info[:2] != (3, 9)" not in verify:
+        failures.append("verify-exact-python39-lane-missing")
+    if 'elif [ "$#" -eq 1 ] && [ "$1" = "--release-matrix" ]; then\n  release_matrix=1' not in verify:
+        failures.append("verify-explicit-release-matrix-missing")
+    if 'acceptance_expected=$2\n  release_matrix=1' not in verify:
+        failures.append("acceptance-mandatory-matrix-missing")
+    if 'PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify" --release-matrix' not in verify:
+        failures.append("verify-exported-release-matrix-missing")
+    if 'if [ "$release_matrix" -eq 1 ]; then\n    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$root/scripts/verify" --core-python39' not in verify:
+        failures.append("verify-release-matrix-dispatch-missing")
+    if 'PLZDO_VERIFY_EXPORTED=1 /bin/sh "$root/scripts/verify" --core-python39' not in verify:
+        failures.append("verify-mandatory-python39-lane-missing")
     for variable in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY"):
         if variable not in publication:
             failures.append(f"publication-git-environment-unset-missing:{variable}")
@@ -410,6 +548,9 @@ def check_bootstrap_contract(failures: list[str]) -> None:
         '"$python_bin" -B -I "$root/tests/phase5_check.py"',
         '"$python_bin" -B -I "$root/tests/local_ops_check.py"',
         '"$python_bin" -B -I "$root/tests/release_check.py"',
+        '"$python_bin" -B -I -S "$root/tests/core_packaging_check.py"',
+        '"$python_bin" -B -I -S "$root/tests/core_packaging_check.py" --core-only',
+        '"$python_bin" -B -I -S "$root/tests/adapter_check.py"',
     )
     for invocation in required_verify_invocations:
         if invocation not in verify:
@@ -1275,7 +1416,16 @@ def _shell_source_failures(relative: str, source: str) -> list[str]:
             root_owned_gate = variable == "root" and line.lstrip().startswith(
                 ('"$root/scripts/check-release-leaks"', '"$root/scripts/release-manifest" --check')
             )
-            if variable != "python_bin" and not root_owned_gate:
+            permitted_probes = {
+                "bin/plzdo": ("sys.version_info < (3, 9)",),
+                "bin/plzdo-local-code-adapter": ("sys.version_info < (3, 11)",),
+                "scripts/verify": ("sys.version_info < (3, 11)", "sys.version_info[:2] != (3, 9)"),
+            }
+            version_probe = variable == "candidate" and any(
+                '\"$candidate\" -I -S -B -c \'import sys; raise SystemExit(' + expression + ")'" in line
+                for expression in permitted_probes.get(relative, ())
+            )
+            if variable != "python_bin" and not root_owned_gate and not version_probe:
                 failures.append(f"unapproved-shell-variable-command:{relative}:{line_number}")
         for match in re.finditer(r"(?<![A-Za-z0-9_$])(/[A-Za-z0-9._/-]+)", line):
             absolute = match.group(1).rstrip("/") or "/"
@@ -1315,14 +1465,14 @@ def _verification_process_head(node: Optional[ast.expr]) -> Optional[str]:
         and first.value.id == "sys"
         and first.attr == "executable"
     ):
-        if len(node.elts) < 4:
+        if len(node.elts) < 5:
             return None
-        flags = node.elts[1:3]
+        flags = node.elts[1:4]
         if not all(isinstance(item, ast.Constant) and isinstance(item.value, str) for item in flags):
             return None
-        if [item.value for item in flags] != ["-B", "-I"]:
+        if [item.value for item in flags] != ["-B", "-I", "-S"]:
             return None
-        entry = node.elts[3]
+        entry = node.elts[4]
         if not (
             isinstance(entry, ast.Call)
             and isinstance(entry.func, ast.Name)

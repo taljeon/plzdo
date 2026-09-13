@@ -278,10 +278,9 @@ def _validate_real_apply(value: Any, *, repository: dict[str, Any], label: str) 
         )
         if _SHA256.fullmatch(approval_hash) is None:
             raise CatalogValidationError(f"{label}.approval.approvalHash must be a lowercase SHA-256 hex digest")
-        profile_sha256 = approval_object.get("profileSha256")
-        if profile_sha256 is not None:
+        if "profileSha256" in approval_object:
             profile_sha256 = _require_plain_text(
-                profile_sha256,
+                approval_object["profileSha256"],
                 label=f"{label}.approval.profileSha256",
                 maximum=64,
             )

@@ -51,6 +51,7 @@ from plzdo_local.formalization import (
     FormalizationImmutableError,
     FormalizationValidationError,
     approve_formalization,
+    approval_hash,
     build_formalization,
     complete_formalization,
     edit_formalization,
@@ -104,6 +105,7 @@ def main() -> int:
         ("phase3 uses a structural Draft 2020-12 layer plus stricter typed runtime semantics", check_two_layer_schema_contract),
         ("nine credential shapes fail closed across every Phase 3 text surface", check_credential_shape_matrix),
         ("formalization approval binds governed content and terminal states", check_formalization),
+        ("formalization reapproval is read-only and draft consent binds the locked payload", check_formalization_approval_friction),
         ("state compaction archives before retaining bounded newest evidence", check_state_compaction),
         ("checkpoint provenance rejects unattended and caller-asserted sources", check_checkpoints),
         ("bounded loops enforce approval binding evidence and stop conditions", check_bounded_loops),
@@ -505,6 +507,14 @@ def check_formalization() -> None:
         approved_at="2026-08-05T04:01:00+00:00",
     )
     require_activation_approval(approved)
+    for confirmed in (False, True):
+        repeated = approve_formalization(
+            approved,
+            operator_confirmed=confirmed,
+            approved_at="2026-08-06T04:01:00+00:00",
+        )
+        require(repeated == approved, "reapproval changed metadata or the approved commitments")
+        require(repeated is not approved and repeated["approval"] is not approved["approval"], "reapproval aliases input")
     expect_error(
         FormalizationApprovalError,
         lambda: validate_formalization_transition(draft, approved),
@@ -513,6 +523,7 @@ def check_formalization() -> None:
     tampered = copy.deepcopy(approved)
     tampered["objective"] = "Silently changed objective."
     expect_error(FormalizationApprovalError, lambda: validate_formalization(tampered))
+    expect_error(FormalizationApprovalError, lambda: approve_formalization(tampered, operator_confirmed=False))
     revised = edit_formalization(
         approved,
         objective="Migrate only the reviewed architecture surface.",
@@ -527,6 +538,7 @@ def check_formalization() -> None:
         completed_at="2026-08-05T04:03:00+00:00",
     )
     require(completed["completion"]["evidenceSha256"] == "a" * 64, "completion evidence binding")
+    expect_error(FormalizationImmutableError, lambda: approve_formalization(completed, operator_confirmed=False))
     expect_error(
         FormalizationImmutableError,
         lambda: edit_formalization(
@@ -573,6 +585,118 @@ def check_formalization() -> None:
             completed_at="2026-08-05T04:05:00Z",
         ),
     )
+
+
+def check_formalization_approval_friction() -> None:
+    with tempfile.TemporaryDirectory(prefix="plzdo-approval-friction-") as temporary:
+        state_root = Path(temporary).resolve() / "state"
+        with mock.patch.dict(os.environ, {"PLZDO_HOME": str(state_root)}):
+            draft = build_formalization(
+                formalization_id="goal-approval",
+                objective="Verify exact approval reuse without widening authority.",
+                criteria=["Drafts still require a matching foreground confirmation."],
+                non_goals=["Do not apply changes to another project."],
+                constraints=["Use offline synthetic records."],
+                route=classify_execution("bounded approval verification", bounded_loop_requested=True),
+                plan=["Validate existing approval.", "Recheck the locked payload before first approval."],
+                evidence_contract=["Record no-prompt and race checks."],
+                created_at="2026-08-05T09:00:00Z",
+            )
+            durable_cli_module._write_formalization_new(draft)
+            path = state_root / "formalizations" / "goal-approval.json"
+            arguments = ["formalize", "approve", "goal-approval", "--json"]
+            phrase = f"APPROVE {draft['id']} {approval_hash(draft)[:12]}"
+            original_bytes = path.read_bytes()
+            with mock.patch.object(sys, "stdin", io.StringIO(phrase + "\n")):
+                code, _, error = run_cli(arguments)
+            require(code == 2 and "interactive TTY" in error, "piped input authorized a draft")
+            require(path.read_bytes() == original_bytes, "non-TTY draft approval changed state")
+            with (
+                mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(return_value=True))),
+                mock.patch("builtins.input", return_value="wrong phrase"),
+            ):
+                code, _, error = run_cli(arguments)
+            require(code == 2 and "phrase did not match" in error, "wrong phrase authorized a draft")
+
+            revised = edit_formalization(draft, objective="Changed after the prompt was prepared.", updated_at="2026-08-05T09:00:01Z")
+
+            def change_draft_during_input(prompt: str) -> str:
+                path.write_text(json.dumps(revised), encoding="utf-8")
+                return phrase
+
+            with (
+                mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(return_value=True))),
+                mock.patch("builtins.input", side_effect=change_draft_during_input),
+            ):
+                code, _, error = run_cli(arguments)
+            require(code == 2 and "changed after approval" in error, "typed consent approved a different locked payload")
+            require(json.loads(path.read_text(encoding="utf-8")) == revised, "draft race changed the replacement record")
+
+            for field, replacement in (("id", "another-goal"), ("projectId", "another-project"), ("createdAt", "2026-08-05T08:00:00Z")):
+                path.write_text(json.dumps(draft), encoding="utf-8")
+                substituted = copy.deepcopy(draft)
+                substituted[field] = replacement
+
+                def change_identity_during_input(prompt: str) -> str:
+                    path.write_text(json.dumps(substituted), encoding="utf-8")
+                    return phrase
+
+                with (
+                    mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(return_value=True))),
+                    mock.patch("builtins.input", side_effect=change_identity_during_input),
+                ):
+                    code, _, error = run_cli(arguments)
+                require(code == 2 and "changed after approval" in error, f"consent approved a substituted {field}")
+
+            path.write_text(json.dumps(draft), encoding="utf-8")
+            with (
+                mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(return_value=True))),
+                mock.patch("builtins.input", return_value=phrase) as prompt,
+            ):
+                code, approved, error = run_cli(arguments)
+            require(code == 0 and approved["status"] == "approved", f"first approval failed: {error}")
+            require(prompt.call_count == 1, "first approval did not require exactly one prompt")
+            # Deliberately noncanonical formatting proves reuse does not rewrite JSON.
+            path.write_text(json.dumps(approved, indent=3), encoding="utf-8")
+            before = path.read_bytes()
+            metadata = path.stat()
+            with (
+                mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(side_effect=AssertionError("TTY inspected")))),
+                mock.patch("builtins.input", side_effect=AssertionError("reapproval prompted")),
+                mock.patch.object(durable_cli_module, "_now", side_effect=AssertionError("timestamp created")),
+                mock.patch.object(durable_cli_module, "exclusive_file_lock", side_effect=AssertionError("lock written")),
+                mock.patch.object(durable_cli_module, "atomic_write_json", side_effect=AssertionError("state written")),
+            ):
+                for _ in range(2):
+                    code, repeated, error = run_cli(arguments)
+                    require(code == 0 and repeated == approved, f"valid approval reuse failed: {error}")
+            require(path.read_bytes() == before, "reapproval changed durable approval bytes")
+            require((path.stat().st_mtime_ns, path.stat().st_ino) == (metadata.st_mtime_ns, metadata.st_ino), "reapproval replaced or touched the file")
+
+            invalid = copy.deepcopy(approved)
+            invalid["objective"] = "Tampered approved payload."
+            path.write_text(json.dumps(invalid), encoding="utf-8")
+            with mock.patch("builtins.input", side_effect=AssertionError("invalid approval prompted")):
+                code, _, _ = run_cli(arguments)
+            require(code == 2, "stale approval was accepted as an idempotent success")
+            require(json.loads(path.read_text(encoding="utf-8")) == invalid, "stale approval was silently repaired")
+
+            path.write_text(json.dumps(draft), encoding="utf-8")
+            concurrent_bytes: list[bytes] = []
+
+            def approve_same_payload_during_input(prompt: str) -> str:
+                path.write_text(json.dumps(approved, indent=3), encoding="utf-8")
+                concurrent_bytes.append(path.read_bytes())
+                return phrase
+
+            with (
+                mock.patch.object(sys, "stdin", mock.Mock(isatty=mock.Mock(return_value=True))),
+                mock.patch("builtins.input", side_effect=approve_same_payload_during_input),
+                mock.patch.object(durable_cli_module, "atomic_write_json", side_effect=AssertionError("concurrent approval rewritten")),
+            ):
+                code, repeated, error = run_cli(arguments)
+            require(code == 0 and repeated == approved, f"same-payload concurrent approval failed: {error}")
+            require(path.read_bytes() == concurrent_bytes[0], "concurrent approval bytes changed")
 
 
 def check_state_compaction() -> None:

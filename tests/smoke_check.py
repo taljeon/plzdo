@@ -442,7 +442,7 @@ def run_cli(*args: str, extra_env: Optional[dict[str, str]] = None) -> subproces
     environment = test_environment()
     environment.update(extra_env or {})
     return subprocess.run(
-        [sys.executable, "-B", "-I", str(ROOT / "bin/plzdo_entry.py"), *args],
+        [sys.executable, "-B", "-I", "-S", str(ROOT / "bin/plzdo_entry.py"), *args],
         cwd=ROOT,
         check=False,
         capture_output=True,

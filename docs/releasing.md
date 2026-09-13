@@ -2,6 +2,13 @@
 
 This document is for maintainers preparing a public release. Contributors normally need only the integrated gate in `CHECKS.md`.
 
+For an explicitly requested harness-only source preview, publish the reviewed
+core source after its exact-commit local gate and privacy/history audit. Label
+the GitHub release as a prerelease and source-only. The complete distribution
+procedure below, including five repeated gates and installation validation,
+applies when certifying installable release artifacts. A source preview does
+not certify local-model execution, OS isolation, or deferred companion packages.
+
 ## Privacy Gate
 
 Keep the private denylist outside the repository and never print or commit its values:
@@ -39,12 +46,28 @@ Any content change after manifest generation invalidates the manifest and all re
 - bounded scans of HEAD history, local refs, annotated tags, tree paths, and unique blobs;
 - no symlink, gitlink, special file, nested Git metadata, generated cache, or manifest omission;
 - five complete integrated-gate runs on the final bytes;
-- local compatibility runs with Python 3.9 and 3.12, recording both versions;
+- local core compatibility runs with Python 3.9 and 3.12, recording both versions;
+- a Python 3.11+ release/build harness and optional adapter checks; `./scripts/verify --release-matrix` must also run the mandatory core-only Python 3.9 lane, without replacing a failing 3.9 interpreter with a newer one;
 - a fresh clone that passes the integrated gate and checksum verification;
 - explicit operator authorization to publish.
 
 Record commit, tag, and release facts in Git and the approved publication host.
 Do not put future release claims into `TASKS/current.md`.
+
+The core runtime minimum and the maintainer tool minimum are separate. A normal
+core installation remains dependency-free on Python 3.9+. The optional adapter
+requires Python 3.11+ for its own interpreter and configured core subprocess.
+The ordinary `./scripts/verify` gate uses its selected Python 3.11+ interpreter
+without requiring an additional Python 3.9 installation. Maintainers use
+`--release-matrix` for the required compatibility matrix; exact-commit
+`--acceptance` automatically includes that matrix and retains it through the
+Git-free export. Preserve failed-interpreter evidence rather than substituting
+a different version.
+Local runtime source lives in its independently versioned repository; a core-only
+checkout must not require that sibling checkout to pass its own gate. Run the
+runtime repository's source-bound privacy scanner for its schema namespaces and
+its own verification instructions for that package. Neither package's successful
+scanner run proves the other repository or a built archive was reviewed.
 
 ## Local Acceptance And Pull Requests
 

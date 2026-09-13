@@ -205,15 +205,17 @@ def approve_formalization(
     approved_at: Optional[str] = None,
     timestamp: Optional[str] = None,
 ) -> dict[str, Any]:
-    """Return an approved copy after an explicit operator confirmation."""
+    """Approve a draft explicitly, or return a validated approval unchanged."""
 
     validate_formalization(value)
-    if operator_confirmed is not True:
-        raise FormalizationApprovalError("approval requires operator_confirmed=True")
     if value["status"] in TERMINAL_STATUSES:
         raise FormalizationImmutableError(
             f"{value['status']} formalization is immutable"
         )
+    if value["status"] == STATUS_APPROVED:
+        return copy.deepcopy(value)
+    if operator_confirmed is not True:
+        raise FormalizationApprovalError("approval requires operator_confirmed=True")
     approved = _select_timestamp(approved_at, timestamp, label="approved_at")
     updated = copy.deepcopy(value)
     updated["status"] = STATUS_APPROVED

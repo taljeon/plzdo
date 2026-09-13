@@ -1,0 +1,10 @@
+include VERSION LICENSE pyproject.toml setup.py build_support.py
+include bin/plzdo bin/plzdo-local-code-adapter bin/plzdo_entry.py bin/plzdo_adapter_entry.py
+recursive-include plzdo_local *.py
+recursive-include plzdo_local_code_adapter *.py
+recursive-include schemas *.json
+recursive-include templates *
+recursive-include resources *
+prune packages
+prune tests
+global-exclude __pycache__ *.py[cod] .DS_Store

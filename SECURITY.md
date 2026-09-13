@@ -13,6 +13,6 @@ directory may require manual inspection and cleanup.
 
 Before a public repository exists, keep findings local and sanitized. After publication, use GitHub private vulnerability reporting when available. Do not publish an exploit or sensitive reproduction before maintainers confirm a safe disclosure path.
 
-PlzDo Local is a control plane, not an operating-system sandbox. Its local-only claim applies to checked-in PlzDo commands, not to unrelated software or a hosted AI model.
+PlzDo Local is a control plane, not an operating-system sandbox. The core local-only claim applies to `plzdo` control-plane commands. The optional local runtime has its own execution boundary and refuses an unverified server-isolation environment. A hosted coding agent still uses its own provider.
 
-Use PlzDo Local from a reviewed Git checkout through `./bin/plzdo`. The project does not provide a prefix installer, modify shell startup files, or write a global launcher.
+Use a reviewed checkout or an explicitly selected isolated package installation. The core, local runtime and private composition are separate installation choices. Product commands do not modify shell startup files or automatically install/activate optional execution tools. Candidate packaging does not grant publication rights or prove live isolation.

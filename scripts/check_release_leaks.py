@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -21,6 +22,12 @@ ALLOWED_EMAIL_DOMAINS = {
     "example.org",
     "users.noreply.github.com",
 }
+# The public protocol namespace is not a machine address in these exact source
+# revisions. Only this matched literal and rule are exempt; path scanning and
+# every private-denylist term remain active. Avoid embedding it in this scanner.
+PUBLIC_PROTOCOL_NAMESPACE = "plzdo" + "." + "local"
+# The standalone core has no runtime namespace exceptions.
+PROTOCOL_NAMESPACE_SOURCE_SHA256: dict[str, str] = {}
 MAX_RELEASE_ENTRIES = 50_000
 MAX_RELEASE_FILE_BYTES = 4 * 1024 * 1024
 MAX_RELEASE_TOTAL_BYTES = 256 * 1024 * 1024
@@ -330,11 +337,15 @@ def scan_text(relative: str, text: str, private_terms: list[PrivateTerm]) -> tup
     findings: list[Finding] = []
     warnings: list[Finding] = []
     patterns = hard_patterns()
+    source_sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
     email_pattern = re.compile(r"\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
     for line_number, line in enumerate(text.splitlines(), 1):
         for rule, pattern in patterns:
-            if pattern.search(line):
+            for match in pattern.finditer(line):
+                if rule == "machine-hostname" and _approved_namespace_match(relative, source_sha256, match.group(0)):
+                    continue
                 findings.append(Finding("high", relative, line_number, rule))
+                break
         for match in email_pattern.finditer(line):
             if match.group(1).casefold() not in ALLOWED_EMAIL_DOMAINS:
                 findings.append(Finding("high", relative, line_number, "real-email"))
@@ -343,6 +354,12 @@ def scan_text(relative: str, text: str, private_terms: list[PrivateTerm]) -> tup
         if re.search(r"\b(token|session|cookie|secret)\b", line, re.IGNORECASE):
             warnings.append(Finding("low", relative, line_number, "ambiguous-sensitive-word"))
     return findings, warnings
+
+
+def _approved_namespace_match(relative: str, source_sha256: str, literal: str) -> bool:
+    expected = PROTOCOL_NAMESPACE_SOURCE_SHA256.get(relative)
+    return (expected is not None and literal == PUBLIC_PROTOCOL_NAMESPACE
+            and expected == source_sha256)
 
 
 def _matching_private_term_ids(value: str, private_terms: list[PrivateTerm]) -> list[str]:
@@ -558,6 +575,9 @@ def _is_private_denylist_document(text: str) -> bool:
 
 
 def run_self_test() -> int:
+    if not _namespace_exception_self_test():
+        print("self-test failed: public protocol exception is not source-bound", file=sys.stderr)
+        return 1
     with tempfile.TemporaryDirectory(prefix="plzdo-leak-self-test-") as temporary:
         base = Path(temporary).resolve()
         release = base / "release"
@@ -697,6 +717,36 @@ def run_self_test() -> int:
 
     print("release leak scanner self-test passed")
     return 0
+
+
+def _namespace_exception_self_test() -> bool:
+    root = Path(__file__).resolve().parent.parent
+    for relative, expected in PROTOCOL_NAMESPACE_SOURCE_SHA256.items():
+        try:
+            source = root / relative
+            _reject_symlink_components(source)
+            data = _read_bounded_regular_file(source, maximum=MAX_RELEASE_FILE_BYTES)
+        except (OSError, ValueError):
+            return False
+        if hashlib.sha256(data).hexdigest() != expected or PUBLIC_PROTOCOL_NAMESPACE.encode() not in data:
+            return False
+        allowed, _ = scan_sensitive_bytes(relative, data, [])
+        if allowed:
+            return False
+        for path, changed in (("unreviewed/" + relative, data), (relative, data + b"\n")):
+            rejected, _ = scan_sensitive_bytes(path, changed, [])
+            if not any(finding.rule == "machine-hostname" for finding in rejected):
+                return False
+        hostname = "build-box." + "internal"
+        if _approved_namespace_match(relative, expected, hostname):
+            return False
+        rejected, _ = scan_sensitive_bytes(relative, data + hostname.encode() + b"\n", [])
+        if not any(finding.rule == "machine-hostname" for finding in rejected):
+            return False
+        denied, _ = scan_sensitive_bytes(relative, data, [PrivateTerm("protocol-private-fixture", PUBLIC_PROTOCOL_NAMESPACE, True)])
+        if not any(finding.rule == "private-term:protocol-private-fixture" for finding in denied):
+            return False
+    return True  # No exceptions requires no external runtime source files.
 
 
 if __name__ == "__main__":

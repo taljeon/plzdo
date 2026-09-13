@@ -1,8 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
-- Bind new P5 plans to the operator-reviewed repository profile and reject stale approval after target, output, or protected-path changes.
+Harness source preview. Local-model runtime and external AI integration publication are deferred.
+
+- Preserve valid approval reuse and early deterministic apply-gate denials.
+- Bind new P5 writes to the complete approved repository profile while preserving legacy status and rollback.
+- Preserve standalone core Python 3.9+ support; the optional adapter and release harness require Python 3.11+.
+- Package core and the fixed parent adapter together, with an optional exact-version local runtime.
+- Keep core-only installation provider-free and carry the compact Ponytail minimality guidance.
+- Provide the fixed read-only parent adapter without model/provider dispatch in core.
+- Distinguish source verification from local-model execution and OS-isolation validation.
 
 ## 0.2.2
 

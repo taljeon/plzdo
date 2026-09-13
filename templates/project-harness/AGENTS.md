@@ -33,6 +33,7 @@ Resolve the project first. Choose Quick, Plan, or Goal and whether a bounded loo
 
 ## Working Rules
 
+- Reuse existing code and the standard library; add abstractions only for a demonstrated need. Match checks to changed behavior and risk, with no test-count target. Minimality never weakens safety or required evidence; the bundled `ponytail` skill gives the reusable decision rule.
 - Change requirements or design before implementation when behavior changes.
 - Keep edits scoped to the active task and respect protected paths.
 - Do not execute target code merely to inspect or render this frame.

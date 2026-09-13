@@ -4,6 +4,7 @@ import contextlib
 import io
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -39,6 +40,7 @@ def main() -> int:
         ("release scanner covers path and credential classes without echoing private values", check_scanner_coverage),
         ("publication wrapper starts under isolated Python", check_publication_isolated_bootstrap),
         ("acceptance binds a clean tree to one full commit", check_acceptance_binding),
+        ("empty acceptance fails before export or verification", check_empty_acceptance_refusal),
         ("local acceptance path binds manifest PR evidence and documented writes", check_local_acceptance_path),
         ("release ceremony stays in maintainer documentation", check_release_document_separation),
         ("public usage has no optional prefix installer", check_installer_removed),
@@ -322,6 +324,41 @@ def check_acceptance_binding() -> None:
         )
 
 
+def check_empty_acceptance_refusal() -> None:
+    for git_present in (False, True):
+        with tempfile.TemporaryDirectory(prefix="plzdo-empty-acceptance-") as temporary:
+            owned = Path(temporary).resolve()
+            root = owned / "release"
+            scripts = root / "scripts"
+            scripts.mkdir(parents=True)
+            launcher = scripts / "verify"
+            launcher.write_bytes((ROOT / "scripts/verify").read_bytes())
+            launcher.chmod(0o700)
+            marker = owned / "gate-started"
+            (scripts / "export_worktree.py").write_text(
+                "from pathlib import Path\nPath(" + repr(str(marker)) + ").touch()\nraise SystemExit(91)\n",
+                encoding="utf-8",
+            )
+            verification = scripts / "release-manifest"
+            verification.write_text("#!/bin/sh\n: > " + shlex.quote(str(marker)) + "\nexit 91\n", encoding="utf-8")
+            verification.chmod(0o700)
+            if git_present:
+                (root / ".git").mkdir()
+            scratch = owned / "scratch"
+            scratch.mkdir()
+            result = subprocess.run(
+                [str(launcher), "--acceptance", ""], cwd=owned, check=False,
+                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=5,
+                env={"HOME": str(owned), "TMPDIR": str(scratch), "LANG": "C", "LC_ALL": "C",
+                     "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin"},
+            )
+            require(result.returncode == 2, "empty acceptance was not rejected at argument parsing")
+            require(result.stdout == "", "empty acceptance started interpreter discovery or verification")
+            require(result.stderr == "FAIL acceptance requires a nonempty full commit SHA\n", "empty acceptance refusal is unclear")
+            require(not marker.exists(), "empty acceptance started export or verification")
+            require(list(scratch.iterdir()) == [], "empty acceptance created export or verification state")
+
+
 def check_local_acceptance_path() -> None:
     verify = (ROOT / "scripts/verify").read_text(encoding="utf-8")
     require(
@@ -329,6 +366,25 @@ def check_local_acceptance_path() -> None:
         "integrated gate does not verify the frozen manifest",
     )
     require("--acceptance" in verify, "integrated gate has no exact-commit acceptance mode")
+    require("sys.version_info < (3, 11)" in verify, "core gate can select unsupported Python")
+    require("sys.version_info[:2] != (3, 9)" in verify, "core compatibility lane can fall back from Python 3.9")
+    require('elif [ "$#" -eq 1 ] && [ "$1" = "--release-matrix" ]; then\n  release_matrix=1' in verify,
+            "release matrix is not an explicit verification mode")
+    require('acceptance_expected=$2\n  release_matrix=1' in verify,
+            "exact-commit acceptance does not require the release matrix")
+    require('PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify" --release-matrix' in verify,
+            "export lost the release matrix mode")
+    require('if [ "$release_matrix" -eq 1 ]; then\n    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$root/scripts/verify" --core-python39' in verify,
+            "Python 3.9 must be mandatory in release mode, without changing the default contributor requirement")
+    require('PLZDO_VERIFY_EXPORTED=1 /bin/sh "$root/scripts/verify" --core-python39' in verify,
+            "full release verification does not require the core Python 3.9 lane")
+    require('"$python_bin" -B -I -S "$root/tests/core_packaging_check.py" --core-only' in verify,
+            "core compatibility lane does not verify its installed layout")
+    require('print("verification interpreter:", sys.executable, sys.version.split()[0])' in verify,
+            "verification does not record the selected interpreter version")
+    for fixture in ("core_packaging_check.py", "adapter_check.py"):
+        require(f'"$python_bin" -B -I -S "$root/tests/{fixture}"' in verify,
+                "core package/adapter boundary check is missing")
     require(verify.count("scripts/check_acceptance.py") == 3, "acceptance is not checked before export and after verification")
 
     workflow_root = ROOT / ".github/workflows"

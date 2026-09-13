@@ -1,12 +1,22 @@
 # PlzDo Local
 
-PlzDo Local is a local-first control plane for AI-assisted engineering. It adds deterministic project routing, bounded durable work, explicit authority, and evidence-backed completion without adding a model provider, daemon, scheduler, telemetry client, or package downloader.
+PlzDo's core is a local control plane for AI-assisted engineering. It adds deterministic project routing, bounded durable work, explicit authority, and evidence-backed completion. The default `plzdo` distribution contains this provider-free core and its read-only parent adapter; local model execution belongs to the separately selected runtime.
+
+This source preview updates the harness only. It requires no local LLM or cloud
+provider account. Local-model runtime and external AI integrations are deferred
+and are not included in this repository. For internal use, obtain the source
+through an organization-approved channel and follow that organization's policy.
 
 It is not an AI model, editor, deployment system, or operating-system sandbox. It gives an existing coding agent and repository a compact working contract.
 
 ## Quick Start
 
-Requirements: macOS or Linux, Python 3.9 or newer, Git 2.30 or newer, and Bash 3.2 or newer.
+Core requirements: macOS or Linux, Python 3.9 or newer, Git 2.30 or newer, and Bash 3.2 or newer.
+
+The optional parent adapter requires Python 3.11+ for its verifier and configured
+core subprocess. The integrated verification harness uses Python 3.11+.
+Explicit `--release-matrix` and exact-commit `--acceptance` verification also
+require Python 3.9 for the core compatibility lane.
 
 ```bash
 git clone https://github.com/taljeon/plzdo.git
@@ -21,7 +31,11 @@ reviewed checkout through an approved source, setup, verification, state, and
 managed-resource installation run locally without package downloads or hosted
 services. See [Restricted Environment Setup](docs/restricted-environment.md).
 
-Use the checked-in `./bin/plzdo` wrapper from a reviewed checkout. PlzDo does not provide a prefix installer, edit shell startup files, or create a global launcher.
+Use the checked-in `./bin/plzdo` wrapper from a reviewed checkout. The 0.3.0
+source also defines a `plzdo` distribution containing core and parent adapter.
+The `local` extra is reserved for a matching runtime release; it is not part of
+this source preview. The core has no runtime dependency or execution dispatch. See the
+[package and isolated launcher contract](docs/core-adapter-packaging.md).
 
 Durable state resolves in this order:
 
@@ -81,7 +95,7 @@ flowchart TD
     K --> M["Completion report"]
 ```
 
-The runtime separates three concerns:
+The core separates three concerns:
 
 1. A compact policy kernel in `AGENTS.md`, `TASKS/current.md`, and `CHECKS.md`.
 2. A dependency-free local control plane under `plzdo_local/`.
@@ -91,11 +105,15 @@ See [Architecture](docs/architecture.md) for the module and trust-boundary map.
 
 ## Local-Only Boundary
 
-Checked-in PlzDo commands use local files and explicitly bounded local subprocesses. They do not call model providers, browsers, remote APIs, package managers, mail systems, schedulers, daemons, hooks, or telemetry endpoints.
+The `plzdo` core commands use local files and explicitly bounded local subprocesses. They do not call model providers, browsers, remote APIs, package managers, mail systems, schedulers, daemons, hooks, or telemetry endpoints. The parent adapter runs only the fixed read-only core status commands.
 
 `plzdo review prepare` creates a sanitized local bundle; `validate` checks it; `import` records an already-local answer as advisory evidence. PlzDo never sends the bundle. Manual upload or copy is an operator-owned egress event.
 
-A hosted coding agent still uses its own vendor for inference. PlzDo's local-only claim is about the shipped control-plane commands, not the surrounding agent or an OS firewall. See [Local-Only Boundary](docs/local-only-boundary.md) and [Data and Privacy](docs/data-and-privacy.md).
+Local-model generation and external AI integration are separate optional work.
+They are not published by this harness update and are not needed for its commands.
+This source preview makes no claim about live model execution or OS isolation.
+
+A hosted coding agent still uses its own vendor for inference. The core's local-only claim does not describe an OS firewall or the surrounding agent. See [Local-Only Boundary](docs/local-only-boundary.md) and [Data and Privacy](docs/data-and-privacy.md).
 
 No hosted CI, external AI reviewer, or remote validation service is required to
 accept a change. A Git push or pull request is an explicit code-transfer event
@@ -129,7 +147,7 @@ Run the integrated gate:
 ./scripts/verify
 ```
 
-It covers contracts, command lifecycles, routing, durable state, P5 refusal and rollback paths, managed resources, local review and monitoring, privacy scanning, release inventory, and negative fixtures. Tests use temporary synthetic data and no provider credentials.
+The core gate covers contracts, command lifecycles, routing, durable state, P5 refusal and rollback paths, managed resources, the v2 parent adapter, staged installation, local review and monitoring, privacy scanning, release inventory, and negative fixtures. Tests use temporary synthetic data and no provider credentials. The optional runtime has separate component and distribution checks.
 
 For collaboration, record the exact commit and local gate result in the pull
 request. A reviewer should check out that commit and run
@@ -173,4 +191,6 @@ See [What Not to Automate](docs/what-not-to-automate.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+The harness retains the existing MIT license in [LICENSE](LICENSE). Models,
+provider tools and the deferred runtime/integration projects are not included
+or licensed by this repository.

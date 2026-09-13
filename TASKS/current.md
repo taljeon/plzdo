@@ -1,14 +1,16 @@
 # Current Task
 
-## Repository State
+Maintain the provider-free PlzDo harness and fixed read-only parent adapter.
+Use the latest operator request and repository-local checks for each change.
+Target application, model execution and publication have separate authority.
 
-- Status: released public project
-- Scope: local-first full control plane
+The core retains the completed approval-autonomy improvements. Current work
+separates provider-free core and adapter from optional execution components.
+Local-model runtime and external integrations are outside the current repository
+update. The harness works without those components or provider credentials.
 
-## Current Work
-
-No repository-wide implementation task is active. New work starts from an accepted issue or an explicit operator request and must declare its own scope and evidence.
-
-## Evidence
-
-Contributor verification is defined in `CHECKS.md`. Maintainer-only publication steps are defined in `docs/releasing.md`. Release versions and publication facts belong in `VERSION`, Git, and GitHub rather than in this current-task file.
+Use CHECKS.md and the runtime component checks for contributor verification.
+Maintainer publication procedures remain in [docs/releasing.md](../docs/releasing.md).
+Source hashes and gate results are recorded alongside the change.
+Versions and publication facts belong in VERSION, Git and release
+metadata. A passing candidate is not a published release or a live-isolation proof.

@@ -10,7 +10,21 @@ class PathPolicyError(ValueError):
 
 
 def repository_root() -> Path:
-    return Path(__file__).resolve().parent.parent
+    """Fixed resource root for a source checkout or an installed core package.
+
+    The installed root is package-owned, never the containing site-packages.
+    Keep this historical name for callers that consume bundled source data.
+    """
+    package = Path(__file__).resolve().parent
+    bundled = package / "_bundled"
+    if bundled.exists() or bundled.is_symlink():
+        if bundled.is_symlink() or not bundled.is_dir():
+            raise PathPolicyError("installed resource root must be a real directory")
+        return bundled
+    root = package.parent
+    if not (root / "VERSION").is_file() or not (root / "bin" / "plzdo_entry.py").is_file():
+        raise PathPolicyError("source or installed core resource layout unavailable")
+    return root
 
 
 def resolve_state_root(

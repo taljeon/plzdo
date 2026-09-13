@@ -14,6 +14,7 @@ except ModuleNotFoundError:  # Python 3.9/3.10 use the strict fixed-format fallb
     tomllib = None  # type: ignore[assignment]
 
 from . import __version__
+from .paths import repository_root
 
 
 MANAGED_INSTALL_SCHEMA_VERSION = "plzdo-local.managed-install.v1"
@@ -40,7 +41,7 @@ PUBLIC_AGENTS = (
 )
 STATIC_CATALOGS = ("design", "sources")
 
-_REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
+_REPOSITORY_ROOT = repository_root()
 _RESOURCE_ROOTS = {
     RESOURCE_SKILL: _REPOSITORY_ROOT / "resources" / "public-skills",
     RESOURCE_AGENT: _REPOSITORY_ROOT / "resources" / "public-agents",

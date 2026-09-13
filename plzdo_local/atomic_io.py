@@ -17,31 +17,72 @@ Validator = Callable[[Any], None]
 
 
 @contextmanager
-def exclusive_file_lock(path: Path, *, allowed_root: Path) -> Iterator[None]:
+def exclusive_file_lock(path: Path, *, allowed_root: Path) -> Iterator[Callable[[], None]]:
+    """Hold the canonical lock and yield an explicit pre-side-effect identity guard.
+
+    Existing callers may ignore the guard. Callers that pause or do substantial
+    work while locked must invoke it before writes; an exit-only check is too late.
+    """
     lock_path = ensure_contained(path, allowed_root, label="lock path")
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = ensure_contained(lock_path, allowed_root, label="lock path")
+    root_path = allowed_root.expanduser().resolve(strict=True)
     directory_flags = os.O_RDONLY
     if hasattr(os, "O_DIRECTORY"):
         directory_flags |= os.O_DIRECTORY
     if hasattr(os, "O_NOFOLLOW"):
         directory_flags |= os.O_NOFOLLOW
-    directory_descriptor = os.open(lock_path.parent, directory_flags)
     lock_flags = os.O_CREAT | os.O_RDWR
     if hasattr(os, "O_NOFOLLOW"):
         lock_flags |= os.O_NOFOLLOW
+    directories: list[tuple[Path, int, tuple[int, int]]] = []
     try:
+        current_path = root_path
+        directory_descriptor = os.open(root_path, directory_flags)
+        info = os.fstat(directory_descriptor)
+        directories.append((current_path, directory_descriptor, (info.st_dev, info.st_ino)))
+        for part in lock_path.parent.relative_to(root_path).parts:
+            current_path = current_path / part
+            directory_descriptor = os.open(part, directory_flags, dir_fd=directory_descriptor)
+            info = os.fstat(directory_descriptor)
+            directories.append((current_path, directory_descriptor, (info.st_dev, info.st_ino)))
         descriptor = os.open(lock_path.name, lock_flags, 0o600, dir_fd=directory_descriptor)
         with os.fdopen(descriptor, "a+") as handle:
-            if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+            locked_info = os.fstat(handle.fileno())
+            if not stat.S_ISREG(locked_info.st_mode):
                 raise ValueError("lock path must be a regular file")
+            locked_identity = (locked_info.st_dev, locked_info.st_ino)
+
+            def verify_held() -> None:
+                if ensure_contained(lock_path, root_path, label="lock path") != lock_path:
+                    raise ValueError("lock path changed while acquiring or holding the lock")
+                for current_path, held_descriptor, identity in directories:
+                    current = os.stat(current_path, follow_symlinks=False)
+                    held = os.fstat(held_descriptor)
+                    if (
+                        not stat.S_ISDIR(current.st_mode)
+                        or (current.st_dev, current.st_ino) != identity
+                        or (held.st_dev, held.st_ino) != identity
+                    ):
+                        raise ValueError("lock root or ancestor changed while acquiring or holding the lock")
+                current = os.stat(lock_path.name, dir_fd=directory_descriptor, follow_symlinks=False)
+                held = os.fstat(handle.fileno())
+                if (
+                    not stat.S_ISREG(current.st_mode)
+                    or (current.st_dev, current.st_ino) != locked_identity
+                    or (held.st_dev, held.st_ino) != locked_identity
+                ):
+                    raise ValueError("held lock file is no longer the canonical lock")
+
             fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
             try:
-                yield
+                verify_held()
+                yield verify_held
             finally:
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
     finally:
-        os.close(directory_descriptor)
+        for _, descriptor, _ in reversed(directories):
+            os.close(descriptor)
 
 
 def atomic_write_text(

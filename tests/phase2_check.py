@@ -630,7 +630,7 @@ def run_cli(*args: str, state_root: Path) -> subprocess.CompletedProcess[str]:
     environment = test_environment()
     environment["PLZDO_HOME"] = str(state_root)
     return subprocess.run(
-        [sys.executable, "-B", "-I", str(ROOT / "bin/plzdo_entry.py"), *args],
+        [sys.executable, "-B", "-I", "-S", str(ROOT / "bin/plzdo_entry.py"), *args],
         cwd=ROOT,
         check=False,
         capture_output=True,

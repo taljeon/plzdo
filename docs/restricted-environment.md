@@ -8,12 +8,15 @@ requests are explicit operator actions and must use an approved remote.
 ## Requirements
 
 - macOS or Linux;
-- Python 3.9 or newer available as a system executable;
+- Python 3.9 or newer available as a system executable for standalone core;
 - Git 2.30 or newer;
 - Bash 3.2 or newer;
 - a reviewed PlzDo Local tag or commit obtained through an approved channel.
 
 No Python virtual environment or third-party package installation is required.
+Complete release verification additionally needs a Python 3.11+ harness and an
+exact Python 3.9 installation. The optional adapter also requires Python 3.11+
+for its verifier and configured core subprocess.
 
 ## Verify The Checkout
 
@@ -28,8 +31,10 @@ git status --short --branch
 ```
 
 `./scripts/verify` exports a Git-metadata-free copy, uses temporary synthetic
-state, and runs the complete local acceptance contract. It does not contact a
-remote service.
+state, and runs integrated checks with the selected Python 3.11+ interpreter.
+It does not contact a remote service. `--release-matrix` and exact-commit
+`--acceptance` additionally require the core Python 3.9 lane and record both
+interpreter versions. `./scripts/verify --core-python39` runs only that lane.
 
 ## Choose Local State
 

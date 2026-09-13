@@ -25,7 +25,7 @@ The gate runs these executable contracts:
 2. `tests/smoke_check.py`: base CLI, path containment, atomic writes, startup isolation, and scanner execution.
 3. `tests/phase2_check.py`: catalog, registry, routing, deterministic project-frame planning, marker safety, and target-write refusal.
 4. `tests/phase3_check.py`: formalization, context, state, checkpoint provenance, bounded loops, memory, findings, metrics, and exact schema/runtime conformance cases.
-5. `tests/phase4_check.py`: default-disabled P5 planning, authorization, execution, interruption, drift, verification, rollback, Git identity, process cleanup, and structural/semantic conformance.
+5. `tests/phase4_check.py`: default-disabled P5 planning, authorization, execution, interruption, drift, verification, rollback, Git identity, process cleanup, and structural/semantic conformance. Profile digest tests cover all new-write boundaries, null parity, unchanged grants on denial, and actual authenticated legacy-report status and rollback.
 6. `tests/phase5_check.py`: managed skills and agents, descriptor-relative containment, atomic no-replace publication, drift handling, static catalog policy, and dependency-free auditing.
 7. `tests/local_ops_check.py`: sanitized local review bundles, advisory import, read-only monitoring, and repository preflight.
 8. `tests/release_check.py`: exact Git-object fixture audits, Git environment isolation, isolated publication-wrapper startup, metadata and ref scanning, manifest refusal cases, scanner coverage, and absence of the optional prefix installer.
@@ -45,5 +45,12 @@ The gate runs these executable contracts:
 - P5 accepts only the fixed managed frame and an operator-enabled exact plan whose approval is bound to the current repository profile; it is not an arbitrary command runner.
 
 ## Maintainer Release Checks
+
+The default integrated gate uses a Python 3.11+ harness for adapter and metadata
+checks. `--release-matrix` and exact-commit `--acceptance` additionally require
+the exact Python 3.9 core lane and record both executable paths and versions.
+Core-only packaging checks import no optional adapter or runtime and keep the
+default dependency list empty. A missing or failing 3.9 interpreter fails release
+verification without selecting a newer interpreter for that lane.
 
 The integrated gate above is the contributor contract. Privacy review, exact release freezing, five-run evidence, Git metadata checks, tagging, and publication are maintainer procedures documented separately in [docs/releasing.md](docs/releasing.md).

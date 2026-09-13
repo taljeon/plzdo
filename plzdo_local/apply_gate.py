@@ -18,7 +18,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 from .atomic_io import atomic_write_json, exclusive_file_lock
 from .catalog import CatalogError, get_repository, repository_profile_digest, validate_catalog
@@ -361,12 +361,8 @@ def authorize_apply(plan: Mapping[str, Any], catalog: Mapping[str, Any]) -> dict
     target = _repository_target(repository)
     lock_path = _target_lock_path(state_root, durable_plan)
 
-    with exclusive_file_lock(lock_path, allowed_root=state_root):
-        if _report_path(state_root, durable_plan, create_parent=False, missing_ok=True).exists():
-            raise ApplyAuthorizationError(
-                "report-exists",
-                "this exact plan already has apply evidence; create a fresh plan",
-            )
+    with exclusive_file_lock(lock_path, allowed_root=state_root) as verify_lock:
+        _require_authorization_available(state_root, durable_plan, key, _utc_now())
         root_descriptor = _open_target_root(target)
         try:
             _require_runtime_plan_binding(
@@ -379,14 +375,31 @@ def authorize_apply(plan: Mapping[str, Any], catalog: Mapping[str, Any]) -> dict
             )
             _require_tty_confirmation("authorize", durable_plan["planFingerprint"])
             now = _utc_now()
+            # Human input is not an atomic boundary for other state writers.
+            _require_held_apply_lock(verify_lock)
+            _require_integrity_state_current(state_root, key)
+            _require_authorization_available(state_root, durable_plan, key, now)
+            _require_runtime_plan_binding(
+                durable_plan,
+                catalog,
+                repository,
+                target,
+                root_descriptor,
+                require_clean=True,
+            )
+            _require_held_apply_lock(verify_lock)
+            _require_integrity_state_current(state_root, key)
             grant = _build_authorization_grant(durable_plan, now, key)
             active_path = _authorization_path(state_root, durable_plan["planFingerprint"])
+            _require_held_apply_lock(verify_lock)
             _retire_expired_authorization(active_path, state_root, key, now)
             if active_path.exists() or active_path.is_symlink():
                 raise ApplyAuthorizationError(
                     "authorization-exists",
                     "an unconsumed authorization already exists for this exact plan",
                 )
+            _require_held_apply_lock(verify_lock)
+            _require_integrity_state_current(state_root, key)
             _write_new_json(
                 active_path,
                 grant,
@@ -405,20 +418,35 @@ def execute_apply(plan: Mapping[str, Any], catalog: Mapping[str, Any]) -> dict[s
     durable_plan = copy.deepcopy(dict(plan))
     repository = _require_enabled_repository(catalog, durable_plan["repositoryId"])
     _require_catalog_binding(catalog, durable_plan, repository)
-    _require_tty_confirmation("execute", durable_plan["planFingerprint"])
     state_root = _private_state_root(create=False)
     key = _load_integrity_key(state_root, create=False)
     target = _repository_target(repository)
-    report_path = _report_path(state_root, durable_plan, create_parent=True)
+    # Predictable denials precede foreground input, but never authorize execution.
+    report_path = _report_path(state_root, durable_plan, create_parent=False, missing_ok=True)
+    _require_execution_report_absent(report_path)
+    _require_executable_authorization(state_root, durable_plan, key)
     lock_path = _target_lock_path(state_root, durable_plan)
+    observed_lock_identity = _apply_lock_identity(state_root, lock_path)
+    preflight_root = _open_target_root(target)
+    try:
+        _require_runtime_plan_binding(
+            durable_plan, catalog, repository, target, preflight_root, require_clean=True,
+        )
+    finally:
+        os.close(preflight_root)
+    # Target checks may take time; an already-expired grant needs no prompt.
+    _require_executable_authorization(state_root, durable_plan, key)
+    _require_tty_confirmation("execute", durable_plan["planFingerprint"])
 
-    with exclusive_file_lock(lock_path, allowed_root=state_root):
-        if report_path.exists() or report_path.is_symlink():
-            raise ApplyExecutionError(
-                "report-exists",
-                "apply evidence already exists; inspect or resume rollback",
-                report_path=report_path,
-            )
+    with exclusive_file_lock(lock_path, allowed_root=state_root) as verify_held:
+        def verify_lock() -> None:
+            verify_held()
+            if _apply_lock_identity(state_root, lock_path) != observed_lock_identity:
+                raise ValueError("apply state or lock identity changed during confirmation")
+
+        _require_held_apply_lock(verify_lock)
+        _require_integrity_state_current(state_root, key)
+        _require_execution_report_absent(report_path)
         root_descriptor = _open_target_root(target)
         try:
             _require_runtime_plan_binding(
@@ -447,9 +475,11 @@ def execute_apply(plan: Mapping[str, Any], catalog: Mapping[str, Any]) -> dict[s
                     "target-directory-fingerprint",
                     "target parent directories changed after planning",
                 )
-            grant = _load_active_authorization(state_root, durable_plan, key)
-            _require_authorization_binding(grant, durable_plan)
-            _require_authorization_current(grant, _utc_now())
+            grant = _require_executable_authorization(state_root, durable_plan, key)
+            _require_held_apply_lock(verify_lock)
+            report_path = _report_path(state_root, durable_plan, create_parent=True)
+            _require_held_apply_lock(verify_lock)
+            _require_integrity_state_current(state_root, key)
             _consume_authorization(state_root, durable_plan, grant, key)
 
             report = _build_backup_report(
@@ -1245,7 +1275,7 @@ def _require_private_directory(path: Path, label: str) -> None:
         raise ApplyPolicyError("private-state-permissions", f"{label} must be owner-only (0700)")
 
 
-def _private_directory(root: Path, *parts: str, create: bool) -> Path:
+def _private_directory(root: Path, *parts: str, create: bool, missing_ok: bool = False) -> Path:
     current = root
     for part in parts:
         current = ensure_contained(current / part, root, label="real-apply state path")
@@ -1253,6 +1283,8 @@ def _private_directory(root: Path, *parts: str, create: bool) -> Path:
             raise ApplyPathError("private-state-symlink", "real-apply state must not cross symlinks")
         if not current.exists():
             if not create:
+                if missing_ok:
+                    continue
                 raise ApplyPathError("private-state-missing", "required real-apply state is missing")
             try:
                 current.mkdir(mode=0o700)
@@ -1316,6 +1348,32 @@ def _target_lock_id(plan: Mapping[str, Any]) -> str:
     return _json_fingerprint({"targetRoot": plan["target"]["root"]})
 
 
+def _require_integrity_state_current(state_root: Path, key: bytes) -> None:
+    if _private_state_root(create=False) != state_root:
+        raise ApplyPathError("state-root-changed", "real-apply state root changed during confirmation")
+    if _load_integrity_key(state_root, create=False) != key:
+        raise ApplyAuthorizationError("authorization-key", "integrity key changed during confirmation")
+
+
+def _apply_lock_identity(state_root: Path, lock_path: Path) -> tuple[tuple[int, int], ...]:
+    """Pin the pre-TTY state/lock path; the held-FD guard separately proves ownership."""
+    current = state_root
+    paths = [current]
+    for part in lock_path.relative_to(state_root).parts:
+        current = current / part
+        paths.append(current)
+    return tuple((info.st_dev, info.st_ino) for info in (
+        os.stat(path, follow_symlinks=False) for path in paths
+    ))
+
+
+def _require_held_apply_lock(verify_lock: Callable[[], None]) -> None:
+    try:
+        verify_lock()
+    except (OSError, ValueError) as exc:
+        raise ApplyPathError("state-lock-changed", "real-apply state no longer uses the held canonical lock") from exc
+
+
 def _target_lock_path(state_root: Path, plan: Mapping[str, Any]) -> Path:
     directory = _private_directory(state_root, "real-apply", "locks", create=True)
     return ensure_contained(
@@ -1325,9 +1383,13 @@ def _target_lock_path(state_root: Path, plan: Mapping[str, Any]) -> Path:
     )
 
 
-def _authorization_path(state_root: Path, plan_fingerprint: str) -> Path:
+def _authorization_path(
+    state_root: Path, plan_fingerprint: str, *, create_parent: bool = True
+) -> Path:
     _require_match(plan_fingerprint, _SHA256, "authorization plan fingerprint")
-    directory = _private_directory(state_root, "real-apply", "authorizations", create=True)
+    directory = _private_directory(
+        state_root, "real-apply", "authorizations", create=create_parent, missing_ok=not create_parent
+    )
     return ensure_contained(
         directory / f"{plan_fingerprint}.json",
         state_root,
@@ -1335,8 +1397,12 @@ def _authorization_path(state_root: Path, plan_fingerprint: str) -> Path:
     )
 
 
-def _consumed_authorization_path(state_root: Path, grant: Mapping[str, Any]) -> Path:
-    directory = _private_directory(state_root, "real-apply", "consumed", create=True)
+def _consumed_authorization_path(
+    state_root: Path, grant: Mapping[str, Any], *, create_parent: bool = True
+) -> Path:
+    directory = _private_directory(
+        state_root, "real-apply", "consumed", create=create_parent, missing_ok=not create_parent
+    )
     return ensure_contained(
         directory / f"{grant['planFingerprint']}-{grant['nonce']}.json",
         state_root,
@@ -1469,15 +1535,56 @@ def _require_authorization_current(grant: Mapping[str, Any], now: datetime) -> N
         raise ApplyAuthorizationError("authorization-expired", "authorization grant has expired")
 
 
+def _require_authorization_available(
+    state_root: Path, plan: Mapping[str, Any], key: bytes, now: datetime
+) -> None:
+    report_path = _report_path(state_root, plan, create_parent=False, missing_ok=True)
+    if report_path.exists() or report_path.is_symlink():
+        raise ApplyAuthorizationError(
+            "report-exists",
+            "this exact plan already has apply evidence; create a fresh plan",
+        )
+    active_path = _authorization_path(state_root, plan["planFingerprint"], create_parent=False)
+    if not active_path.exists() and not active_path.is_symlink():
+        return
+    grant = _load_active_authorization(state_root, plan, key)
+    _require_authorization_binding(grant, plan)
+    if now < _parse_timestamp(grant["expiresAt"], "authorization expiresAt"):
+        raise ApplyAuthorizationError(
+            "authorization-exists",
+            "an unconsumed authorization already exists for this exact plan",
+        )
+
+
+def _require_execution_report_absent(report_path: Path) -> None:
+    if report_path.exists() or report_path.is_symlink():
+        raise ApplyExecutionError(
+            "report-exists",
+            "apply evidence already exists; inspect or resume rollback",
+            report_path=report_path,
+        )
+
+
+def _require_executable_authorization(
+    state_root: Path, plan: Mapping[str, Any], key: bytes
+) -> dict[str, Any]:
+    grant = _load_active_authorization(state_root, plan, key)
+    _require_authorization_binding(grant, plan)
+    _require_authorization_current(grant, _utc_now())
+    return grant
+
+
 def _load_active_authorization(
     state_root: Path,
     plan: Mapping[str, Any],
     key: bytes,
 ) -> dict[str, Any]:
-    path = _authorization_path(state_root, plan["planFingerprint"])
+    path = _authorization_path(state_root, plan["planFingerprint"], create_parent=False)
+    if not path.exists() and not path.is_symlink():
+        raise ApplyAuthorizationError("authorization-missing", "authorization grant does not exist")
     grant = _read_json_file(path, MAX_GRANT_BYTES, "authorization grant")
     _validate_authorization_grant(grant, key)
-    consumed = _consumed_authorization_path(state_root, grant)
+    consumed = _consumed_authorization_path(state_root, grant, create_parent=False)
     if consumed.exists() or consumed.is_symlink():
         raise ApplyAuthorizationError("authorization-consumed", "authorization nonce was already consumed")
     return grant

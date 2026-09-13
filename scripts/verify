@@ -6,24 +6,45 @@ root=$(CDPATH= cd -- "$script_dir/.." && pwd -P)
 export PATH="/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin"
 
 acceptance_expected=""
+core_python39=0
+release_matrix=0
 if [ "$#" -eq 2 ] && [ "$1" = "--acceptance" ]; then
+  if [ -z "$2" ]; then
+    echo "FAIL acceptance requires a nonempty full commit SHA" >&2
+    exit 2
+  fi
   acceptance_expected=$2
+  release_matrix=1
+elif [ "$#" -eq 1 ] && [ "$1" = "--release-matrix" ]; then
+  release_matrix=1
+elif [ "$#" -eq 1 ] && [ "$1" = "--core-python39" ]; then
+  core_python39=1
 elif [ "$#" -ne 0 ]; then
-  echo "usage: verify [--acceptance <full-commit-sha>]" >&2
+  echo "usage: verify [--acceptance <full-commit-sha> | --release-matrix | --core-python39]" >&2
   exit 2
 fi
 
 python_bin=""
-for candidate in /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
-  if [ -x "$candidate" ]; then
-    python_bin="$candidate"
-    break
-  fi
-done
+if [ "$core_python39" -eq 1 ]; then
+  for candidate in /usr/local/bin/python3.9 /opt/homebrew/bin/python3.9 /usr/bin/python3.9 /usr/local/bin/python3 /opt/homebrew/bin/python3 /usr/bin/python3; do
+    if [ -x "$candidate" ] && "$candidate" -I -S -B -c 'import sys; raise SystemExit(sys.version_info[:2] != (3, 9))' 2>/dev/null; then
+      python_bin="$candidate"
+      break
+    fi
+  done
+else
+  for candidate in /usr/local/bin/python3 /opt/homebrew/bin/python3 /usr/bin/python3; do
+    if [ -x "$candidate" ] && "$candidate" -I -S -B -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' 2>/dev/null; then
+      python_bin="$candidate"
+      break
+    fi
+  done
+fi
 if [ -z "$python_bin" ]; then
-  echo "FAIL Python 3 was not found in a supported system location" >&2
+  echo "FAIL required verification interpreter was not found: core lane needs Python 3.9; full harness needs Python 3.11+" >&2
   exit 1
 fi
+"$python_bin" -B -I -S -c 'import sys; print("verification interpreter:", sys.executable, sys.version.split()[0])'
 
 acceptance_head=""
 if [ -n "$acceptance_expected" ]; then
@@ -45,7 +66,13 @@ if [ -e "$root/.git" ] && [ "${PLZDO_VERIFY_EXPORTED:-0}" != "1" ]; then
       exit 1
     fi
   fi
-  PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify"
+  if [ "$core_python39" -eq 1 ]; then
+    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify" --core-python39
+  elif [ "$release_matrix" -eq 1 ]; then
+    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify" --release-matrix
+  else
+    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$export_tmp/tree/scripts/verify"
+  fi
   if [ -n "$acceptance_expected" ]; then
     acceptance_after_verify=$("$python_bin" -B -I "$root/scripts/check_acceptance.py" "$root" "$acceptance_expected")
     if [ "$acceptance_after_verify" != "$acceptance_head" ]; then
@@ -84,6 +111,12 @@ fi
 "$python_bin" -B -I "$root/tests/phase5_check.py"
 "$python_bin" -B -I "$root/tests/local_ops_check.py"
 "$python_bin" -B -I "$root/tests/release_check.py"
+if [ "$core_python39" -eq 1 ]; then
+  "$python_bin" -B -I -S "$root/tests/core_packaging_check.py" --core-only
+else
+  "$python_bin" -B -I -S "$root/tests/core_packaging_check.py"
+  "$python_bin" -B -I -S "$root/tests/adapter_check.py"
+fi
 "$root/scripts/check-release-leaks" --root "$root" --quiet-warnings
 "$root/scripts/check-release-leaks" --self-test
 
@@ -92,4 +125,13 @@ if find "$root" -type d -name __pycache__ -print | grep -q .; then
   exit 1
 fi
 
-echo "plzdo local integrated verification passed"
+if [ "$core_python39" -eq 1 ]; then
+  echo "plzdo core Python 3.9 verification passed"
+else
+  if [ "$release_matrix" -eq 1 ]; then
+    PLZDO_VERIFY_EXPORTED=1 /bin/sh "$root/scripts/verify" --core-python39
+    echo "plzdo release compatibility matrix verification passed"
+  else
+    echo "plzdo local integrated verification passed"
+  fi
+fi

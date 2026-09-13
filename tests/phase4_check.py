@@ -13,6 +13,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from contextlib import contextmanager
 from datetime import timedelta
@@ -45,6 +46,7 @@ from plzdo_local.apply_gate import (
     validate_apply_plan,
 )
 from plzdo_local.catalog import (
+    CatalogValidationError,
     build_catalog,
     build_repository,
     repository_profile_digest,
@@ -76,6 +78,9 @@ def main() -> int:
         ("apply schema and exact planned bytes are bound", check_schema_and_plan_bytes),
         ("default and policy gates fail closed", check_negative_policy_gates),
         ("P5 approval is bound to the repository profile", check_profile_approval_binding),
+        ("profile digest and optional-field shape are exact", check_profile_digest_and_shape),
+        ("all new-write boundaries reject missing or stale profile approval", check_profile_write_boundaries),
+        ("authenticated legacy reports remain inspectable and recoverable", check_legacy_report_recovery),
         ("clean Git and foreground fingerprint confirmation are mandatory", check_clean_git_and_confirmation),
         ("target source catalog and plan drift are rejected", check_fingerprint_drift),
         ("post-plan target symlinks cannot redirect writes", check_symlink_substitution),
@@ -83,6 +88,7 @@ def main() -> int:
         ("updated managed bytes use exact backups", check_existing_byte_backup),
         ("mid-write failure restores the original fixture", check_mid_write_rollback),
         ("authorization MAC expiry and one-time consumption are enforced", check_authorization_integrity),
+        ("predictable grant denials precede prompts and grant races remain one-use", check_authorization_preflight_and_races),
         ("root replacement and per-file TOCTOU are detected", check_root_and_file_toctou),
         ("interrupted apply and rollback resume idempotently", check_crash_resumable_rollback),
         ("repository Git filters never execute", check_git_filters_never_execute),
@@ -397,6 +403,180 @@ def check_profile_approval_binding() -> None:
             == repository_profile_digest(renewed["repositories"][0]),
             "renewed profile approval was not carried into the plan",
         )
+
+
+def check_profile_digest_and_shape() -> None:
+    catalog_schema = json.loads((ROOT / "schemas/catalog.schema.json").read_text(encoding="utf-8"))
+    plan_schema = json.loads((ROOT / "schemas/apply-plan.schema.json").read_text(encoding="utf-8"))
+    with git_fixture(enabled=True) as fixture:
+        repository = fixture.catalog["repositories"][0]
+        before = copy.deepcopy(repository)
+        expected_payload = copy.deepcopy(repository)
+        expected_payload["realApply"]["approval"].pop("profileSha256")
+        expected = hashlib.sha256(json.dumps(
+            expected_payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"), allow_nan=False,
+        ).encode("ascii")).hexdigest()
+        require(repository_profile_digest(repository) == expected, "profile canonical encoding differs")
+        require(repository == before, "profile digest mutated its input")
+
+        reordered = dict(reversed(list(repository.items())))
+        reordered["realApply"] = dict(reversed(list(repository["realApply"].items())))
+        reordered["realApply"]["approval"] = dict(reversed(list(repository["realApply"]["approval"].items())))
+        require(repository_profile_digest(reordered) == expected, "object key order changed the profile digest")
+        for self_value in (None, "0" * 64, "not-a-digest"):
+            changed = copy.deepcopy(repository)
+            changed["realApply"]["approval"]["profileSha256"] = self_value
+            require(repository_profile_digest(changed) == expected, "self field affected the profile digest")
+        require(repository_profile_digest(expected_payload) == expected, "absent self field changed the digest")
+
+        changes = (
+            (("id",), "different-repo"), (("path",), str(fixture.base)),
+            (("state",), "archived"), (("workflowLane",), "standard"),
+            (("rolloutTier",), "observe"), (("sourceOfTruth",), ["README.md"]),
+            (("outputs",), []), (("protectedPaths",), ["private"]),
+            (("realApply", "enabled"), False), (("realApply", "operatorOnly"), False),
+            (("realApply", "approval", "id"), "renewed-approval"),
+            (("realApply", "approval", "approvedAt"), "2026-08-06T00:00:00+00:00"),
+            (("realApply", "approval", "approvalHash"), "b" * 64),
+        )
+        for keys, value in changes:
+            changed = copy.deepcopy(repository)
+            target = changed
+            for key in keys[:-1]:
+                target = target[key]
+            target[keys[-1]] = value
+            require(repository_profile_digest(changed) != expected, "profile field was not bound: " + ".".join(keys))
+        nonfinite = copy.deepcopy(repository)
+        nonfinite["extra"] = float("nan")
+        expect_error(ValueError, lambda: repository_profile_digest(nonfinite))
+
+        plan = make_plan(fixture)
+        for value in (None, False, 7, "", "a" * 63, "A" * 64, ["a" * 64], {}):
+            changed = copy.deepcopy(repository)
+            changed["realApply"]["approval"]["profileSha256"] = value
+            expect_error(CatalogValidationError, lambda: validate_repository(changed))
+            require(not _schema_accepts(catalog_schema, {"schemaVersion": fixture.catalog["schemaVersion"],
+                                                       "repositories": [changed]}), "catalog schema accepted invalid profile digest")
+            malformed_plan = copy.deepcopy(plan)
+            malformed_plan["approval"]["profileSha256"] = value
+            malformed_plan.pop("planId")
+            malformed_plan.pop("planFingerprint")
+            malformed_plan["planId"] = "apply-" + apply_gate._json_fingerprint(malformed_plan)[:24]
+            malformed_plan["planFingerprint"] = apply_gate._json_fingerprint(malformed_plan)
+            require(not _runtime_plan_accepts(malformed_plan), "plan parser accepted invalid profile digest")
+            require(not _schema_accepts(plan_schema, malformed_plan), "plan schema accepted invalid profile digest")
+        legacy_catalog = build_catalog([expected_payload])
+        require(_schema_accepts(catalog_schema, legacy_catalog), "catalog schema no longer accepts absent profile field")
+
+
+def check_profile_write_boundaries() -> None:
+    def snapshot(root: Path) -> list[Any]:
+        result = []
+        for path in [root] + sorted(root.rglob("*")):
+            metadata = path.lstat()
+            content = path.read_bytes() if path.is_file() else None
+            result.append((str(path.relative_to(root)), metadata.st_mode, metadata.st_ino,
+                           metadata.st_nlink, metadata.st_mtime_ns, content))
+        return result
+
+    for missing in (True, False):
+        with git_fixture(enabled=True) as fixture:
+            plan = make_plan(fixture)
+            invalid = copy.deepcopy(fixture.catalog)
+            if missing:
+                invalid["repositories"][0]["realApply"]["approval"].pop("profileSha256")
+                code = "profile-approval-required"
+            else:
+                invalid["repositories"][0]["sourceOfTruth"] = ["README.md"]
+                code = "profile-approval-drift"
+            before = snapshot(fixture.base)
+            with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=AssertionError("profile denial prompted")):
+                for operation in (
+                    lambda: plan_apply(invalid, "fixture-repo", PROJECT, force=True, created_at=PLAN_TIME),
+                    lambda: authorize_apply(plan, invalid),
+                    lambda: execute_apply(plan, invalid),
+                ):
+                    expect_error(ApplyPolicyError, operation, code=code)
+                    require(snapshot(fixture.base) == before, "profile denial changed target or state")
+            require(not fixture.state.exists(), "unapproved profile created state")
+
+            grant = authorize(fixture, plan)
+            active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+            grant_bytes = active.read_bytes()
+            before = snapshot(fixture.base)
+            with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=AssertionError("profile denial prompted")):
+                for operation in (lambda: authorize_apply(plan, invalid), lambda: execute_apply(plan, invalid)):
+                    expect_error(ApplyPolicyError, operation, code=code)
+                    require(snapshot(fixture.base) == before, "profile denial changed existing authority")
+            require(active.read_bytes() == grant_bytes, "profile denial changed active grant bytes")
+            require(not apply_gate._consumed_authorization_path(fixture.state, grant, create_parent=False).exists(),
+                    "profile denial consumed a nonce")
+
+
+def check_legacy_report_recovery() -> None:
+    for recovery_profile in ("legacy", "stale"):
+        with git_fixture(enabled=True) as fixture:
+            plan = make_plan(fixture)
+            authorize(fixture, plan)
+            current_report = execute(fixture, plan)
+            key = apply_gate._load_integrity_key(fixture.state, create=False)
+            legacy_catalog = copy.deepcopy(fixture.catalog)
+            legacy_catalog["repositories"][0]["realApply"]["approval"].pop("profileSha256")
+
+            # Construct authenticated historical-format evidence over the actual
+            # applied fixture bytes. This does not use or relax a new-write gate.
+            legacy_plan = copy.deepcopy(plan)
+            legacy_plan["approval"].pop("profileSha256")
+            legacy_plan["catalogFingerprint"] = apply_gate._json_fingerprint(legacy_catalog)
+            legacy_plan.pop("planId")
+            legacy_plan.pop("planFingerprint")
+            legacy_plan["planId"] = "apply-" + apply_gate._json_fingerprint(legacy_plan)[:24]
+            legacy_plan["planFingerprint"] = apply_gate._json_fingerprint(legacy_plan)
+            validate_apply_plan(legacy_plan)
+            historical = copy.deepcopy(current_report)
+            historical["plan"] = legacy_plan
+            historical["reportId"] = legacy_plan["planId"]
+            historical["targetLockId"] = apply_gate._target_lock_id(legacy_plan)
+            historical["temporaryArtifacts"] = apply_gate._temporary_artifact_records(legacy_plan, key)
+            historical["grant"] = apply_gate._build_authorization_grant(
+                legacy_plan, apply_gate._parse_timestamp(current_report["grant"]["issuedAt"], "fixture issuedAt"), key,
+            )
+            report_path = apply_gate._report_path(fixture.state, legacy_plan, create_parent=True)
+            apply_gate._write_report(report_path, historical, fixture.state, key)
+            exact_report_bytes = report_path.read_bytes()
+            state_before = {str(path.relative_to(fixture.state)): path.read_bytes()
+                            for path in fixture.state.rglob("*") if path.is_file()}
+            require(apply_status(report_path, legacy_catalog)["state"] == "exact", "legacy applied report is unreadable")
+            require(apply_status(report_path, fixture.catalog)["state"] == "drifted", "renewed profile hid old catalog drift")
+            require(state_before == {str(path.relative_to(fixture.state)): path.read_bytes()
+                                     for path in fixture.state.rglob("*") if path.is_file()}, "legacy status wrote state")
+
+            with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=AssertionError("legacy write prompted")):
+                for operation in (lambda: authorize_apply(legacy_plan, legacy_catalog),
+                                  lambda: execute_apply(legacy_plan, legacy_catalog)):
+                    expect_error(ApplyPolicyError, operation, code="profile-approval-required")
+
+            tampered = json.loads(exact_report_bytes)
+            tampered["reportMac"] = "0" * 64
+            report_path.write_text(json.dumps(tampered), encoding="utf-8")
+            expect_error(ApplyPlanError, lambda: apply_status(report_path, legacy_catalog), code="report-mac")
+            report_path.write_bytes(exact_report_bytes)
+            recovery_catalog = copy.deepcopy(legacy_catalog if recovery_profile == "legacy" else fixture.catalog)
+            if recovery_profile == "stale":
+                recovery_catalog["repositories"][0]["sourceOfTruth"] = ["README.md"]
+                require(apply_status(report_path, recovery_catalog)["state"] == "drifted", "stale profile hid status drift")
+            unrelated = fixture.target / "unrelated.txt"
+            unrelated.write_text("synthetic post-apply drift\n", encoding="utf-8")
+            with tty_confirmation(legacy_plan["planFingerprint"]):
+                expect_error(ApplyRollbackError, lambda: rollback_apply(report_path, recovery_catalog), code="rollback-drift")
+            unrelated.unlink()
+            with tty_confirmation(legacy_plan["planFingerprint"]):
+                restored = rollback_apply(report_path, recovery_catalog)
+            require(restored["status"] == "rolled-back", "legacy rollback did not finish")
+            require(apply_status(report_path, legacy_catalog)["state"] == "exact", "legacy rollback state is not exact")
+            require(fixture_git(fixture.target, "status") == "", "legacy rollback did not restore clean Git")
+            require(all(not (fixture.target / relative).exists() for relative in PROJECT_FRAME_PATHS),
+                    "legacy rollback retained managed files")
 
 
 def check_clean_git_and_confirmation() -> None:
@@ -794,6 +974,292 @@ def check_authorization_integrity() -> None:
         consumed = fixture.state / "real-apply" / "consumed"
         require(len(list(consumed.glob("*.json"))) == 1, "consumed authorization evidence is missing")
         require(not (fixture.target / "AGENTS.md").exists(), "journal failure mutated the target")
+
+
+def check_authorization_preflight_and_races() -> None:
+    def no_prompt(operation: Callable[[], Any], error_type: Type[ApplyGateError], code: str) -> None:
+        with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=AssertionError("predictable denial prompted")):
+            expect_error(error_type, operation, code=code)
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        grant = authorize(fixture, plan)
+        active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+        before = active.read_bytes()
+        (fixture.target / "README.md").write_text("changed synthetic fixture\n", encoding="utf-8")
+        no_prompt(lambda: execute_apply(plan, fixture.catalog), ApplyGitError, "dirty-git")
+        require(active.read_bytes() == before, "dirty-target preflight consumed the grant")
+        require(not apply_gate._consumed_authorization_path(fixture.state, grant, create_parent=False).exists(), "dirty-target preflight consumed the nonce")
+        require(not (fixture.target / "AGENTS.md").exists(), "dirty-target preflight wrote managed files")
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        no_prompt(lambda: execute_apply(plan, fixture.catalog), ApplyPathError, "state-root-missing")
+        require(not fixture.state.exists(), "missing-state execute created state")
+        state_root = apply_gate._private_state_root(create=True)
+        key = apply_gate._load_integrity_key(state_root, create=True)
+        before = sorted(str(path.relative_to(state_root)) for path in state_root.rglob("*"))
+        no_prompt(lambda: execute_apply(plan, fixture.catalog), ApplyAuthorizationError, "authorization-missing")
+        require(sorted(str(path.relative_to(state_root)) for path in state_root.rglob("*")) == before, "missing-grant preflight wrote state")
+        grant = authorize(fixture, plan)
+        active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+        grant_bytes = active.read_bytes()
+        metadata = active.stat()
+        no_prompt(lambda: authorize_apply(plan, fixture.catalog), ApplyAuthorizationError, "authorization-exists")
+        require(active.read_bytes() == grant_bytes and active.stat().st_mtime_ns == metadata.st_mtime_ns, "duplicate authorization changed grant")
+        expired = apply_gate._parse_timestamp(grant["expiresAt"], "test expiry") + timedelta(seconds=1)
+        with mock.patch.object(apply_gate, "_utc_now", return_value=expired):
+            no_prompt(lambda: execute_apply(plan, fixture.catalog), ApplyAuthorizationError, "authorization-expired")
+        require(active.read_bytes() == grant_bytes, "expired preflight consumed grant")
+        active.write_text("{invalid JSON", encoding="utf-8")
+        for operation in (authorize_apply, execute_apply):
+            no_prompt(lambda: operation(plan, fixture.catalog), ApplyPlanError, "state-json")
+
+        tampered = copy.deepcopy(grant)
+        tampered["repositoryId"] = "other-repo"
+        active.write_text(json.dumps(tampered), encoding="utf-8")
+        for operation in (authorize_apply, execute_apply):
+            no_prompt(lambda: operation(plan, fixture.catalog), ApplyAuthorizationError, "authorization-mac")
+        unsealed = dict(tampered)
+        unsealed.pop("grantMac")
+        tampered["grantMac"] = apply_gate._mac_json(key, "plzdo-local.apply-authorization.v1", unsealed)
+        active.write_text(json.dumps(tampered), encoding="utf-8")
+        for operation in (authorize_apply, execute_apply):
+            no_prompt(lambda: operation(plan, fixture.catalog), ApplyAuthorizationError, "authorization-binding")
+        active.write_bytes(grant_bytes)
+        consumed = apply_gate._consumed_authorization_path(fixture.state, grant)
+        consumed.write_bytes(grant_bytes)
+        consumed.chmod(0o600)
+        for operation in (authorize_apply, execute_apply):
+            no_prompt(lambda: operation(plan, fixture.catalog), ApplyAuthorizationError, "authorization-consumed")
+        require(active.read_bytes() == grant_bytes, "used-grant preflight changed active grant")
+        require(not (fixture.target / "AGENTS.md").exists(), "grant preflight mutated target")
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        grant = authorize(fixture, plan)
+        expired = apply_gate._parse_timestamp(grant["expiresAt"], "test expiry") + timedelta(seconds=1)
+        active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+        before = active.read_bytes()
+        with (
+            mock.patch.object(apply_gate, "_utc_now", return_value=expired),
+            tty_confirmation("wrong-fingerprint"),
+        ):
+            expect_error(ApplyConfirmationError, lambda: authorize_apply(plan, fixture.catalog), code="confirmation-mismatch")
+        require(active.read_bytes() == before, "failed renewal retired the original grant")
+        with mock.patch.object(apply_gate, "_utc_now", return_value=expired):
+            renewed = authorize(fixture, plan)
+        require(renewed["nonce"] != grant["nonce"], "expired renewal reused a nonce")
+        require(apply_gate._consumed_authorization_path(fixture.state, grant).is_file(), "expired renewal lost old nonce evidence")
+
+    for mutation, expected_code in (
+        ("expire", "authorization-expired"),
+        ("tamper", "authorization-mac"),
+        ("consume", "authorization-missing"),
+        ("key-permissions", "integrity-key-permissions"),
+        ("state-permissions", "private-state-permissions"),
+        ("key-replacement", "authorization-key"),
+    ):
+        with git_fixture(enabled=True) as fixture:
+            plan = make_plan(fixture)
+            grant = authorize(fixture, plan)
+            active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+            before = active.read_bytes()
+            current = apply_gate._parse_timestamp(grant["issuedAt"], "test issuance")
+            expired = apply_gate._parse_timestamp(grant["expiresAt"], "test expiry") + timedelta(seconds=1)
+            with mock.patch.object(apply_gate, "_utc_now", return_value=current) as clock:
+                def change_grant_during_prompt(action: str, expected: str) -> str:
+                    require(action == "execute", "race did not reach execute confirmation")
+                    if mutation == "expire":
+                        clock.return_value = expired
+                    elif mutation == "tamper":
+                        invalid = copy.deepcopy(grant)
+                        invalid["repositoryId"] = "other-repo"
+                        active.write_text(json.dumps(invalid), encoding="utf-8")
+                    elif mutation == "consume":
+                        key = apply_gate._load_integrity_key(fixture.state, create=False)
+                        apply_gate._consume_authorization(fixture.state, plan, grant, key)
+                    elif mutation == "key-permissions":
+                        (fixture.state / "real-apply" / "integrity.key").chmod(0o644)
+                    elif mutation == "state-permissions":
+                        fixture.state.chmod(0o755)
+                    else:
+                        (fixture.state / "real-apply" / "integrity.key").write_bytes(b"x" * apply_gate.INTEGRITY_KEY_BYTES)
+                    return expected
+
+                with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=change_grant_during_prompt) as prompt:
+                    error_type = ApplyPolicyError if mutation.endswith("permissions") else ApplyAuthorizationError
+                    expect_error(error_type, lambda: execute_apply(plan, fixture.catalog), code=expected_code)
+                require(prompt.call_count == 1, "race did not span the preflight/prompt boundary")
+            require(not (fixture.target / "AGENTS.md").exists(), "grant race mutated target")
+            require(not apply_gate._report_path(fixture.state, plan, create_parent=False, missing_ok=True).exists(), "grant race created apply evidence")
+            if mutation == "expire":
+                require(active.read_bytes() == before, "expired race consumed grant")
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        def insert_grant_during_prompt(action: str, expected: str) -> str:
+            require(action == "authorize", "race did not reach authorize confirmation")
+            key = apply_gate._load_integrity_key(fixture.state, create=False)
+            grant = apply_gate._build_authorization_grant(plan, apply_gate._utc_now(), key)
+            path = apply_gate._authorization_path(fixture.state, expected)
+            apply_gate._write_new_json(path, grant, fixture.state, validator=lambda value: apply_gate._validate_authorization_grant(value, key))
+            return expected
+
+        with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=insert_grant_during_prompt):
+            expect_error(ApplyAuthorizationError, lambda: authorize_apply(plan, fixture.catalog), code="authorization-exists")
+        require(not (fixture.target / "AGENTS.md").exists(), "authorize race mutated target")
+
+    for action, mutation in (
+        ("authorize", "root"), ("authorize", "real-apply"),
+        ("authorize", "locks"), ("authorize", "lock-file"),
+        ("execute", "root"), ("execute", "real-apply"),
+    ):
+        with git_fixture(enabled=True) as fixture:
+            plan = make_plan(fixture)
+            grant = authorize(fixture, plan) if action == "execute" else None
+            previous = None
+            if grant is not None:
+                previous = apply_gate._authorization_path(fixture.state, plan["planFingerprint"]).read_bytes()
+            old_keys: list[bytes] = []
+
+            def replace_authority_during_prompt(observed_action: str, expected: str) -> str:
+                require(observed_action == action, "authority identity race reached wrong prompt")
+                old_keys.append((fixture.state / "real-apply" / "integrity.key").read_bytes())
+                replacement = {
+                    "root": fixture.state,
+                    "real-apply": fixture.state / "real-apply",
+                    "locks": fixture.state / "real-apply" / "locks",
+                    "lock-file": apply_gate._target_lock_path(fixture.state, plan),
+                }[mutation]
+                original = fixture.base / "replaced-authority-state"
+                replacement.rename(original)
+                if original.is_dir():
+                    shutil.copytree(original, replacement)
+                else:
+                    shutil.copy2(original, replacement)
+                return expected
+
+            with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=replace_authority_during_prompt):
+                operation = authorize_apply if action == "authorize" else execute_apply
+                failure = expect_error(ApplyPathError, lambda: operation(plan, fixture.catalog))
+                require(failure.code in {"state-lock-changed", "state-root-changed"}, "replacement failed for unrelated reason")
+            require(old_keys == [(fixture.state / "real-apply" / "integrity.key").read_bytes()], "replacement fixture changed key bytes")
+            active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"], create_parent=False)
+            if grant is None:
+                require(not active.exists(), "detached authority lock published a grant")
+            else:
+                require(active.read_bytes() == previous, "authority replacement consumed the original grant")
+                require(not apply_gate._consumed_authorization_path(fixture.state, grant, create_parent=False).exists(), "authority replacement spent a nonce")
+            require(not (fixture.target / "AGENTS.md").exists(), "authority replacement wrote target files")
+            require(not apply_gate._report_path(fixture.state, plan, create_parent=False, missing_ok=True).exists(), "authority replacement created apply evidence")
+
+    for action in ("authorize", "execute"):
+        with git_fixture(enabled=True) as fixture:
+            plan = make_plan(fixture)
+            grant = authorize(fixture, plan) if action == "execute" else None
+            previous = None
+            if grant is not None:
+                previous = apply_gate._authorization_path(fixture.state, plan["planFingerprint"]).read_bytes()
+            original_binding = apply_gate._require_runtime_plan_binding
+            calls = 0
+
+            def replace_key_after_locked_validation(*args: Any, **kwargs: Any) -> None:
+                nonlocal calls
+                original_binding(*args, **kwargs)
+                calls += 1
+                # The first check is pre-TTY; the second is the slow, locked
+                # verification after the initial key refresh and before writes.
+                if calls == 2:
+                    (fixture.state / "real-apply" / "integrity.key").write_bytes(b"x" * apply_gate.INTEGRITY_KEY_BYTES)
+
+            with (
+                mock.patch.object(apply_gate, "_require_runtime_plan_binding", side_effect=replace_key_after_locked_validation),
+                tty_confirmation(plan["planFingerprint"]),
+            ):
+                operation = authorize_apply if action == "authorize" else execute_apply
+                expect_error(ApplyAuthorizationError, lambda: operation(plan, fixture.catalog), code="authorization-key")
+            require(calls == 2, "key-refresh regression did not reach the locked prewrite boundary")
+            active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"], create_parent=False)
+            if grant is None:
+                require(not active.exists(), "stale integrity key published an unusable grant")
+            else:
+                require(active.read_bytes() == previous, "stale integrity key consumed the original grant")
+                require(not apply_gate._consumed_authorization_path(fixture.state, grant, create_parent=False).exists(), "stale integrity key spent a nonce")
+            require(not (fixture.target / "AGENTS.md").exists(), "stale integrity key wrote target files")
+            require(not apply_gate._report_path(fixture.state, plan, create_parent=False, missing_ok=True).exists(), "stale integrity key created unusable apply evidence")
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        grant = authorize(fixture, plan)
+        active = apply_gate._authorization_path(fixture.state, plan["planFingerprint"])
+        lock_path = apply_gate._target_lock_path(fixture.state, plan)
+        original_lock = apply_gate.exclusive_file_lock
+        waiting = threading.Event()
+        failures: list[BaseException] = []
+
+        @contextmanager
+        def observed_lock(path: Path, *, allowed_root: Path) -> Iterator[Any]:
+            waiting.set()
+            with original_lock(path, allowed_root=allowed_root) as verify_held:
+                yield verify_held
+
+        def execute_after_lock() -> None:
+            try:
+                execute_apply(plan, fixture.catalog)
+            except BaseException as exc:
+                failures.append(exc)
+
+        with (
+            mock.patch.object(apply_gate, "exclusive_file_lock", side_effect=observed_lock),
+            tty_confirmation(plan["planFingerprint"]),
+        ):
+            with original_lock(lock_path, allowed_root=fixture.state):
+                thread = threading.Thread(target=execute_after_lock, daemon=True)
+                thread.start()
+                require(waiting.wait(timeout=10), "execute did not wait for the target lock")
+                invalid = copy.deepcopy(grant)
+                invalid["repositoryId"] = "other-repo"
+                active.write_text(json.dumps(invalid), encoding="utf-8")
+            thread.join(timeout=30)
+            require(not thread.is_alive(), "waiting execute did not terminate")
+        require(len(failures) == 1 and isinstance(failures[0], ApplyAuthorizationError) and failures[0].code == "authorization-mac", "grant changed while waiting was not revalidated under lock")
+        require(not (fixture.target / "AGENTS.md").exists(), "lock-wait grant race mutated target")
+
+    with git_fixture(enabled=True) as fixture:
+        plan = make_plan(fixture)
+        grant = authorize(fixture, plan)
+        ready = threading.Barrier(2)
+        outcomes: list[Any] = []
+
+        def concurrent_confirmation(action: str, expected: str) -> str:
+            ready.wait(timeout=10)
+            return expected
+
+        def execute_once() -> None:
+            try:
+                outcomes.append(execute_apply(plan, fixture.catalog))
+            except BaseException as exc:
+                outcomes.append(exc)
+
+        with mock.patch.object(apply_gate, "_read_foreground_confirmation", side_effect=concurrent_confirmation):
+            threads = [threading.Thread(target=execute_once, daemon=True) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(timeout=30)
+            require(all(not thread.is_alive() for thread in threads), "concurrent execute did not terminate")
+        require(len(outcomes) == 2, "concurrent execute lost an outcome")
+        require(sum(isinstance(item, dict) and item["status"] == "applied" for item in outcomes) == 1, "concurrent execute did not apply exactly once")
+        require(
+            sum(isinstance(item, ApplyExecutionError) and item.code == "report-exists" for item in outcomes) == 1,
+            f"losing execute bypassed locked report check: {[(type(item).__name__, getattr(item, 'code', None)) for item in outcomes]}",
+        )
+        consumed = fixture.state / "real-apply" / "consumed"
+        require(len(list(consumed.glob("*.json"))) == 1, "concurrent execute consumed more than one nonce")
+        require(apply_gate._consumed_authorization_path(fixture.state, grant).is_file(), "concurrent execute lost consumed nonce")
+        no_prompt(lambda: execute_apply(plan, fixture.catalog), ApplyExecutionError, "report-exists")
+        no_prompt(lambda: authorize_apply(plan, fixture.catalog), ApplyAuthorizationError, "report-exists")
 
 
 def check_root_and_file_toctou() -> None:
