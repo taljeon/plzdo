@@ -41,6 +41,7 @@ def main() -> int:
         ("publication wrapper starts under isolated Python", check_publication_isolated_bootstrap),
         ("acceptance binds a clean tree to one full commit", check_acceptance_binding),
         ("empty acceptance fails before export or verification", check_empty_acceptance_refusal),
+        ("verification wrapper isolates and dispatches owned probes without recursive suites", check_verify_bootstrap),
         ("local acceptance path binds manifest PR evidence and documented writes", check_local_acceptance_path),
         ("release ceremony stays in maintainer documentation", check_release_document_separation),
         ("public usage has no optional prefix installer", check_installer_removed),
@@ -357,6 +358,118 @@ def check_empty_acceptance_refusal() -> None:
             require(result.stderr == "FAIL acceptance requires a nonempty full commit SHA\n", "empty acceptance refusal is unclear")
             require(not marker.exists(), "empty acceptance started export or verification")
             require(list(scratch.iterdir()) == [], "empty acceptance created export or verification state")
+
+
+def check_verify_bootstrap() -> None:
+    # Exercise the actual wrapper bytes; only its suite bodies are synthetic.
+    # These probes never import the core, execute targets or call providers.
+    core_only = sys.version_info[:2] == (3, 9)
+    checks = ["contract_check.py", "smoke_check.py", "phase2_check.py", "phase3_check.py",
+              "phase4_check.py", "phase5_check.py", "local_ops_check.py", "release_check.py",
+              "core_packaging_check.py"]
+    if not core_only:
+        checks.append("adapter_check.py")
+    steps = ["release-manifest"] + checks + ["check-release-leaks"]
+    cleared = ("PYTHONOPTIMIZE", "PYTHONHOME", "PYTHONPATH", "PYTHONSTARTUP",
+               "PYTHONUSERBASE", "PYTHONWARNINGS")
+    with tempfile.TemporaryDirectory(prefix="plzdo-verify-bootstrap-") as temporary:
+        owned = Path(temporary).resolve()
+        root = owned / "release"
+        scripts = root / "scripts"
+        scripts.mkdir(parents=True)
+        tests = root / "tests"
+        tests.mkdir()
+        launcher = scripts / "verify"
+        launcher.write_bytes((ROOT / "scripts/verify").read_bytes())
+        launcher.chmod(0o700)
+        scratch = owned / "scratch"
+        scratch.mkdir()
+        userbase = owned / "userbase"
+        environment = {"HOME": str(owned), "TMPDIR": str(scratch), "LANG": "C", "LC_ALL": "C",
+                       "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin"}
+        # Framework and non-framework Python use different user-site layouts.
+        discovery = subprocess.run(
+            [sys.executable, "-B", "-c", "import site; print(site.getusersitepackages())"],
+            cwd=owned, env=dict(environment, PYTHONUSERBASE=str(userbase)), check=False,
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=5,
+        )
+        require(discovery.returncode == 0, "could not resolve the owned user-site fixture")
+        site = Path(discovery.stdout.strip()).resolve()
+        require(userbase in site.parents, "user-site discovery escaped the owned fixture")
+        site.mkdir(parents=True)
+        marker = owned / "startup-ran"
+        poison = "from pathlib import Path\nPath(" + repr(str(marker)) + ").touch()\n"
+        (site / "sitecustomize.py").write_text(poison, encoding="utf-8")
+        # Positive control: the user-site fixture can execute on this interpreter.
+        control = subprocess.run(
+            [sys.executable, "-B", "-c", "pass"], cwd=owned, check=False,
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=5,
+            env=dict(environment, PYTHONUSERBASE=str(userbase)),
+        )
+        require(control.returncode == 0 and marker.exists(), "hostile user-site positive control did not execute")
+        marker.unlink()
+        hostile = dict(environment, PYTHONUSERBASE=str(userbase), PYTHONHOME=str(owned / "missing-python"),
+                       PYTHONPATH=str(site), PYTHONSTARTUP=str(site / "sitecustomize.py"),
+                       PYTHONOPTIMIZE="1", PYTHONWARNINGS="error")
+        probe = (
+            "import json,os,sys\nfrom pathlib import Path\n"
+            "print(json.dumps({'step':Path(__file__).name,'argv':sys.argv[1:],"
+            "'python':sys.executable,'version':list(sys.version_info[:2]),"
+            "'isolated':sys.flags.isolated,'no_site':sys.flags.no_site,"
+            "'no_bytecode':sys.dont_write_bytecode,'optimize':sys.flags.optimize,"
+            "'ambient':{key:os.environ.get(key) for key in " + repr(cleared) + "},"
+            "'home':os.environ['HOME'],'state':os.environ['PLZDO_HOME'],"
+            "'home_exists':Path(os.environ['HOME']).is_dir(),"
+            "'scratch_mode':Path(os.environ['HOME']).parent.stat().st_mode & 0o777}))\n"
+        )
+        for failed_step in (None, "release-manifest", "phase2_check.py", "check-release-leaks"):
+            for name in checks:
+                (tests / name).write_text(probe + "raise SystemExit(%d)\n" % (37 if name == failed_step else 0), encoding="utf-8")
+            for name in ("release-manifest", "check-release-leaks"):
+                arguments = (
+                    '[ "$#" -eq 1 ] && [ "$1" = "--check" ]'
+                    if name == "release-manifest" else
+                    '[ "$#" -eq 3 ] && [ "$1" = "--root" ] && [ "$2" = ' + shlex.quote(str(root)) + ' ] && [ "$3" = "--quiet-warnings" ]'
+                )
+                script = scripts / name
+                script.write_text(
+                    "#!/bin/sh\n" + arguments + " || exit 91\n"
+                    + "printf " + shlex.quote('{"step":"' + name + '","home":"%s","state":"%s"}\n')
+                    + ' "$HOME" "$PLZDO_HOME"\n'
+                    + "exit %d\n" % (37 if name == failed_step else 0), encoding="utf-8",
+                )
+                script.chmod(0o700)
+            result = subprocess.run(
+                [str(launcher)] + (["--core-python39"] if core_only else []),
+                cwd=owned, env=hostile, check=False, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=15,
+            )
+            require(result.returncode == (37 if failed_step else 0), "verify fixture exit mismatch: " + result.stdout + result.stderr)
+            rows = [json.loads(line) for line in result.stdout.splitlines() if line.startswith("{")]
+            expected = steps[:steps.index(failed_step) + 1] if failed_step else steps
+            require([row["step"] for row in rows] == expected, "verify skipped, repeated or continued past a failed command")
+            for row in rows:
+                home, state = Path(row["home"]).resolve(), Path(row["state"]).resolve()
+                require(home.name == "home" and state.name == "state" and home.parent == state.parent,
+                        "verify did not separate home and state under one owned temporary root")
+                require(home.parent.parent in {scratch, Path(tempfile.gettempdir()).resolve()} and home.parent != owned,
+                        "verify reused caller state instead of a temporary root")
+                require(not home.parent.exists(), "verify did not clean its owned temporary root")
+                if row["step"] not in checks:
+                    continue
+                packaging = row["step"] in {"core_packaging_check.py", "adapter_check.py"}
+                require(Path(row["python"]).resolve() == Path(sys.executable).resolve(), "verify changed its selected interpreter")
+                require(row["version"] == list(sys.version_info[:2]), "verify changed its interpreter version")
+                require(row["isolated"] == 1 and row["no_site"] == int(packaging), "verify changed isolated/site flags")
+                require(row["no_bytecode"] is True and row["optimize"] == 0, "verify enabled bytecode or disabled assertions")
+                require(all(value is None for value in row["ambient"].values()), "verify retained hostile Python environment")
+                expected_args = ["--core-only"] if core_only and row["step"] == "core_packaging_check.py" else []
+                require(row["argv"] == expected_args, "verify changed suite arguments")
+                require(row["home_exists"] is True and row["scratch_mode"] == 0o700, "verify scratch was missing or not private")
+            require(not marker.exists(), "verify executed hostile startup code")
+            require(list(scratch.iterdir()) == [], "verify did not clean its owned scratch")
+            require(not any(root.rglob("__pycache__")), "verify wrote source bytecode")
+            require(("verification passed" in result.stdout) == (failed_step is None), "verify reported success after a failed command")
 
 
 def check_local_acceptance_path() -> None:

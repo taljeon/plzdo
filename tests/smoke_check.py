@@ -370,8 +370,6 @@ def check_private_denylist_location() -> None:
 
 
 def check_hostile_python_startup() -> None:
-    if os.environ.get("PLZDO_HOSTILE_BOOTSTRAP_CHILD") == "1":
-        return
     with tempfile.TemporaryDirectory(prefix="plzdo-python-startup-") as temporary:
         base = Path(temporary).resolve()
         userbase = base / "userbase"
@@ -395,18 +393,6 @@ def check_hostile_python_startup() -> None:
             env=scanner_environment,
         )
         require(scanner.returncode == 0, scanner.stdout + scanner.stderr)
-        nested_environment = test_environment()
-        nested_environment.update(hostile)
-        nested_environment["PLZDO_HOSTILE_BOOTSTRAP_CHILD"] = "1"
-        nested = subprocess.run(
-            [str(ROOT / "scripts/verify")],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-            env=nested_environment,
-        )
-        require(nested.returncode == 0, nested.stdout + nested.stderr)
         require(not marker.exists(), "Python user startup code executed")
 
 

@@ -144,12 +144,12 @@ SOURCE_BOUND_COMPONENTS = {
     'tests/adapter/test_integration.py': '977ee0d769a21eb12de33c9576f6fddd873623c47ac5e7cd3bc628d589a173b9',
     'tests/adapter/test_runtime_bridge.py': '51177ab2eacfa360e7bb5ba87d82e401a3994cfa539897c98d2e953a407a5f40',
     'tests/core_packaging_check.py': '358735a1a9254a1be84f1c27585508f40e413bde5c4a1800bd2a9a95c5a0e148',
-    'tests/release_check.py': 'babdbf9c8e511ba0311d13ca6fcdba180fd5a5bb6367bf8d5e6ba978b61ad554',
+    'tests/release_check.py': 'b338a2ed9f44db082f996b7729d05de384379eb946920e54d3d7562d19773373',
 }
 SOURCE_BOUND_SHELL = {
     'bin/plzdo': '6ef6fd092c0077f46123d99d59330ee553a3fdb79b96f7bcb5da47541c0fc28f',
     'bin/plzdo-local-code-adapter': 'b0506c5e1517102a3da388b3420f10c29d984fe72ba569742292a483d3c8076c',
-    'scripts/verify': 'f8b05f272e3a50972273fca0acca8edf7e64e57c958761eecf6b572d6a061a4e',
+    'scripts/verify': '40897ec4dc011cb0fdd5bb714e973a0fbc642cc51c18d103f08cd1a97648064b',
 }
 COMPONENT_IMPORTS = {
     ("bin/plzdo_entry.py", "importlib"): "main: one of two literal package entry modules",
@@ -183,6 +183,8 @@ COMPONENT_PROCESS_PURPOSES = {
         "Run fixed optional entry files under actual Python 3.9 and require version refusal",
     ("tests/release_check.py", "check_empty_acceptance_refusal", "subprocess.run"):
         "Run an owned launcher copy with empty acceptance against export/verification sentinels and a five-second deadline",
+    ("tests/release_check.py", "check_verify_bootstrap", "subprocess.run"):
+        "Run exact owned verification-wrapper bytes with synthetic command receipts, hostile startup control and bounded deadlines",
 }
 PROCESS_APIS = {
     "Popen",
@@ -216,7 +218,6 @@ ALLOWED_VERIFICATION_PROCESS_HEADS = {
         "python:plzdo-entry",
         "root:bin/plzdo",
         "root:scripts/check-release-leaks",
-        "root:scripts/verify",
     },
     "tests/phase2_check.py": {"python:plzdo-entry", "root:templates/project-harness/scripts/verify"},
     "tests/release_check.py": {"root:scripts/check-publication"},
@@ -849,6 +850,7 @@ def check_release_bindings(failures: list[str]) -> None:
             "check_scanner_coverage",
             "check_tag_ref_and_email_audit",
             "check_worktree_export",
+            "check_verify_bootstrap",
         },
         "release",
         failures,
