@@ -28,8 +28,8 @@ The gate runs these executable contracts:
 5. `tests/phase4_check.py`: default-disabled P5 planning, authorization, execution, interruption, drift, verification, rollback, Git identity, process cleanup, and structural/semantic conformance. Profile digest tests cover all new-write boundaries, null parity, unchanged grants on denial, and actual authenticated legacy-report status and rollback.
 6. `tests/phase5_check.py`: managed skills and agents, descriptor-relative containment, atomic no-replace publication, drift handling, static catalog policy, and dependency-free auditing.
 7. `tests/local_ops_check.py`: sanitized local review bundles, advisory import, read-only monitoring, and repository preflight.
-8. `tests/release_check.py`: exact Git-object fixture audits, Git environment isolation, isolated publication-wrapper startup, metadata and ref scanning, manifest refusal cases, scanner coverage, and absence of the optional prefix installer.
-9. `scripts/check-release-leaks --self-test`: fail-closed synthetic privacy and credential cases.
+8. `tests/release_check.py`: exact Git-object fixture audits, Git environment isolation, isolated publication-wrapper startup, metadata and ref scanning, manifest refusal cases, scanner coverage, and absence of the optional prefix installer. An owned fixture runs the exact `scripts/verify` wrapper with small command probes to check startup isolation, interpreter/argument selection, command order, failure propagation and scratch cleanup without re-entering the full suite.
+9. `scripts/check-release-leaks --self-test`: fail-closed synthetic privacy and credential cases, executed by smoke once normally and once with hostile Python startup state. The final gate invocation scans the actual release tree.
 
 ## Core Invariants
 

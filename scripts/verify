@@ -118,7 +118,6 @@ else
   "$python_bin" -B -I -S "$root/tests/adapter_check.py"
 fi
 "$root/scripts/check-release-leaks" --root "$root" --quiet-warnings
-"$root/scripts/check-release-leaks" --self-test
 
 if find "$root" -type d -name __pycache__ -print | grep -q .; then
   echo "FAIL generated Python cache found" >&2
