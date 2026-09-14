@@ -408,6 +408,25 @@ def check_verify_bootstrap() -> None:
         )
         require(control.returncode == 0 and marker.exists(), "hostile user-site positive control did not execute")
         marker.unlink()
+        require(list(scratch.iterdir()) == [], "fixture scratch changed before native launcher control")
+        # Apple's Python launcher may create its own mutable cache in TMPDIR.
+        # Admit only entries observed from an isolated no-op control, not names.
+        direct_core_candidates = ("/usr/local/bin/python3.9", "/opt/homebrew/bin/python3.9", "/usr/bin/python3.9",
+                                  "/usr/local/bin/python3", "/opt/homebrew/bin/python3")
+        if sys.platform == "darwin" and core_only and not any(
+                Path(path).is_file() and Path(path).samefile(sys.executable) for path in direct_core_candidates):
+            native = subprocess.run(
+                ["/usr/bin/python3", "-I", "-S", "-B", "-c", "import sys; print(sys.executable)"],
+                cwd=owned, env=environment, check=False, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=5,
+            )
+            require(native.returncode == 0 and native.stderr == ""
+                    and native.stdout.strip() != "" and len(native.stdout.splitlines()) == 1
+                    and Path(native.stdout.strip()).resolve() == Path(sys.executable).resolve(),
+                    "native launcher control did not identify the selected interpreter")
+        require(all(path.is_file() and not path.is_symlink() for path in scratch.iterdir()),
+                "native launcher control produced non-regular scratch entries")
+        caller_scratch = {path.name: path.lstat().st_mode for path in scratch.iterdir()}
         hostile = dict(environment, PYTHONUSERBASE=str(userbase), PYTHONHOME=str(owned / "missing-python"),
                        PYTHONPATH=str(site), PYTHONSTARTUP=str(site / "sitecustomize.py"),
                        PYTHONOPTIMIZE="1", PYTHONWARNINGS="error")
@@ -467,7 +486,8 @@ def check_verify_bootstrap() -> None:
                 require(row["argv"] == expected_args, "verify changed suite arguments")
                 require(row["home_exists"] is True and row["scratch_mode"] == 0o700, "verify scratch was missing or not private")
             require(not marker.exists(), "verify executed hostile startup code")
-            require(list(scratch.iterdir()) == [], "verify did not clean its owned scratch")
+            require({path.name: path.lstat().st_mode for path in scratch.iterdir()} == caller_scratch,
+                    "verify changed the caller scratch footprint")
             require(not any(root.rglob("__pycache__")), "verify wrote source bytecode")
             require(("verification passed" in result.stdout) == (failed_step is None), "verify reported success after a failed command")
 

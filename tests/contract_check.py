@@ -144,7 +144,7 @@ SOURCE_BOUND_COMPONENTS = {
     'tests/adapter/test_integration.py': '977ee0d769a21eb12de33c9576f6fddd873623c47ac5e7cd3bc628d589a173b9',
     'tests/adapter/test_runtime_bridge.py': '51177ab2eacfa360e7bb5ba87d82e401a3994cfa539897c98d2e953a407a5f40',
     'tests/core_packaging_check.py': '358735a1a9254a1be84f1c27585508f40e413bde5c4a1800bd2a9a95c5a0e148',
-    'tests/release_check.py': 'b338a2ed9f44db082f996b7729d05de384379eb946920e54d3d7562d19773373',
+    'tests/release_check.py': '8280bba383fa861dd0dd307bcf507a26bb7a4048a754fc997cb30de099989576',
 }
 SOURCE_BOUND_SHELL = {
     'bin/plzdo': '6ef6fd092c0077f46123d99d59330ee553a3fdb79b96f7bcb5da47541c0fc28f',
