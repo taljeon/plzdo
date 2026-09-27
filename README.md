@@ -1,3 +1,7 @@
+PlzDo helps you plan work with an AI coding assistant and check what it has done.
+It keeps the task, allowed changes, and test results together so you can see what is finished and what still needs attention.
+The basic tool runs on your computer without an AI account; connecting an AI model is a separate choice.
+
 # PlzDo Local
 
 PlzDo's core is a local control plane for AI-assisted engineering. It adds deterministic project routing, bounded durable work, explicit authority, and evidence-backed completion. The default `plzdo` distribution contains this provider-free core and its read-only parent adapter; local model execution belongs to the separately selected runtime.
