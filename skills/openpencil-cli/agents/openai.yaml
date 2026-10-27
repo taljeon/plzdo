@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenPencil CLI"
+  short_description: "Inspect design files with OpenPencil"
+  default_prompt: "Use $openpencil-cli to inspect this design file."

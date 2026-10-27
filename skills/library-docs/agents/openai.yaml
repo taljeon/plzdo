@@ -1,0 +1,6 @@
+interface:
+  display_name: "Library Docs"
+  short_description: "Check library docs at the exact version in use"
+  default_prompt: "Use $library-docs to check this library's documentation at the version the project uses before writing code against it."
+policy:
+  allow_implicit_invocation: true

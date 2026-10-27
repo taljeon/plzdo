@@ -1,0 +1,3731 @@
+{
+  "repository": "https://github.com/lidge-jun/design-isms",
+  "site": "https://lidge-jun.github.io/design-isms/",
+  "commit": "28d66113e9ab303b898585565e759b0ac2442088",
+  "retrieved_date": "2026-09-19",
+  "file_count": 744,
+  "bytes": 567999900,
+  "license": "No repository license file found in this snapshot; preserve attribution and do not assume redistribution permission.",
+  "files": [
+    {
+      "path": "assets/css/app-crosslinks.css",
+      "sha": "cb1787e45821cdf5396ab66c87cda8465ae42525",
+      "size": 1617
+    },
+    {
+      "path": "assets/css/app-materials.css",
+      "sha": "74422a4109423b12f7a1db9a19cff4980dd00efa",
+      "size": 5362
+    },
+    {
+      "path": "assets/css/catalog.css",
+      "sha": "e00415f9ea1d3c45a1c89535964c69f5af824934",
+      "size": 1603
+    },
+    {
+      "path": "assets/css/color.css",
+      "sha": "12fb1af13a3123537704e6f6a24b6cd426f64b2a",
+      "size": 4659
+    },
+    {
+      "path": "assets/css/effects-demos-candidates.css",
+      "sha": "e88696376ed5c32f438d44639a24c60d2f04ea02",
+      "size": 16123
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-hero.css",
+      "sha": "5f52ff4ce564f873fd72c1b27e06b11dcc331637",
+      "size": 6408
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-micro.css",
+      "sha": "3e963d2eee81cb5797e2c7f037108012bb2bbb1e",
+      "size": 9582
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-pointer.css",
+      "sha": "f333656d9a00d3d8aef8bf8cc212f453bbf53801",
+      "size": 6665
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-scroll.css",
+      "sha": "4e3d24ff0a6246fb02b0fcef87906da5ffc6c23b",
+      "size": 7789
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-text.css",
+      "sha": "9eca2bafa3724abf5eb9570e337849819ba23971",
+      "size": 5892
+    },
+    {
+      "path": "assets/css/effects-demos-expansion-view.css",
+      "sha": "cbdd5bd977e5861a4610b6fdafa0abf720419b09",
+      "size": 7719
+    },
+    {
+      "path": "assets/css/effects-demos-patterns.css",
+      "sha": "2a2e17fe9faea4f09ffbdde549ad38fb4209a9a5",
+      "size": 12414
+    },
+    {
+      "path": "assets/css/effects-demos.css",
+      "sha": "a7489e69e6e15df63a0dcb457be55e70c80c70fb",
+      "size": 6729
+    },
+    {
+      "path": "assets/css/effects-docs.css",
+      "sha": "844c272fa04d5109ab0497fad554134298224b52",
+      "size": 1987
+    },
+    {
+      "path": "assets/css/effects.css",
+      "sha": "d5baf9142d73f8c477188216e2b68872716d1807",
+      "size": 9070
+    },
+    {
+      "path": "assets/css/export.css",
+      "sha": "ff2e5d40b43f4b1ca6b56531a4cf91fb09a1863f",
+      "size": 5688
+    },
+    {
+      "path": "assets/css/faq.css",
+      "sha": "2fd6299e9ac18fed740bb79188479e3e1abf047d",
+      "size": 3574
+    },
+    {
+      "path": "assets/css/finder.css",
+      "sha": "57544a8c8ff8666ff416278e922ef18fca81c9f3",
+      "size": 7068
+    },
+    {
+      "path": "assets/css/layout-wireframes.css",
+      "sha": "cc7766525a508063a3311132eaa394bce8568dec",
+      "size": 24748
+    },
+    {
+      "path": "assets/css/layout.css",
+      "sha": "7bb52b9fb0a47acd57530392b240da82967346c9",
+      "size": 5193
+    },
+    {
+      "path": "assets/css/motion-demos.css",
+      "sha": "374dba9876a65fb12fbd90e38f7c85be8856d125",
+      "size": 15790
+    },
+    {
+      "path": "assets/css/motion-interactions.css",
+      "sha": "18fc7c57d02ff96fc7487f091b9e1ac19de4b57b",
+      "size": 5634
+    },
+    {
+      "path": "assets/css/motion.css",
+      "sha": "657c8ff69c9972c002ad23f4a3a29594412506d4",
+      "size": 5698
+    },
+    {
+      "path": "assets/css/nav.css",
+      "sha": "37c611fb410768a5370766185344c79033ad4777",
+      "size": 3002
+    },
+    {
+      "path": "assets/css/runtime-states.css",
+      "sha": "c6de71e275369e4295cd0ea5a491e8efbbca96f6",
+      "size": 1782
+    },
+    {
+      "path": "assets/css/style.css",
+      "sha": "c079533a47d9a3261a3b0e83039a8aefffd2c3f0",
+      "size": 27843
+    },
+    {
+      "path": "assets/css/theme-atlas.css",
+      "sha": "43c659817b38817b43e2e9cfbf3423488d3d06f5",
+      "size": 7458
+    },
+    {
+      "path": "assets/css/typography.css",
+      "sha": "efd85d7d24a36577e66589f2ab190f4ed0e4315e",
+      "size": 4555
+    },
+    {
+      "path": "assets/data/color.json",
+      "sha": "12036610a30b3ca0c50a6f07998e87bfc0bd0f34",
+      "size": 90714
+    },
+    {
+      "path": "assets/data/dev-guides.json",
+      "sha": "64f852715837cb001b57b4073743572dc27e63ac",
+      "size": 98583
+    },
+    {
+      "path": "assets/data/effects-docs.json",
+      "sha": "e66693a2156dd5829d869c9b8beabd9cdea7a17c",
+      "size": 237366
+    },
+    {
+      "path": "assets/data/effects-snippets.json",
+      "sha": "c81d411db97ad6b706e634efb779514759fff931",
+      "size": 259240
+    },
+    {
+      "path": "assets/data/effects.json",
+      "sha": "4d43c770bc25180c7952486b5619fe7493d4903b",
+      "size": 201519
+    },
+    {
+      "path": "assets/data/faq.json",
+      "sha": "ade922f0475e504b4a9c8c2f5b502f9cc3d1ca5a",
+      "size": 23117
+    },
+    {
+      "path": "assets/data/finder-config.json",
+      "sha": "2c7a138f8eadf3b627f73a81805989d4c7da8fb2",
+      "size": 9943
+    },
+    {
+      "path": "assets/data/image-pairs-manifest.json",
+      "sha": "111248e06aecc0e250f4915b4ef844d7b09d21be",
+      "size": 113938
+    },
+    {
+      "path": "assets/data/isms.json",
+      "sha": "6fb0f7c7a256e7be3d87cf0b8baf99cdcddc3e51",
+      "size": 236398
+    },
+    {
+      "path": "assets/data/layout.json",
+      "sha": "5a4787631c8ff09f0ca592e29205b1e81fe1d11b",
+      "size": 127703
+    },
+    {
+      "path": "assets/data/motion.json",
+      "sha": "a3998b6d3ae6e655681a472a3ab6f51f82f28fb9",
+      "size": 45399
+    },
+    {
+      "path": "assets/data/research-prompts.json",
+      "sha": "63f3df8e1daaa7cf4106b22a4b131cedc5d31018",
+      "size": 14308
+    },
+    {
+      "path": "assets/data/schema/catalog-common.schema.json",
+      "sha": "73dfcb2b0924ea067bff3cef0c59050a992d2077",
+      "size": 1831
+    },
+    {
+      "path": "assets/data/schema/color.schema.json",
+      "sha": "6a39734a0aa13d3055cc150da6812ef84c84b1aa",
+      "size": 3121
+    },
+    {
+      "path": "assets/data/schema/layout.schema.json",
+      "sha": "a84eda294cd1adf2619280474e450c5981e149f4",
+      "size": 3931
+    },
+    {
+      "path": "assets/data/schema/motion.schema.json",
+      "sha": "a35059bb03df8f2f7fc4ddd534c02a0553da0bad",
+      "size": 1749
+    },
+    {
+      "path": "assets/data/schema/typography.schema.json",
+      "sha": "7c11d840fb61cd9caa6e1c11c0e8ad9839ec8805",
+      "size": 2927
+    },
+    {
+      "path": "assets/data/typography.json",
+      "sha": "88094f1924b66ab92d18e01b0b98f07735358878",
+      "size": 51533
+    },
+    {
+      "path": "assets/icons/atlas-mark.svg",
+      "sha": "5a0231d0661d5f77ce28300d5d090a9ec46d9cb7",
+      "size": 229
+    },
+    {
+      "path": "assets/icons/faq-build.svg",
+      "sha": "008be1306b71b00a6942659ec06a576d60fcfbee",
+      "size": 307
+    },
+    {
+      "path": "assets/icons/faq-direction.svg",
+      "sha": "99dc3642fbfe342876c4f59f781bd5bdbf6b2e67",
+      "size": 312
+    },
+    {
+      "path": "assets/icons/faq-workflow.svg",
+      "sha": "23cb72ab2e421b99aad8dca8571a1fa24954a1b6",
+      "size": 285
+    },
+    {
+      "path": "assets/images/ai-slop/dashboard.png",
+      "sha": "fb99ec46bede6238c7f327649b2106dc08ec81b3",
+      "size": 1836862
+    },
+    {
+      "path": "assets/images/ai-slop/landing.png",
+      "sha": "186225b30d8b649551c101845eb67424ddbc889d",
+      "size": 1810477
+    },
+    {
+      "path": "assets/images/ai-slop/saas.png",
+      "sha": "b280669c0a69c1c69001f5b4b430b815eae4c783",
+      "size": 1819616
+    },
+    {
+      "path": "assets/images/anti-design/landing.png",
+      "sha": "e4202ef4b7b61dfd757a6ba3f58635475d7e2409",
+      "size": 2071456
+    },
+    {
+      "path": "assets/images/anti-design/portfolio.png",
+      "sha": "f2e66d714c0b9bdf4ba272ed05a375a89bc9f25c",
+      "size": 2181529
+    },
+    {
+      "path": "assets/images/anti-design/poster.png",
+      "sha": "bb368a74a09d7274c3bef5dc1ff09d9305f9fdf3",
+      "size": 2614220
+    },
+    {
+      "path": "assets/images/art-deco/hotel.png",
+      "sha": "cc218338134b9353c768bdb01219b3356d4f9c9f",
+      "size": 2335585
+    },
+    {
+      "path": "assets/images/art-deco/invitation.png",
+      "sha": "43fd392ab904ff1d10c0def8138e9d0912dd0795",
+      "size": 1207667
+    },
+    {
+      "path": "assets/images/art-deco/landing.png",
+      "sha": "2f6656ca7d23dfb776831c2ecc83ef6f48c71258",
+      "size": 1840380
+    },
+    {
+      "path": "assets/images/bauhaus/gallery.png",
+      "sha": "ae739a2421242e805f282247c3db19a9bb7e5f84",
+      "size": 1416594
+    },
+    {
+      "path": "assets/images/bauhaus/landing.png",
+      "sha": "43e2d5683b5211e4abfd564f4adc0a53e377b80e",
+      "size": 1399373
+    },
+    {
+      "path": "assets/images/bauhaus/shop.png",
+      "sha": "14af24b3a4e358bce8851257e8383f31a3e9b46b",
+      "size": 1314905
+    },
+    {
+      "path": "assets/images/bento-grid/dashboard.png",
+      "sha": "d3c935b56cbe14c40d2f0b262f65074751262a31",
+      "size": 1499299
+    },
+    {
+      "path": "assets/images/bento-grid/landing.png",
+      "sha": "ad780568bb2bb8fc383c0b78c71a6eddd1d2d410",
+      "size": 1392630
+    },
+    {
+      "path": "assets/images/bento-grid/shop.png",
+      "sha": "e653b5cc1854f651f4b20d983d04299035b0153a",
+      "size": 1361591
+    },
+    {
+      "path": "assets/images/brutalism/blog.png",
+      "sha": "6f39db7362d560b3cb640a04fe1dc7feaa89984e",
+      "size": 1279913
+    },
+    {
+      "path": "assets/images/brutalism/landing.png",
+      "sha": "8c32a12bdd1c5c3e75817b7394a09269544a639e",
+      "size": 1731678
+    },
+    {
+      "path": "assets/images/brutalism/shop.png",
+      "sha": "46b55868a0062203f12a4665f8767ada3205532e",
+      "size": 1902358
+    },
+    {
+      "path": "assets/images/claymorphism/app-icons.png",
+      "sha": "7870c7e1fc695754b6aa3910106325ad108f6612",
+      "size": 2157255
+    },
+    {
+      "path": "assets/images/claymorphism/landing.png",
+      "sha": "be38c58b0daba62dea9dd149bd73561ac29b826b",
+      "size": 2199022
+    },
+    {
+      "path": "assets/images/claymorphism/shop.png",
+      "sha": "13befb999ecc849e8b5e2df1b446a81b58e6be5a",
+      "size": 2237855
+    },
+    {
+      "path": "assets/images/color/analogous-teal-green/guide.png",
+      "sha": "7f2af0d741e21ecc47683959aa8e592f3546f778",
+      "size": 1524369
+    },
+    {
+      "path": "assets/images/color/art-deco-luxe/guide.png",
+      "sha": "4aa9eb1d28585cd506370351530323e1258a2ffb",
+      "size": 1577811
+    },
+    {
+      "path": "assets/images/color/bauhaus-primary/guide.png",
+      "sha": "bee53562b835510917e42c09c0452442ebfa6cdd",
+      "size": 1608228
+    },
+    {
+      "path": "assets/images/color/brutalism-primary/guide.png",
+      "sha": "8155693b4237b85aefbc420c439235e72857b592",
+      "size": 1281762
+    },
+    {
+      "path": "assets/images/color/complementary-blue-orange/guide.png",
+      "sha": "73b1e8a11adec9b94a8787e3fb3084452bb5c2c7",
+      "size": 1488771
+    },
+    {
+      "path": "assets/images/color/cyberpunk-neon/guide.png",
+      "sha": "2fb059f9d6ffbe44423257e1e15182a233157a22",
+      "size": 1423248
+    },
+    {
+      "path": "assets/images/color/ecommerce-conversion/guide.png",
+      "sha": "9b1cb604bacc9671a49aad062057542999cd8ba5",
+      "size": 1549462
+    },
+    {
+      "path": "assets/images/color/education-curiosity/guide.png",
+      "sha": "402777703cbf328affddaef16eec84803b544b37",
+      "size": 1497853
+    },
+    {
+      "path": "assets/images/color/fintech-assurance/guide.png",
+      "sha": "9f9dcf9bb09e6d20a82e92f3041143f8653ff710",
+      "size": 1482345
+    },
+    {
+      "path": "assets/images/color/food-appetite/guide.png",
+      "sha": "cfa2302e569347d3f96be97803b79b1a55e941a1",
+      "size": 1937422
+    },
+    {
+      "path": "assets/images/color/github-primer-light/guide.png",
+      "sha": "1a7f4c994096590d02cf702070a87fc10af1f379",
+      "size": 1472829
+    },
+    {
+      "path": "assets/images/color/healthcare-calm/guide.png",
+      "sha": "0ffbba84ab233bef9a0a7bbb8892aaa74ff43fe3",
+      "size": 1516844
+    },
+    {
+      "path": "assets/images/color/ibm-carbon-blue/guide.png",
+      "sha": "58c2a432b52c0eabf76989baa583592f3a711746",
+      "size": 1340176
+    },
+    {
+      "path": "assets/images/color/japandi-earth/guide.png",
+      "sha": "1818071b3c2211e6965ba34453f2223d0ffd1de6",
+      "size": 1580409
+    },
+    {
+      "path": "assets/images/color/material-3-baseline/guide.png",
+      "sha": "d543d1b795c639e4ec79a59db5a445ee935048ed",
+      "size": 1363911
+    },
+    {
+      "path": "assets/images/color/media-editorial/guide.png",
+      "sha": "bcd8e593b3c580684f02676653d011b684c27182",
+      "size": 1372588
+    },
+    {
+      "path": "assets/images/color/minimalism-neutral/guide.png",
+      "sha": "3e455b5cb2131c65f7f62514ec483fa9fa7e1200",
+      "size": 1406651
+    },
+    {
+      "path": "assets/images/color/monochromatic-blue/guide.png",
+      "sha": "428bd139da8d3273c772fb6ba64fa61139104266",
+      "size": 1478723
+    },
+    {
+      "path": "assets/images/color/radix-violet/guide.png",
+      "sha": "1ea93c4e46af512d9ec91eea17f83fe5ee2428bd",
+      "size": 1405260
+    },
+    {
+      "path": "assets/images/color/saas-trust-blue/guide.png",
+      "sha": "c73455fb1e7985b6d06430d033da34659a26ddc1",
+      "size": 1557493
+    },
+    {
+      "path": "assets/images/color/solarpunk-regenerative/guide.png",
+      "sha": "d6cb2700bb9afde8482cfa83af881d48ebcdded1",
+      "size": 1567177
+    },
+    {
+      "path": "assets/images/color/split-complementary-violet/guide.png",
+      "sha": "f803bddc19c1b3429d7f77a3c2e1a6991417165f",
+      "size": 1550353
+    },
+    {
+      "path": "assets/images/color/tailwind-slate-blue/guide.png",
+      "sha": "a76193b7c81e3f0995138f1660f05684a6291cbc",
+      "size": 1586936
+    },
+    {
+      "path": "assets/images/color/triadic-primary/guide.png",
+      "sha": "5df42a945e64df9955823a85ae299fa94fcf17f2",
+      "size": 1610889
+    },
+    {
+      "path": "assets/images/color/vaporwave-pastel/guide.png",
+      "sha": "2f7c53ce8f69e5f0e79032a170736b0fa3408c05",
+      "size": 1666316
+    },
+    {
+      "path": "assets/images/constructivism/dashboard.png",
+      "sha": "eeff1afef8a892aab28c07f355cc2749bf71ce44",
+      "size": 1582655
+    },
+    {
+      "path": "assets/images/constructivism/landing.png",
+      "sha": "f35879ae3a63dc9224da84fea7c80e0581ba6d1c",
+      "size": 1533306
+    },
+    {
+      "path": "assets/images/constructivism/shop.png",
+      "sha": "d84f69fe37ae7e0f32481c59acecf1545f4ddc48",
+      "size": 1704382
+    },
+    {
+      "path": "assets/images/corporate-memphis/landing.png",
+      "sha": "ad38feef36231d5be1705cb8a6b595cb389d1599",
+      "size": 1319966
+    },
+    {
+      "path": "assets/images/corporate-memphis/onboarding.png",
+      "sha": "c5528ac13911b65c03e1aa9d3dbbb4e4ff852d8b",
+      "size": 1183139
+    },
+    {
+      "path": "assets/images/corporate-memphis/pricing.png",
+      "sha": "8f6d937542c84c7971845c48ac8e8472c0cb7410",
+      "size": 1302355
+    },
+    {
+      "path": "assets/images/cottagecore/blog.png",
+      "sha": "b55b6f3636e500d6bd7c67c1b0aa5798f468299b",
+      "size": 2964701
+    },
+    {
+      "path": "assets/images/cottagecore/landing.png",
+      "sha": "ea9d240f1e71f76689391b0a0f2e3265678223e1",
+      "size": 3181376
+    },
+    {
+      "path": "assets/images/cottagecore/shop.png",
+      "sha": "549b067e5914130182302f9a60490492499ff376",
+      "size": 2839931
+    },
+    {
+      "path": "assets/images/cyberpunk/game.png",
+      "sha": "200b8097cf6f540129490c6f0a8efae71d2f2df1",
+      "size": 2135219
+    },
+    {
+      "path": "assets/images/cyberpunk/landing.png",
+      "sha": "06ed1fe4c3011f5d947a5313d7c5bc9ecd32e4e3",
+      "size": 2035466
+    },
+    {
+      "path": "assets/images/cyberpunk/shop.png",
+      "sha": "274d5b388c323c6b5d699d0968170fa366e0e64b",
+      "size": 1833776
+    },
+    {
+      "path": "assets/images/dark-mode/dashboard.png",
+      "sha": "47a220dde7c5297d7a361695e77bba27a863efb7",
+      "size": 1509901
+    },
+    {
+      "path": "assets/images/dark-mode/shop.png",
+      "sha": "7035a080d97def747f6228fb313a1402a4efdd4c",
+      "size": 1648283
+    },
+    {
+      "path": "assets/images/dark-mode/streaming.png",
+      "sha": "4766042de96acc89831ae1829fc2161ff30d41ba",
+      "size": 1614840
+    },
+    {
+      "path": "assets/images/de-stijl/dashboard.png",
+      "sha": "ee265e7c979602e7f101fafc4afc55ac380c439c",
+      "size": 1243114
+    },
+    {
+      "path": "assets/images/de-stijl/landing.png",
+      "sha": "e74272d659c33c61533eae28f041b66465160067",
+      "size": 1402017
+    },
+    {
+      "path": "assets/images/de-stijl/shop.png",
+      "sha": "80f32cff5163d4eac8bac1c494d717a35fc6adfd",
+      "size": 1210356
+    },
+    {
+      "path": "assets/images/dopamine-design/landing.png",
+      "sha": "0ee78ccf00ec0d534d195a25392c6d7f6d87edc4",
+      "size": 1573361
+    },
+    {
+      "path": "assets/images/dopamine-design/mobile-app.png",
+      "sha": "3dbcdb175ab44808d7b9e2815b08306971ddac29",
+      "size": 1768461
+    },
+    {
+      "path": "assets/images/dopamine-design/shop.png",
+      "sha": "967e14b44ee2853a14b83cef923f6d27b9cd4ace",
+      "size": 1646521
+    },
+    {
+      "path": "assets/images/editorial-typography/dashboard.png",
+      "sha": "b8c4201faaec802cbd9d4860b3daa632d7c6b54b",
+      "size": 1203311
+    },
+    {
+      "path": "assets/images/editorial-typography/landing.png",
+      "sha": "916f3da3c219f7de97a1a9c0845634f7cd51dd38",
+      "size": 1673123
+    },
+    {
+      "path": "assets/images/editorial-typography/shop.png",
+      "sha": "27546f9f8981a86f8fb2ca733a360ddd94e22b72",
+      "size": 1547066
+    },
+    {
+      "path": "assets/images/effects/accordion-morph-expand/guide.png",
+      "sha": "b45c452b0249ed29986abe45ab5b34ba4bc3c327",
+      "size": 1394688
+    },
+    {
+      "path": "assets/images/effects/accordion/guide.png",
+      "sha": "24c11cd76b08d068a5c435a94a5db9246f39f1c5",
+      "size": 1376327
+    },
+    {
+      "path": "assets/images/effects/aurora-mesh-background/guide.png",
+      "sha": "7fd0b602286aa1dc4912f1ba16289cc06fa181a6",
+      "size": 1545862
+    },
+    {
+      "path": "assets/images/effects/bottom-sheet/guide.png",
+      "sha": "5c2e9efefbff647d69017080751d9c0c8d29b3a8",
+      "size": 1350540
+    },
+    {
+      "path": "assets/images/effects/breadcrumb/guide.png",
+      "sha": "4f129d0d5954cdbeb951ddfa84db6b6d43cb3640",
+      "size": 1476821
+    },
+    {
+      "path": "assets/images/effects/carousel/guide.png",
+      "sha": "589a32a03587fd0ab849a5d0fae688fed533c8dc",
+      "size": 1317195
+    },
+    {
+      "path": "assets/images/effects/command-palette/guide.png",
+      "sha": "784f38f782ce8ef236a1d91baed96b5c697ed4d1",
+      "size": 1289011
+    },
+    {
+      "path": "assets/images/effects/confetti-success-burst/guide.png",
+      "sha": "d97c974fbea6323b1323001e14704ffeb314ab4e",
+      "size": 1531314
+    },
+    {
+      "path": "assets/images/effects/context-menu/guide.png",
+      "sha": "2877a16d9f3de25218018d3dc5af1958d7018d2e",
+      "size": 1371426
+    },
+    {
+      "path": "assets/images/effects/copy-confirmation/guide.png",
+      "sha": "30ed9568e5d28f2085e3b0879a88ac1bdbe59a7a",
+      "size": 1234467
+    },
+    {
+      "path": "assets/images/effects/crossfade-view-transition/guide.png",
+      "sha": "d955c5128eae6c57459712012b54a5793923eac6",
+      "size": 1260698
+    },
+    {
+      "path": "assets/images/effects/cursor-trail/guide.png",
+      "sha": "ab86eb61cdaccd275d3e3bb26a0ab776cbe1eaba",
+      "size": 1380937
+    },
+    {
+      "path": "assets/images/effects/dashboard-kpi-cards/guide.png",
+      "sha": "fb3f8dbe1dfdda01d44750560d7c76161be1fa9b",
+      "size": 1368186
+    },
+    {
+      "path": "assets/images/effects/data-table/guide.png",
+      "sha": "f2cb2f9317a16fd4f1a9b9223963681fd8bdb6b3",
+      "size": 1481147
+    },
+    {
+      "path": "assets/images/effects/date-picker/guide.png",
+      "sha": "0344cb271c6adc670d7d25df42f913bef6d48907",
+      "size": 1344642
+    },
+    {
+      "path": "assets/images/effects/desktop-wizard/guide.png",
+      "sha": "ba8e3c6b0e135d4d638e9dfef9491e8b97101bbd",
+      "size": 1290795
+    },
+    {
+      "path": "assets/images/effects/dot-grid-pulse/guide.png",
+      "sha": "a1e3f4356421225ee07b61803720bd0521fba67e",
+      "size": 1696773
+    },
+    {
+      "path": "assets/images/effects/drag-affordance-cursor/guide.png",
+      "sha": "91caa19d5e9b7282ba7a07763d4a8529c413771f",
+      "size": 1487957
+    },
+    {
+      "path": "assets/images/effects/drag-reorder/guide.png",
+      "sha": "df7dfa21a420447e6b7652cc828a70a3cd56ce9a",
+      "size": 1236497
+    },
+    {
+      "path": "assets/images/effects/drawer-navigation/guide.png",
+      "sha": "f084b3ccfd48deca1132f05c1cc892f7a5fb90c5",
+      "size": 1410254
+    },
+    {
+      "path": "assets/images/effects/favorite-burst/guide.png",
+      "sha": "c23634e8bdf53c3eed773ed18a9e5d1c8bdf71a0",
+      "size": 1336922
+    },
+    {
+      "path": "assets/images/effects/file-dropzone/guide.png",
+      "sha": "5ce212d1aa75f57b06bd06b89d32b0ae54e5145c",
+      "size": 1284603
+    },
+    {
+      "path": "assets/images/effects/filter-sidebar/guide.png",
+      "sha": "49dae841e3355106fa39d4c86df76be1e19924c3",
+      "size": 1344591
+    },
+    {
+      "path": "assets/images/effects/flip-card-reveal/guide.png",
+      "sha": "c46c7cc6c19ae930ca8bc9ea75409c87a3b67db0",
+      "size": 1462140
+    },
+    {
+      "path": "assets/images/effects/floating-action-button/guide.png",
+      "sha": "92f43c50eb2ab121c1ac686375df6def29532b60",
+      "size": 1290664
+    },
+    {
+      "path": "assets/images/effects/floating-particles-field/guide.png",
+      "sha": "307180caf2d77670bbfc41a63fa42816e33a48c0",
+      "size": 2006897
+    },
+    {
+      "path": "assets/images/effects/full-screen-mobile-modal/guide.png",
+      "sha": "08fb1e5578050fd0ff5390cafe60c9cd062f23ce",
+      "size": 1382380
+    },
+    {
+      "path": "assets/images/effects/glitch-text-flicker/guide.png",
+      "sha": "9d9998c285d733e5b06114440a869e9ddf4b7321",
+      "size": 1387125
+    },
+    {
+      "path": "assets/images/effects/gradient-morph-blob/guide.png",
+      "sha": "9efd6f1eefe544304a79398be86b2689a194113e",
+      "size": 1644116
+    },
+    {
+      "path": "assets/images/effects/gradient-text-sweep/guide.png",
+      "sha": "64f1887afe39af4570291901c71edc827ef6b693",
+      "size": 1585243
+    },
+    {
+      "path": "assets/images/effects/grain-noise-drift/guide.png",
+      "sha": "9ceaeaedce51e1450d5ede46beeaf780050afb27",
+      "size": 1935370
+    },
+    {
+      "path": "assets/images/effects/hero-expand-navigation/guide.png",
+      "sha": "82e9c01088f69b83d7ca0241bae8b7744fba21f5",
+      "size": 1737702
+    },
+    {
+      "path": "assets/images/effects/horizontal-scroll-gallery/guide.png",
+      "sha": "f894d9f0ea1b99db3db8ac88b965f71c32ddd7c8",
+      "size": 1605870
+    },
+    {
+      "path": "assets/images/effects/hover-ripple-feedback/guide.png",
+      "sha": "dc049d3b1c68bb24ec0ee965e9ad3acecb89a697",
+      "size": 1434572
+    },
+    {
+      "path": "assets/images/effects/image-lightbox/guide.png",
+      "sha": "4c30099937ff89ae4ea83a2a6754d9c5be7eb190",
+      "size": 1509161
+    },
+    {
+      "path": "assets/images/effects/inline-edit/guide.png",
+      "sha": "127b097f1f66f185fef04f3263faf4b281e45ef1",
+      "size": 1289500
+    },
+    {
+      "path": "assets/images/effects/inline-validation/guide.png",
+      "sha": "ac5e6395a339162809d310960e98979ae837f6ab",
+      "size": 1317388
+    },
+    {
+      "path": "assets/images/effects/kanban-board/guide.png",
+      "sha": "13e814e921636747fe416918af8ad1af02fa8bf4",
+      "size": 1342856
+    },
+    {
+      "path": "assets/images/effects/layered-parallax/guide.png",
+      "sha": "f6c63a8960beb5d8c25f5ea85c8899425b8f8563",
+      "size": 2020465
+    },
+    {
+      "path": "assets/images/effects/lens-zoom-hover/guide.png",
+      "sha": "7506989168f1f5e89a80e95aa69deb70d23df37c",
+      "size": 2251885
+    },
+    {
+      "path": "assets/images/effects/list-reorder-flip/guide.png",
+      "sha": "5cb6166a166c53b026374bcceea01946f6c5ba68",
+      "size": 1545766
+    },
+    {
+      "path": "assets/images/effects/long-press-context-reveal/guide.png",
+      "sha": "082b513fe878e09be1ccae6291076241a0b565d8",
+      "size": 1434134
+    },
+    {
+      "path": "assets/images/effects/magnetic-button/guide.png",
+      "sha": "4732bbf5d0d527cddf01f56b9292185c3291389a",
+      "size": 1252806
+    },
+    {
+      "path": "assets/images/effects/marquee-text-loop/guide.png",
+      "sha": "7943f8dfa41de118eb221f6980465425221e3436",
+      "size": 1492795
+    },
+    {
+      "path": "assets/images/effects/master-detail/guide.png",
+      "sha": "f0623984fa00574177aa40c80020b1d0f365c9b4",
+      "size": 1367343
+    },
+    {
+      "path": "assets/images/effects/mega-menu/guide.png",
+      "sha": "584cf84b3a058eb066809f78d91e46c37e7ce6a3",
+      "size": 1330659
+    },
+    {
+      "path": "assets/images/effects/mobile-empty-state/guide.png",
+      "sha": "8aa1935da7e68146e621f8dd5c52c342c39ab3e2",
+      "size": 1335159
+    },
+    {
+      "path": "assets/images/effects/mobile-stepper-form/guide.png",
+      "sha": "a45ceb667aa32659aa53aee5d9099073bcaff22d",
+      "size": 1435018
+    },
+    {
+      "path": "assets/images/effects/modal-dialog/guide.png",
+      "sha": "9248acda45dfacf7171a52550169a7562e73a669",
+      "size": 1359054
+    },
+    {
+      "path": "assets/images/effects/notification-center/guide.png",
+      "sha": "736346ee30909b342b7c6a0ede73c2ae2b5a7f29",
+      "size": 1385400
+    },
+    {
+      "path": "assets/images/effects/number-ticker/guide.png",
+      "sha": "6dcb6a2cfaa404a854d24d6c2482873df0a8740f",
+      "size": 1415130
+    },
+    {
+      "path": "assets/images/effects/page-turn-transition/guide.png",
+      "sha": "f8a7cf76e037952639c3430ab9494577d6a0242e",
+      "size": 1669218
+    },
+    {
+      "path": "assets/images/effects/pagination/guide.png",
+      "sha": "4965b120f1e94d2ca6c82fec3138bbdca2db4762",
+      "size": 1285870
+    },
+    {
+      "path": "assets/images/effects/parallax-depth-cards/guide.png",
+      "sha": "01b122a1d010ef7cc6f2cb8bf6101bcdb8bbe849",
+      "size": 1629822
+    },
+    {
+      "path": "assets/images/effects/pointer-glow-border/guide.png",
+      "sha": "4c0e320c871f0df74d60e782c96c65adab5e6e17",
+      "size": 1617742
+    },
+    {
+      "path": "assets/images/effects/popover/guide.png",
+      "sha": "d570f3a78d8be464d2cd9dda86ecaaa54d521a85",
+      "size": 1357592
+    },
+    {
+      "path": "assets/images/effects/press-scale/guide.png",
+      "sha": "a77faeb9d1a15c3c004cd5a86bd4c39bebd09669",
+      "size": 1285491
+    },
+    {
+      "path": "assets/images/effects/progress-ring-completion/guide.png",
+      "sha": "fc57d01f5de4bcc0789d7d0b73b82f57c58bde85",
+      "size": 1501891
+    },
+    {
+      "path": "assets/images/effects/progress-stepper/guide.png",
+      "sha": "37ad80be2fbc6093fa6bad068eb9f7e5b6fcc599",
+      "size": 1255785
+    },
+    {
+      "path": "assets/images/effects/pull-to-refresh/guide.png",
+      "sha": "69d7980bce2289f5acf4aecdb0006d9e634fb00a",
+      "size": 1363055
+    },
+    {
+      "path": "assets/images/effects/resizable-sidebar/guide.png",
+      "sha": "afdec304ca604d9a146afd0226fe96956fa9afd7",
+      "size": 1822935
+    },
+    {
+      "path": "assets/images/effects/route-wipe-transition/guide.png",
+      "sha": "3e48b8c2a2e60f2f758fc71059b4417c2954f439",
+      "size": 1546058
+    },
+    {
+      "path": "assets/images/effects/scroll-linked-progress-sections/guide.png",
+      "sha": "1535a92055fc09b11756222693dacad63b25fe80",
+      "size": 1401879
+    },
+    {
+      "path": "assets/images/effects/scroll-progress-indicator/guide.png",
+      "sha": "0fdc4dd9508347190d3329ce4de67ebf0aaf287c",
+      "size": 1584850
+    },
+    {
+      "path": "assets/images/effects/scroll-reveal/guide.png",
+      "sha": "8008080af02d51354093607fedc56b97214b2a28",
+      "size": 1450689
+    },
+    {
+      "path": "assets/images/effects/scroll-snap-carousel/guide.png",
+      "sha": "11b716f6d806d4ddac3432b4d688f75b9fffd286",
+      "size": 1411404
+    },
+    {
+      "path": "assets/images/effects/scroll-zoom-hero/guide.png",
+      "sha": "c4b6ddc46b01685937574d5c374e16246d223776",
+      "size": 1893352
+    },
+    {
+      "path": "assets/images/effects/segmented-control/guide.png",
+      "sha": "c80192f9f81c03a525295ab06c489ac753376b56",
+      "size": 1376828
+    },
+    {
+      "path": "assets/images/effects/shake-validation-error/guide.png",
+      "sha": "329b2d5da5a4949146580cb84db2e28af58b0f6a",
+      "size": 1462196
+    },
+    {
+      "path": "assets/images/effects/shared-element-transition/guide.png",
+      "sha": "12aa77a225bb67a8a8e03140e2413d7614d21601",
+      "size": 1361362
+    },
+    {
+      "path": "assets/images/effects/skeleton-loading/guide.png",
+      "sha": "a2af2b0536868f7cbaa5667a05d4de0da951f453",
+      "size": 1280706
+    },
+    {
+      "path": "assets/images/effects/split-pane/guide.png",
+      "sha": "1270d9f1632afabd14ff17cb380c018d5461ad25",
+      "size": 1363066
+    },
+    {
+      "path": "assets/images/effects/split-text-reveal/guide.png",
+      "sha": "7ab2e1bba658fbd9cf70694295b318f81ee54503",
+      "size": 1428004
+    },
+    {
+      "path": "assets/images/effects/spotlight-follow/guide.png",
+      "sha": "71df7f94508d39c8529734e04b23416a8616e474",
+      "size": 1659752
+    },
+    {
+      "path": "assets/images/effects/spotlight-grid-background/guide.png",
+      "sha": "d048e0108c36c61da26ed8859a3b51c457bc3d5f",
+      "size": 1808461
+    },
+    {
+      "path": "assets/images/effects/staggered-cards/guide.png",
+      "sha": "58287a37e88ec0214d42011a3a09d94e3866df08",
+      "size": 1437671
+    },
+    {
+      "path": "assets/images/effects/sticky-cta-bar/guide.png",
+      "sha": "4c47bd212527721411f95f087327e3cb2d18031b",
+      "size": 1379998
+    },
+    {
+      "path": "assets/images/effects/sticky-section-reveal/guide.png",
+      "sha": "e2ce374dbea44982d005ae75f50809847b182cc9",
+      "size": 1405510
+    },
+    {
+      "path": "assets/images/effects/sticky-tab-bar/guide.png",
+      "sha": "9e44677c10353def05adcb2796a1ea09127940bc",
+      "size": 1520751
+    },
+    {
+      "path": "assets/images/effects/sticky-table-header/guide.png",
+      "sha": "b9736d2166d850ad397ae3d648f29d2e295956c9",
+      "size": 1428903
+    },
+    {
+      "path": "assets/images/effects/success-checkmark/guide.png",
+      "sha": "549583d6d361fac0383202a8ef67d8f55e8ca2d0",
+      "size": 1378516
+    },
+    {
+      "path": "assets/images/effects/svg-wave-divider/guide.png",
+      "sha": "f557d4fe1ab63199acdd74fa2933331692fccc05",
+      "size": 1553611
+    },
+    {
+      "path": "assets/images/effects/swipe-action/guide.png",
+      "sha": "7931a62620e52f83290a003f27bde28f645ff5d2",
+      "size": 1260013
+    },
+    {
+      "path": "assets/images/effects/tabs/guide.png",
+      "sha": "56d9202bc0e78552be17d9d940237be4a5f114c5",
+      "size": 1365367
+    },
+    {
+      "path": "assets/images/effects/text-scramble/guide.png",
+      "sha": "77a15e4d2b10d0cdcdc43d45547169fc98a4bcd7",
+      "size": 1312122
+    },
+    {
+      "path": "assets/images/effects/tilt-hover-card/guide.png",
+      "sha": "c730e71ea26c34ad872478ef37a07c44ddc9cb08",
+      "size": 1484228
+    },
+    {
+      "path": "assets/images/effects/toast-stack/guide.png",
+      "sha": "83de68c5c98833c4e551d5f1251474b8fc85b964",
+      "size": 1467441
+    },
+    {
+      "path": "assets/images/effects/toast/guide.png",
+      "sha": "196ecea4f3fdc1387bd1fc3aeab1d68eac4f8cc1",
+      "size": 1308152
+    },
+    {
+      "path": "assets/images/effects/toggle-switch-morph/guide.png",
+      "sha": "01b292794bf744178783c136854948e7024ccb83",
+      "size": 1443279
+    },
+    {
+      "path": "assets/images/effects/tooltip/guide.png",
+      "sha": "f6f40a557e396a1eb3415a3693466e213b81d1b0",
+      "size": 1421038
+    },
+    {
+      "path": "assets/images/effects/typewriter-caret/guide.png",
+      "sha": "1ec8e75b87d35dc9e25da0d519ee1e4ed4b6ad9f",
+      "size": 1502486
+    },
+    {
+      "path": "assets/images/effects/video-scrim-hero/guide.png",
+      "sha": "d97f83e86b4c866d52fee977c504e3fe8ce9c27e",
+      "size": 2021165
+    },
+    {
+      "path": "assets/images/effects/virtual-list/guide.png",
+      "sha": "4089ad05e1b73e7674655c5e7780f5e9517fb532",
+      "size": 1392686
+    },
+    {
+      "path": "assets/images/effects/word-rotate-swap/guide.png",
+      "sha": "070346662362b1514fe13aab8ef324a720dcedc8",
+      "size": 1523935
+    },
+    {
+      "path": "assets/images/flat-design/dashboard.png",
+      "sha": "db6fdf39ae2e75ac729c00b19876cf5e90cc4d23",
+      "size": 1240112
+    },
+    {
+      "path": "assets/images/flat-design/landing.png",
+      "sha": "1d0aefdf6805548acdb36daffaf4cab887fd9b11",
+      "size": 1431013
+    },
+    {
+      "path": "assets/images/flat-design/mobile-app.png",
+      "sha": "cba6590a92d5a22d9fc01a6ba8eb81c787c1507b",
+      "size": 1243343
+    },
+    {
+      "path": "assets/images/frutiger-aero/dashboard.png",
+      "sha": "4eb9d15b3efd5156d539ece61098ad7e5700fdbd",
+      "size": 2097084
+    },
+    {
+      "path": "assets/images/frutiger-aero/landing.png",
+      "sha": "17601c718ad27e69663d9ed6b09be2ba6326a48b",
+      "size": 2147850
+    },
+    {
+      "path": "assets/images/frutiger-aero/mobile-app.png",
+      "sha": "76c869a712e1fd572c8b96f990c4b009fd19ca82",
+      "size": 1815487
+    },
+    {
+      "path": "assets/images/futurism/landing.png",
+      "sha": "129ff89eabd4d31aab0039d39f4411e856083771",
+      "size": 1826008
+    },
+    {
+      "path": "assets/images/futurism/portfolio.png",
+      "sha": "302db7458cd1add2bc39e2c576b597703a171b56",
+      "size": 2069097
+    },
+    {
+      "path": "assets/images/futurism/poster.png",
+      "sha": "dcd179d30f2a085a68b9646f970415a9c570fc0f",
+      "size": 2757700
+    },
+    {
+      "path": "assets/images/generative-identity/agency.png",
+      "sha": "c63aa5dc591ec929b28d0eede51f2e7b81e692b8",
+      "size": 1378279
+    },
+    {
+      "path": "assets/images/generative-identity/portfolio.png",
+      "sha": "47095c9a323484e8aa3f729c3eeb302cbcbe3b38",
+      "size": 1862920
+    },
+    {
+      "path": "assets/images/generative-identity/pricing.png",
+      "sha": "1d5e62d287ee586b5bba9de7196dd3a5d485d621",
+      "size": 1844141
+    },
+    {
+      "path": "assets/images/glassmorphism/card-ui.png",
+      "sha": "ae5bb59793387f4a995c9224a81cf962c6ae264e",
+      "size": 1707511
+    },
+    {
+      "path": "assets/images/glassmorphism/landing.png",
+      "sha": "bc0e53ac17393d8ed665c5327fe38ce3da4959e0",
+      "size": 1635731
+    },
+    {
+      "path": "assets/images/glassmorphism/mobile-app.png",
+      "sha": "a4824882c3247d5f52d7dd3e83c0e332a640ce5c",
+      "size": 1705692
+    },
+    {
+      "path": "assets/images/gradient-aurora/landing.png",
+      "sha": "12fb96515e499063ac4f86b1d5c36f85a42ed5ed",
+      "size": 1628336
+    },
+    {
+      "path": "assets/images/gradient-aurora/mobile-app.png",
+      "sha": "ca93f0888f515698ff7f7cba4a10e4025232976b",
+      "size": 1329539
+    },
+    {
+      "path": "assets/images/gradient-aurora/saas.png",
+      "sha": "eccef73551bd83dc2cbc6f7c8ab52d1a56428f6c",
+      "size": 1526235
+    },
+    {
+      "path": "assets/images/human-crafted-web/landing.png",
+      "sha": "05e4f1c25222f70583b1649330aa916b7a8db749",
+      "size": 3033188
+    },
+    {
+      "path": "assets/images/human-crafted-web/portfolio.png",
+      "sha": "5682cad20459292501926d6d3513451826a416e5",
+      "size": 2589258
+    },
+    {
+      "path": "assets/images/human-crafted-web/shop.png",
+      "sha": "1ef7609bdcb09d094d9014d83d0b48c920fb34df",
+      "size": 2364820
+    },
+    {
+      "path": "assets/images/indie-web/blog.png",
+      "sha": "4b0debf499a21ad7318519239970ffcf4f9c13ab",
+      "size": 2176568
+    },
+    {
+      "path": "assets/images/indie-web/landing.png",
+      "sha": "02f6f8a5166a8fe96c603c76565322627cbba7da",
+      "size": 3003710
+    },
+    {
+      "path": "assets/images/indie-web/links.png",
+      "sha": "5d84748d38290d598052d7ca6a744602f0410bbd",
+      "size": 2604551
+    },
+    {
+      "path": "assets/images/isometric-3d-ui/dashboard.png",
+      "sha": "977f1fe65b05d77b6819b8c44eade204ac512687",
+      "size": 1751690
+    },
+    {
+      "path": "assets/images/isometric-3d-ui/landing.png",
+      "sha": "74b9e2783034f6a6b37c46fcaca893e2676d3313",
+      "size": 1718545
+    },
+    {
+      "path": "assets/images/isometric-3d-ui/shop.png",
+      "sha": "c4f645591a507a125b9b6f59448907f471fa588a",
+      "size": 1735237
+    },
+    {
+      "path": "assets/images/japandi/blog.png",
+      "sha": "f28e4236bbb0892a3bc3b7e540097b1f4c5ce788",
+      "size": 1869856
+    },
+    {
+      "path": "assets/images/japandi/interior.png",
+      "sha": "b1da761f663ae07432f73837ce6937eac6b28f4c",
+      "size": 2147758
+    },
+    {
+      "path": "assets/images/japandi/landing.png",
+      "sha": "42c09c3a1492d3ef92b50dea718071adcb928620",
+      "size": 2442444
+    },
+    {
+      "path": "assets/images/kawaii/landing.png",
+      "sha": "39b697089c6a0dfbddeb16794c0d46e5b611801b",
+      "size": 1591127
+    },
+    {
+      "path": "assets/images/kawaii/mobile-app.png",
+      "sha": "6d11fb30fbdd4b7bbbb6c0b48fb1f5758014ee0f",
+      "size": 1555404
+    },
+    {
+      "path": "assets/images/kawaii/shop.png",
+      "sha": "29a931f0b8fcd85ddbd3f0408b1422b9d57a79ef",
+      "size": 1619168
+    },
+    {
+      "path": "assets/images/kinetic-typography/agency.png",
+      "sha": "d2bd1c77d9f42982feb3d3a82542b761ae16732a",
+      "size": 1111881
+    },
+    {
+      "path": "assets/images/kinetic-typography/landing.png",
+      "sha": "981360cdc8fa1ef2f90d758b17ca33f57ce218c2",
+      "size": 1452894
+    },
+    {
+      "path": "assets/images/kinetic-typography/portfolio.png",
+      "sha": "ff1203f5dddfb0e5363212ba15511efbf033aba8",
+      "size": 1602691
+    },
+    {
+      "path": "assets/images/layout/layout-content-comparison/guide.png",
+      "sha": "9fdb2f167c3a314595a64186f52b1f709dccd3f9",
+      "size": 1445638
+    },
+    {
+      "path": "assets/images/layout/layout-content-pricing/guide.png",
+      "sha": "d1a1394955007d64b567dea3ae81f3ec8274bab1",
+      "size": 1474610
+    },
+    {
+      "path": "assets/images/layout/layout-content-testimonial/guide.png",
+      "sha": "62f24ba602bbd62d36d9417d03d6feb41f2a4766",
+      "size": 1470218
+    },
+    {
+      "path": "assets/images/layout/layout-content-timeline/guide.png",
+      "sha": "ec531fff27c65b5610d8502fdae3a9fb13f70f6a",
+      "size": 1384680
+    },
+    {
+      "path": "assets/images/layout/layout-content-zigzag/guide.png",
+      "sha": "a23d889cf295feba52841f5a44c074e5162af174",
+      "size": 1468721
+    },
+    {
+      "path": "assets/images/layout/layout-form-auth/guide.png",
+      "sha": "bfd1e20fbba18fd5bb62dc69078176134785b8c5",
+      "size": 1289506
+    },
+    {
+      "path": "assets/images/layout/layout-form-filter-list/guide.png",
+      "sha": "65173c6440ef999ece159d64a6947756b407608c",
+      "size": 1509917
+    },
+    {
+      "path": "assets/images/layout/layout-form-multi-step/guide.png",
+      "sha": "c9827649dc71139abbb06b6906da8184cdf30c2b",
+      "size": 1435738
+    },
+    {
+      "path": "assets/images/layout/layout-form-search-results/guide.png",
+      "sha": "6af6ec1b9c51308034b99a5e4d5edc8aac190826",
+      "size": 1371890
+    },
+    {
+      "path": "assets/images/layout/layout-form-settings/guide.png",
+      "sha": "f1304d4f08b1247082af9fa3d4f0977193ed5562",
+      "size": 1373809
+    },
+    {
+      "path": "assets/images/layout/layout-grid-bento/guide.png",
+      "sha": "5c89f046557f6756e783dbc78bf512e5e88922ef",
+      "size": 1584886
+    },
+    {
+      "path": "assets/images/layout/layout-grid-equal/guide.png",
+      "sha": "429f33a7c1838743406bf18821409893f72c5d32",
+      "size": 1437536
+    },
+    {
+      "path": "assets/images/layout/layout-grid-featured/guide.png",
+      "sha": "90bef1d6967863ab223e9ed52aa09f6c22aa7c6b",
+      "size": 1340833
+    },
+    {
+      "path": "assets/images/layout/layout-grid-magazine/guide.png",
+      "sha": "2424a2e215b24c5c205aa353924745faacd91e9b",
+      "size": 1381484
+    },
+    {
+      "path": "assets/images/layout/layout-grid-masonry/guide.png",
+      "sha": "4bd65f652cae7391ae78589bef52f5df78d8a20b",
+      "size": 1395412
+    },
+    {
+      "path": "assets/images/layout/layout-hero-centered/guide.png",
+      "sha": "d379013441f07ac6592fe3d2bbbb55a1c7888e45",
+      "size": 1366472
+    },
+    {
+      "path": "assets/images/layout/layout-hero-full-media/guide.png",
+      "sha": "192fb46443631b6a4e9e3b33be307a47412ed12a",
+      "size": 1567719
+    },
+    {
+      "path": "assets/images/layout/layout-hero-interactive/guide.png",
+      "sha": "2f11397e46f9f06e3be6af7292faf4e81807b2d3",
+      "size": 1449004
+    },
+    {
+      "path": "assets/images/layout/layout-hero-split/guide.png",
+      "sha": "7a0e8865e656e2d4bf73a7b2b21e608e72171bb3",
+      "size": 1430085
+    },
+    {
+      "path": "assets/images/layout/layout-hero-video-bg/guide.png",
+      "sha": "f452812be7253b4667c498fabd72ed0e7f48400a",
+      "size": 1750342
+    },
+    {
+      "path": "assets/images/layout/layout-nav-bottom/guide.png",
+      "sha": "6a14973edf67e6d592db30401e0e84303a3bc4a4",
+      "size": 1307608
+    },
+    {
+      "path": "assets/images/layout/layout-nav-breadcrumb/guide.png",
+      "sha": "90bcff76c723c29af82ba42e4982165cbb0d453f",
+      "size": 1435927
+    },
+    {
+      "path": "assets/images/layout/layout-nav-command-palette/guide.png",
+      "sha": "52ea089fa92de33f0a463e3676c7be47305c9d32",
+      "size": 1471106
+    },
+    {
+      "path": "assets/images/layout/layout-nav-sidebar/guide.png",
+      "sha": "28695d0572296d41fad754d8d3135618cfe45a64",
+      "size": 1273733
+    },
+    {
+      "path": "assets/images/layout/layout-nav-top-bar/guide.png",
+      "sha": "b87b57663b2a8ebf635450b41635fc4e36564267",
+      "size": 1360284
+    },
+    {
+      "path": "assets/images/material-design/email-app.png",
+      "sha": "aebafd0c9ca12961fc1b3776ea37b6becb748434",
+      "size": 1233581
+    },
+    {
+      "path": "assets/images/material-design/landing.png",
+      "sha": "5eba0617688f3a6cfbc1255aab396b309a4dc2bd",
+      "size": 1296220
+    },
+    {
+      "path": "assets/images/material-design/shop.png",
+      "sha": "d83e9ba1c37006b7dfe9df9f0401d88d9370ceb6",
+      "size": 1472152
+    },
+    {
+      "path": "assets/images/maximalism/editorial.png",
+      "sha": "24af7b5be09cf7880e3c66214a8d179367f0f241",
+      "size": 2550102
+    },
+    {
+      "path": "assets/images/maximalism/fashion.png",
+      "sha": "72ce473547ba3c550fbdf80e6729a57d3bc4b659",
+      "size": 3099558
+    },
+    {
+      "path": "assets/images/maximalism/landing.png",
+      "sha": "36499c6751e355c7a872667f221a240199c3c9d2",
+      "size": 3295659
+    },
+    {
+      "path": "assets/images/memphis-design/landing.png",
+      "sha": "8e0415bd884c6b1e64c556ad181450c26aa1d063",
+      "size": 1687019
+    },
+    {
+      "path": "assets/images/memphis-design/poster.png",
+      "sha": "8f9e409e80666f57405a4d3517b468abf8dfb698",
+      "size": 2184100
+    },
+    {
+      "path": "assets/images/memphis-design/shop.png",
+      "sha": "4bdc0ad5c2df6d72f4e9a9e080c49a75fd55e652",
+      "size": 2036199
+    },
+    {
+      "path": "assets/images/minimalism/landing.png",
+      "sha": "92e464529aac18351c2d225b26689e89ba948e58",
+      "size": 1597402
+    },
+    {
+      "path": "assets/images/minimalism/portfolio.png",
+      "sha": "1edec0ff23e1c18569c7fee2dd7f190e31663ca7",
+      "size": 1460219
+    },
+    {
+      "path": "assets/images/minimalism/shop.png",
+      "sha": "7fd0c7b3bf4d4ab4c38fd36e95faad0470c3c3a1",
+      "size": 1429598
+    },
+    {
+      "path": "assets/images/monospace-terminal-ui/dashboard.png",
+      "sha": "3b88127390f9788eb7dd1e61d2445cf12e8849e7",
+      "size": 1505027
+    },
+    {
+      "path": "assets/images/monospace-terminal-ui/landing.png",
+      "sha": "9a3071f3ec15ea28191ad63e2d307d706fc91ab3",
+      "size": 1388644
+    },
+    {
+      "path": "assets/images/monospace-terminal-ui/shop.png",
+      "sha": "a7f11147ebee7bf4636f41154bd0af55c0c675eb",
+      "size": 1271649
+    },
+    {
+      "path": "assets/images/motion/motion-back/guide.png",
+      "sha": "aab1da071eea38b56d53d7e2cb5e4f546fe789bf",
+      "size": 1196021
+    },
+    {
+      "path": "assets/images/motion/motion-blur-reveal/guide.png",
+      "sha": "d8202ce96d84fe7395cace69d39234f88adf738b",
+      "size": 1665113
+    },
+    {
+      "path": "assets/images/motion/motion-bounce/guide.png",
+      "sha": "6dc03a83eae8468c213f61d85b85daa46c372f6e",
+      "size": 1342072
+    },
+    {
+      "path": "assets/images/motion/motion-ease-in-out/guide.png",
+      "sha": "57036994d025435c76389611322710eb84d1f34b",
+      "size": 1227914
+    },
+    {
+      "path": "assets/images/motion/motion-elastic/guide.png",
+      "sha": "a18c38965aa614b0b08334f8a9685cecbfe4f30a",
+      "size": 1269729
+    },
+    {
+      "path": "assets/images/motion/motion-expand-collapse/guide.png",
+      "sha": "dd757d32a91363edc82f70c78e0fdc8568a9186e",
+      "size": 1260047
+    },
+    {
+      "path": "assets/images/motion/motion-fade/guide.png",
+      "sha": "c520fee7d9395759f8dc8a22bba6007844641bb5",
+      "size": 1333201
+    },
+    {
+      "path": "assets/images/motion/motion-linear/guide.png",
+      "sha": "e8385e01efbd46ff935a04d6a416fdd06acbdbdd",
+      "size": 1346828
+    },
+    {
+      "path": "assets/images/motion/motion-list-reorder/guide.png",
+      "sha": "c4aa3b84511eaac55d0e08645337e7236c6bc110",
+      "size": 1317464
+    },
+    {
+      "path": "assets/images/motion/motion-progress/guide.png",
+      "sha": "5a71f701ea14c408dc7f3c4bf6bc64997acdee12",
+      "size": 1353318
+    },
+    {
+      "path": "assets/images/motion/motion-pulse/guide.png",
+      "sha": "0facd798fc3897afe1c808c664bbaca6860150b1",
+      "size": 1253228
+    },
+    {
+      "path": "assets/images/motion/motion-scale/guide.png",
+      "sha": "0c14c0e097ce5dac1f0a6498efe63777dbc31eb1",
+      "size": 1282408
+    },
+    {
+      "path": "assets/images/motion/motion-scroll-reveal/guide.png",
+      "sha": "6fd2aedd83a4bd35551484d70887898bd42085da",
+      "size": 1308605
+    },
+    {
+      "path": "assets/images/motion/motion-scroll-timeline/guide.png",
+      "sha": "dab630fe1ecb83e25459e2ab60581437b29a60d3",
+      "size": 1434638
+    },
+    {
+      "path": "assets/images/motion/motion-skeleton-shimmer/guide.png",
+      "sha": "1b6acb844ba67d16b4a22be1d9c677902fded3db",
+      "size": 1201690
+    },
+    {
+      "path": "assets/images/motion/motion-slide/guide.png",
+      "sha": "4a2ad764fab5c39bb1a6ef3fb3ba9a61bdbb1ac2",
+      "size": 1243126
+    },
+    {
+      "path": "assets/images/motion/motion-spinner/guide.png",
+      "sha": "094182efddd191a3db2b0592865b8c5c987fa4f0",
+      "size": 1284738
+    },
+    {
+      "path": "assets/images/motion/motion-spring/guide.png",
+      "sha": "59d5e63b6675eec74a3cfe2f0377a96fa5add7a5",
+      "size": 1193257
+    },
+    {
+      "path": "assets/images/motion/motion-sticky-transition/guide.png",
+      "sha": "9fc4053870e4f5da903898a3ff7e305becc81358",
+      "size": 1480219
+    },
+    {
+      "path": "assets/images/motion/motion-tab-transition/guide.png",
+      "sha": "ba481d79237a8d6e09b2b374ca75211471ef2e3e",
+      "size": 1355666
+    },
+    {
+      "path": "assets/images/neo-brutalism/blog.png",
+      "sha": "7edea50d64da61e3f87205e7207c86d3b5d5b29e",
+      "size": 1372340
+    },
+    {
+      "path": "assets/images/neo-brutalism/landing.png",
+      "sha": "a4411ba3f971260a21e4a1620f9df81f9f379d30",
+      "size": 1278791
+    },
+    {
+      "path": "assets/images/neo-brutalism/shop.png",
+      "sha": "0493fee46f209a66898d5630ef5b5d19ff26a240",
+      "size": 1439752
+    },
+    {
+      "path": "assets/images/neumorphism/dashboard.png",
+      "sha": "8751800ddbab16f9dd8a14f6ee431c31a3fd5026",
+      "size": 1435278
+    },
+    {
+      "path": "assets/images/neumorphism/login.png",
+      "sha": "bb0be00fbf2a41db78db64120d750ad08fdfe5d4",
+      "size": 1395182
+    },
+    {
+      "path": "assets/images/neumorphism/music-player.png",
+      "sha": "be91f138e902b8485841609330a4027ac8a43381",
+      "size": 1775471
+    },
+    {
+      "path": "assets/images/organic-design/landing.png",
+      "sha": "e51b94494338e88d5a677e5fb181415480391a86",
+      "size": 1754851
+    },
+    {
+      "path": "assets/images/organic-design/shop.png",
+      "sha": "de0aabdc5e2e3527adf5c54b4bcfa6ad9530016b",
+      "size": 1740933
+    },
+    {
+      "path": "assets/images/organic-design/wellness.png",
+      "sha": "76e0e9a67466521aa3ceb9d88ca287985356ef0a",
+      "size": 1859847
+    },
+    {
+      "path": "assets/images/pixel-art-ui/dashboard.png",
+      "sha": "cc17b7e119c3c0651c60d4e8ffb175505e22383b",
+      "size": 1587133
+    },
+    {
+      "path": "assets/images/pixel-art-ui/landing.png",
+      "sha": "291269dc06706c853f0b7081f0f1fce07b86f981",
+      "size": 1761845
+    },
+    {
+      "path": "assets/images/pixel-art-ui/shop.png",
+      "sha": "0d70cfbb294cbf418f145dd73e9cd3fde8d927f5",
+      "size": 1502729
+    },
+    {
+      "path": "assets/images/pop-art/dashboard.png",
+      "sha": "34d8bc2898e2f02db20aa2028465b180645b57c7",
+      "size": 1983091
+    },
+    {
+      "path": "assets/images/pop-art/landing.png",
+      "sha": "d1c5b72754612cffd1fdf5de96428c66b2732274",
+      "size": 2222873
+    },
+    {
+      "path": "assets/images/pop-art/shop.png",
+      "sha": "cca2b46ded3324a155371d482fc4a7560456d0e6",
+      "size": 2060874
+    },
+    {
+      "path": "assets/images/psychedelic/landing.png",
+      "sha": "6880f11284d7d23d4d438a03bdaf0f063a7633c5",
+      "size": 2781213
+    },
+    {
+      "path": "assets/images/psychedelic/music.png",
+      "sha": "6873a3b6f1494dc104d41ed322891293d0edf544",
+      "size": 3429230
+    },
+    {
+      "path": "assets/images/psychedelic/poster.png",
+      "sha": "5134a80456f3f5013bdc7011f797eb7d7cd5ac0c",
+      "size": 2830123
+    },
+    {
+      "path": "assets/images/refractive-glass-ui/dashboard.png",
+      "sha": "0b675007ef0f72e7ec12e83a2a2950612a26041b",
+      "size": 1679557
+    },
+    {
+      "path": "assets/images/refractive-glass-ui/landing.png",
+      "sha": "c43f5feca5536e001441afc93a56cbe8b8965494",
+      "size": 2446520
+    },
+    {
+      "path": "assets/images/refractive-glass-ui/mobile-app.png",
+      "sha": "b2d1d88279250783fe023ec01fd9cba56de6484b",
+      "size": 2250776
+    },
+    {
+      "path": "assets/images/retro-vintage/cafe.png",
+      "sha": "e0af76a2ae7b7223f9b86e232986882f1b8068bd",
+      "size": 3631586
+    },
+    {
+      "path": "assets/images/retro-vintage/landing.png",
+      "sha": "e943f2a115b997e25f0d50b6379991a23a00ac07",
+      "size": 3964139
+    },
+    {
+      "path": "assets/images/retro-vintage/poster.png",
+      "sha": "0df8ece41d2cee7c738fe0efdbde47df659c4b35",
+      "size": 3941843
+    },
+    {
+      "path": "assets/images/skeuomorphism/bookshelf.png",
+      "sha": "0c7f937daa952243fbfde4494bbda582b6dc36a7",
+      "size": 2853855
+    },
+    {
+      "path": "assets/images/skeuomorphism/calculator.png",
+      "sha": "05d53c77df2cd09b5c433cc171df7561fb788853",
+      "size": 2904024
+    },
+    {
+      "path": "assets/images/skeuomorphism/notepad.png",
+      "sha": "5084cf24e632396837c4536cc4432ad68fe2a7b0",
+      "size": 2996091
+    },
+    {
+      "path": "assets/images/solarpunk/app.png",
+      "sha": "600f5624694ff5929a667092f88dee69b361cfc7",
+      "size": 1817377
+    },
+    {
+      "path": "assets/images/solarpunk/landing.png",
+      "sha": "d99c72a25053d2b4283ec7f514f3e17a976cf102",
+      "size": 2486546
+    },
+    {
+      "path": "assets/images/solarpunk/shop.png",
+      "sha": "cda4b0afb687ca5dde9fea89c39df6f3e2fb5212",
+      "size": 2537630
+    },
+    {
+      "path": "assets/images/spatial-ui/dashboard.png",
+      "sha": "67384ef1b9952cf20855386fb2de37319fbf703a",
+      "size": 1764360
+    },
+    {
+      "path": "assets/images/spatial-ui/landing.png",
+      "sha": "740bf2807835de5ab91f0656c15867a2231681bf",
+      "size": 1744445
+    },
+    {
+      "path": "assets/images/spatial-ui/portfolio.png",
+      "sha": "a44ffb4779eb2b41f13f79611add1ca5dbd34183",
+      "size": 1833286
+    },
+    {
+      "path": "assets/images/steampunk/dashboard.png",
+      "sha": "ce2afe85bba0e388267dc3012f8cbb428ee1611e",
+      "size": 2886723
+    },
+    {
+      "path": "assets/images/steampunk/landing.png",
+      "sha": "1452117a027441eb76529bc3f0d8ae429d76ddd6",
+      "size": 3278756
+    },
+    {
+      "path": "assets/images/steampunk/shop.png",
+      "sha": "cc164737939e2199401d39d851fec7427d16225c",
+      "size": 2926482
+    },
+    {
+      "path": "assets/images/swiss-style/corporate.png",
+      "sha": "16fba9b8c090b5da514dc130cd33c820c2a224aa",
+      "size": 1613394
+    },
+    {
+      "path": "assets/images/swiss-style/magazine.png",
+      "sha": "2ba0d7d904f9b7bbd1ddf5670930124b8ee850c0",
+      "size": 1966673
+    },
+    {
+      "path": "assets/images/swiss-style/poster.png",
+      "sha": "eaa15114c2f7c906acce7a2059e19ccd2443db04",
+      "size": 1641771
+    },
+    {
+      "path": "assets/images/technical-blueprint/blog.png",
+      "sha": "b13b9c6fa949204ac7789c8ca0709bd57b8fdcc7",
+      "size": 2157045
+    },
+    {
+      "path": "assets/images/technical-blueprint/dashboard.png",
+      "sha": "450685f9d495c3c4d4a84eeed2e812d270946da3",
+      "size": 1916653
+    },
+    {
+      "path": "assets/images/technical-blueprint/landing.png",
+      "sha": "ecec52d45cf19f6324aea1f3f5a845fe86f922ea",
+      "size": 2017049
+    },
+    {
+      "path": "assets/images/thumbs/ai-slop/dashboard.webp",
+      "sha": "df64376e3ab78c5a27784d6e6c75d5da0c20b4a7",
+      "size": 38576
+    },
+    {
+      "path": "assets/images/thumbs/ai-slop/landing.webp",
+      "sha": "e5cae2c9631b9fce562e3b4f9e9c63f36dc32ecd",
+      "size": 38370
+    },
+    {
+      "path": "assets/images/thumbs/ai-slop/saas.webp",
+      "sha": "3c2c37730c647d1b4ebad2833f16a5af65bb7914",
+      "size": 41018
+    },
+    {
+      "path": "assets/images/thumbs/anti-design/landing.webp",
+      "sha": "4a4fb98d1f53a0bc99b1b46ea5e89b8baa875197",
+      "size": 86174
+    },
+    {
+      "path": "assets/images/thumbs/anti-design/portfolio.webp",
+      "sha": "edbfbfdb86712d45d538363302e7cd6b43b8472e",
+      "size": 63624
+    },
+    {
+      "path": "assets/images/thumbs/anti-design/poster.webp",
+      "sha": "518849d1c11e4779ed5f8dbe3b2e0b6a27869dfc",
+      "size": 84024
+    },
+    {
+      "path": "assets/images/thumbs/art-deco/hotel.webp",
+      "sha": "8155e2b4277d862cf21653d5763dc1b04b4d08e7",
+      "size": 42714
+    },
+    {
+      "path": "assets/images/thumbs/art-deco/invitation.webp",
+      "sha": "ea2d46bec1d04fb298a3936c33e49a6829ffc2e1",
+      "size": 33336
+    },
+    {
+      "path": "assets/images/thumbs/art-deco/landing.webp",
+      "sha": "f974bac5c56cbc54cc501be01dcc5a3518a4aeff",
+      "size": 38758
+    },
+    {
+      "path": "assets/images/thumbs/bauhaus/gallery.webp",
+      "sha": "252ec478c53c53416ea7e80474e3536d1cbf9749",
+      "size": 22822
+    },
+    {
+      "path": "assets/images/thumbs/bauhaus/landing.webp",
+      "sha": "d63aa986b9e4f030e6f522f27e52834bf399f670",
+      "size": 19230
+    },
+    {
+      "path": "assets/images/thumbs/bauhaus/shop.webp",
+      "sha": "2ee0f5333c4fd91f705915dd9e2fe1dc2e74ebd7",
+      "size": 25052
+    },
+    {
+      "path": "assets/images/thumbs/bento-grid/dashboard.webp",
+      "sha": "057f89ddaf21404d0e6cee2181d0cd44dd295ba7",
+      "size": 22364
+    },
+    {
+      "path": "assets/images/thumbs/bento-grid/landing.webp",
+      "sha": "64c6886c4b88379f7925f1c0dbfc487e4d6aea5b",
+      "size": 22456
+    },
+    {
+      "path": "assets/images/thumbs/bento-grid/shop.webp",
+      "sha": "f442e64e0854b03d60f8b76c46e42de67a37212f",
+      "size": 20794
+    },
+    {
+      "path": "assets/images/thumbs/brutalism/blog.webp",
+      "sha": "c4f8532d8e82932c99b9d771871044874b49a0ce",
+      "size": 22424
+    },
+    {
+      "path": "assets/images/thumbs/brutalism/landing.webp",
+      "sha": "3cab300b7b21c78c22b04fe325cf8a3b0a5cb765",
+      "size": 41354
+    },
+    {
+      "path": "assets/images/thumbs/brutalism/shop.webp",
+      "sha": "afa7f16cdabca9ec64f91d97d3bdad49b80715b2",
+      "size": 67950
+    },
+    {
+      "path": "assets/images/thumbs/claymorphism/app-icons.webp",
+      "sha": "035cc8a734a0e47d0bbceb9402146180d26dcd0a",
+      "size": 14246
+    },
+    {
+      "path": "assets/images/thumbs/claymorphism/landing.webp",
+      "sha": "9a23bb8c24b83710c5125635f8449ca1da5e9f39",
+      "size": 23932
+    },
+    {
+      "path": "assets/images/thumbs/claymorphism/shop.webp",
+      "sha": "f63d3e0e14d399368f25976970a91a5147a392b5",
+      "size": 29162
+    },
+    {
+      "path": "assets/images/thumbs/color/analogous-teal-green/guide.webp",
+      "sha": "37ebc15e58a6b01afffba371c9f386ff9ae28114",
+      "size": 32788
+    },
+    {
+      "path": "assets/images/thumbs/color/art-deco-luxe/guide.webp",
+      "sha": "94fa18793c458dd515623849638521028b4d03dc",
+      "size": 36760
+    },
+    {
+      "path": "assets/images/thumbs/color/bauhaus-primary/guide.webp",
+      "sha": "dc1afc27683c7b9d99c410c9275e90690c68db10",
+      "size": 35242
+    },
+    {
+      "path": "assets/images/thumbs/color/brutalism-primary/guide.webp",
+      "sha": "e95955d9cdc478fedf186cc8c97f022c32606dd4",
+      "size": 32308
+    },
+    {
+      "path": "assets/images/thumbs/color/complementary-blue-orange/guide.webp",
+      "sha": "378992d14afcbd0c01b7c3cde412652564acaff9",
+      "size": 35998
+    },
+    {
+      "path": "assets/images/thumbs/color/cyberpunk-neon/guide.webp",
+      "sha": "09a4b683f3c8765cc28082f117c1ce355b582336",
+      "size": 36696
+    },
+    {
+      "path": "assets/images/thumbs/color/ecommerce-conversion/guide.webp",
+      "sha": "2ab2a08c080399fef0cd36dcfaf276ff66be9336",
+      "size": 33754
+    },
+    {
+      "path": "assets/images/thumbs/color/education-curiosity/guide.webp",
+      "sha": "53d4f94f7de8d23220eddba0408878b582be725c",
+      "size": 34100
+    },
+    {
+      "path": "assets/images/thumbs/color/fintech-assurance/guide.webp",
+      "sha": "506e16e7e4d9ba827db747bef79c466c3dceee1f",
+      "size": 31040
+    },
+    {
+      "path": "assets/images/thumbs/color/food-appetite/guide.webp",
+      "sha": "86d932ca3ecc15ade327e69ea9b809725253cf93",
+      "size": 58918
+    },
+    {
+      "path": "assets/images/thumbs/color/github-primer-light/guide.webp",
+      "sha": "2d8e7831b983880290b07a043bb39fe20f7b4daf",
+      "size": 32020
+    },
+    {
+      "path": "assets/images/thumbs/color/healthcare-calm/guide.webp",
+      "sha": "ecd5f1e92a3b84990715670880aac7fcd1126759",
+      "size": 34212
+    },
+    {
+      "path": "assets/images/thumbs/color/ibm-carbon-blue/guide.webp",
+      "sha": "bc7811c002c66a203b8f4f81a39d3194db1ece6c",
+      "size": 26122
+    },
+    {
+      "path": "assets/images/thumbs/color/japandi-earth/guide.webp",
+      "sha": "6cb7b876f1226459288ddec69a835c9d5fe11a8d",
+      "size": 24574
+    },
+    {
+      "path": "assets/images/thumbs/color/material-3-baseline/guide.webp",
+      "sha": "26fa6ab7937ef99f44a07676d98aeed0cba8278a",
+      "size": 22948
+    },
+    {
+      "path": "assets/images/thumbs/color/media-editorial/guide.webp",
+      "sha": "4470d06aefc6f4ef6162b1840810e0ac0f39d615",
+      "size": 28058
+    },
+    {
+      "path": "assets/images/thumbs/color/minimalism-neutral/guide.webp",
+      "sha": "6f3f9f69f354ac84cfd90eac54ccd1717d8c0105",
+      "size": 25800
+    },
+    {
+      "path": "assets/images/thumbs/color/monochromatic-blue/guide.webp",
+      "sha": "5f4747153e5a85f3a1bfb6ab6ac0dd918d856539",
+      "size": 30004
+    },
+    {
+      "path": "assets/images/thumbs/color/radix-violet/guide.webp",
+      "sha": "092f8cf39284a4c5ac4601a35b0f141a1c13151f",
+      "size": 26524
+    },
+    {
+      "path": "assets/images/thumbs/color/saas-trust-blue/guide.webp",
+      "sha": "5bbfc79810c3c1f38f899dd5401a52e17ed31384",
+      "size": 34230
+    },
+    {
+      "path": "assets/images/thumbs/color/solarpunk-regenerative/guide.webp",
+      "sha": "4c30a91405462ec3f011d8e8049008f5d64b29f4",
+      "size": 34386
+    },
+    {
+      "path": "assets/images/thumbs/color/split-complementary-violet/guide.webp",
+      "sha": "b59f9fb163f1036e4f8383a17a2481957a040061",
+      "size": 37402
+    },
+    {
+      "path": "assets/images/thumbs/color/tailwind-slate-blue/guide.webp",
+      "sha": "0105cf71735a63edb7ec5408d6cec36958f0c25f",
+      "size": 34836
+    },
+    {
+      "path": "assets/images/thumbs/color/triadic-primary/guide.webp",
+      "sha": "c31ccf12c885036591b464cb5e61507aa0fdf2b9",
+      "size": 47128
+    },
+    {
+      "path": "assets/images/thumbs/color/vaporwave-pastel/guide.webp",
+      "sha": "da2bc4f3cc4381ce8c3196cd0e19565ca0d9c132",
+      "size": 44888
+    },
+    {
+      "path": "assets/images/thumbs/constructivism/dashboard.webp",
+      "sha": "94f24a07bb52d1594fa349c17512faf966e2bd09",
+      "size": 25962
+    },
+    {
+      "path": "assets/images/thumbs/constructivism/landing.webp",
+      "sha": "3b0f14e3b95e70e3ddea68cf8b51431dc8f39fe6",
+      "size": 26542
+    },
+    {
+      "path": "assets/images/thumbs/constructivism/shop.webp",
+      "sha": "3878dcba273244926bb2226624cac1f813134c76",
+      "size": 29282
+    },
+    {
+      "path": "assets/images/thumbs/corporate-memphis/landing.webp",
+      "sha": "03c0c0fefcb3dac3505bfc0854b0304979be26a9",
+      "size": 25308
+    },
+    {
+      "path": "assets/images/thumbs/corporate-memphis/onboarding.webp",
+      "sha": "77e725011eb6653682430e1acbd7617c2f7d0635",
+      "size": 15476
+    },
+    {
+      "path": "assets/images/thumbs/corporate-memphis/pricing.webp",
+      "sha": "b8d7a2ebc278c464fd4e4c5c717d71785c787af1",
+      "size": 22354
+    },
+    {
+      "path": "assets/images/thumbs/cottagecore/blog.webp",
+      "sha": "88f19a20da80d2b7459aba06d252428c30b0f4b5",
+      "size": 52586
+    },
+    {
+      "path": "assets/images/thumbs/cottagecore/landing.webp",
+      "sha": "fa1cc579bb043baaf60814cdddf88ed67620d3cd",
+      "size": 47296
+    },
+    {
+      "path": "assets/images/thumbs/cottagecore/shop.webp",
+      "sha": "1bddb99903774b53d77492d967f40191700f8350",
+      "size": 55502
+    },
+    {
+      "path": "assets/images/thumbs/cyberpunk/game.webp",
+      "sha": "44bc1874f7f3d8236194e57cb42933a5baaf8f85",
+      "size": 33550
+    },
+    {
+      "path": "assets/images/thumbs/cyberpunk/landing.webp",
+      "sha": "ca9f835a8403aa765729efe6f7645dcdc596e664",
+      "size": 33384
+    },
+    {
+      "path": "assets/images/thumbs/cyberpunk/shop.webp",
+      "sha": "1a2e09a33cbfcbbbed03ff5277d518fc01a40e88",
+      "size": 34144
+    },
+    {
+      "path": "assets/images/thumbs/dark-mode/dashboard.webp",
+      "sha": "b27eab00e562f0345ae2ec053dd3f192aa61e361",
+      "size": 26390
+    },
+    {
+      "path": "assets/images/thumbs/dark-mode/shop.webp",
+      "sha": "77b0762ed2b86a3570508684b7bd7ecf5896383d",
+      "size": 31196
+    },
+    {
+      "path": "assets/images/thumbs/dark-mode/streaming.webp",
+      "sha": "1d1657a4df207d21be041e178f71489308ad883e",
+      "size": 28334
+    },
+    {
+      "path": "assets/images/thumbs/de-stijl/dashboard.webp",
+      "sha": "d5d8d3c9a8af97a39cd522cac14391b573da2012",
+      "size": 18194
+    },
+    {
+      "path": "assets/images/thumbs/de-stijl/landing.webp",
+      "sha": "a2cdbba2d7fb5ea4d3f9dc2ecc0d43d6d2423117",
+      "size": 18626
+    },
+    {
+      "path": "assets/images/thumbs/de-stijl/shop.webp",
+      "sha": "cd235174e75af7e465e2478627c56100c343b06a",
+      "size": 15450
+    },
+    {
+      "path": "assets/images/thumbs/dopamine-design/landing.webp",
+      "sha": "53f46b6d0a67c1a6770fb318c3b3e4ffe580ade4",
+      "size": 39568
+    },
+    {
+      "path": "assets/images/thumbs/dopamine-design/mobile-app.webp",
+      "sha": "c861e67062d65f282d5da3dc49207e86f8e2b4e1",
+      "size": 26368
+    },
+    {
+      "path": "assets/images/thumbs/dopamine-design/shop.webp",
+      "sha": "4ef1a7aa2dcae915be6e0277ce77bc02b0ee61df",
+      "size": 48048
+    },
+    {
+      "path": "assets/images/thumbs/editorial-typography/dashboard.webp",
+      "sha": "88764341f47ef3043f1efe598efb16fb591466b0",
+      "size": 15768
+    },
+    {
+      "path": "assets/images/thumbs/editorial-typography/landing.webp",
+      "sha": "990b5f454a7a77c983b1b3262f9a91f1404a5acd",
+      "size": 22384
+    },
+    {
+      "path": "assets/images/thumbs/editorial-typography/shop.webp",
+      "sha": "7e15a82a16477a05ef540193071be4307ff5ad70",
+      "size": 21496
+    },
+    {
+      "path": "assets/images/thumbs/effects/accordion-morph-expand/guide.webp",
+      "sha": "cabd5c9b779fb7c9a23f6b1462061e9a94e4015e",
+      "size": 36474
+    },
+    {
+      "path": "assets/images/thumbs/effects/accordion/guide.webp",
+      "sha": "17b169980cc9861553fd113a480de6dd6b81bb19",
+      "size": 26822
+    },
+    {
+      "path": "assets/images/thumbs/effects/aurora-mesh-background/guide.webp",
+      "sha": "a7140105bee4a6abacbee9dacd4899e360db9e7f",
+      "size": 17052
+    },
+    {
+      "path": "assets/images/thumbs/effects/bottom-sheet/guide.webp",
+      "sha": "62adcec87a5700568616b708ce22f2719897de83",
+      "size": 22330
+    },
+    {
+      "path": "assets/images/thumbs/effects/breadcrumb/guide.webp",
+      "sha": "642b81e882d44e4ef24afeef5d0c2bbb54dc3701",
+      "size": 30760
+    },
+    {
+      "path": "assets/images/thumbs/effects/carousel/guide.webp",
+      "sha": "c9d4d1436b6963c7f804f5c1d2ddb7c92e2d4c47",
+      "size": 21818
+    },
+    {
+      "path": "assets/images/thumbs/effects/command-palette/guide.webp",
+      "sha": "d64de1724c3cc0359af52cd001ceb32517a4bd65",
+      "size": 22100
+    },
+    {
+      "path": "assets/images/thumbs/effects/confetti-success-burst/guide.webp",
+      "sha": "2f50db0f4f68768e6135b4ed1fdd00f711d1f303",
+      "size": 44112
+    },
+    {
+      "path": "assets/images/thumbs/effects/context-menu/guide.webp",
+      "sha": "db9b6fb4ec9361594aa6a977017df3ba4c02b2d9",
+      "size": 25374
+    },
+    {
+      "path": "assets/images/thumbs/effects/copy-confirmation/guide.webp",
+      "sha": "b58a33933fe7520db8c84652c210e2cfd452f3a4",
+      "size": 19902
+    },
+    {
+      "path": "assets/images/thumbs/effects/crossfade-view-transition/guide.webp",
+      "sha": "8556408977b122479452eaec11a8670890bf2514",
+      "size": 21830
+    },
+    {
+      "path": "assets/images/thumbs/effects/cursor-trail/guide.webp",
+      "sha": "5fd30b5891d2a93865d3c895fe61a27d47f1b565",
+      "size": 18818
+    },
+    {
+      "path": "assets/images/thumbs/effects/dashboard-kpi-cards/guide.webp",
+      "sha": "7bf04c3dac358280194df9fc87a41a86e052df00",
+      "size": 25294
+    },
+    {
+      "path": "assets/images/thumbs/effects/data-table/guide.webp",
+      "sha": "a81fe115e423af0ffdb83158969e1c30b40b584c",
+      "size": 33802
+    },
+    {
+      "path": "assets/images/thumbs/effects/date-picker/guide.webp",
+      "sha": "dd0938a9d618a480c5609c4e62884b49a437f99c",
+      "size": 26942
+    },
+    {
+      "path": "assets/images/thumbs/effects/desktop-wizard/guide.webp",
+      "sha": "29e862c1e07860e0e2382c5c9526392c7e4edf11",
+      "size": 24070
+    },
+    {
+      "path": "assets/images/thumbs/effects/dot-grid-pulse/guide.webp",
+      "sha": "f35ed7e127ce413f7bcef181d6a05e7dca3c0ba2",
+      "size": 49416
+    },
+    {
+      "path": "assets/images/thumbs/effects/drag-affordance-cursor/guide.webp",
+      "sha": "f84ab3e161ef51832f7aaf006114c424ceabb675",
+      "size": 44450
+    },
+    {
+      "path": "assets/images/thumbs/effects/drag-reorder/guide.webp",
+      "sha": "72042e5091fb49d563846f7f4b5da1c172f892cc",
+      "size": 22676
+    },
+    {
+      "path": "assets/images/thumbs/effects/drawer-navigation/guide.webp",
+      "sha": "049c4ea908ae179b4a165225da77f09b340446f7",
+      "size": 30548
+    },
+    {
+      "path": "assets/images/thumbs/effects/favorite-burst/guide.webp",
+      "sha": "07f8682f191e6a194deb5933ee5e4da9bd46f972",
+      "size": 23282
+    },
+    {
+      "path": "assets/images/thumbs/effects/file-dropzone/guide.webp",
+      "sha": "686b19ba1a70667ebaee37da403cf41ea9dc1640",
+      "size": 23624
+    },
+    {
+      "path": "assets/images/thumbs/effects/filter-sidebar/guide.webp",
+      "sha": "784ff236f341293ffa52a596703b9bf60219521e",
+      "size": 27324
+    },
+    {
+      "path": "assets/images/thumbs/effects/flip-card-reveal/guide.webp",
+      "sha": "50df8fe43830c7c177b0145fb2df1590b4b5ceda",
+      "size": 37032
+    },
+    {
+      "path": "assets/images/thumbs/effects/floating-action-button/guide.webp",
+      "sha": "3002913b8bce9370388eb83dc20fecca9ffd43c4",
+      "size": 22610
+    },
+    {
+      "path": "assets/images/thumbs/effects/floating-particles-field/guide.webp",
+      "sha": "cf1c17eb8fc6b079bbe50808cf683fd0149f69d9",
+      "size": 59632
+    },
+    {
+      "path": "assets/images/thumbs/effects/full-screen-mobile-modal/guide.webp",
+      "sha": "a8a232065def0305e75dde8202c51b9d46a473fa",
+      "size": 26726
+    },
+    {
+      "path": "assets/images/thumbs/effects/glitch-text-flicker/guide.webp",
+      "sha": "b13071f76b7379d39f5612c0c115bd5358150a1b",
+      "size": 47548
+    },
+    {
+      "path": "assets/images/thumbs/effects/gradient-morph-blob/guide.webp",
+      "sha": "6cdb6ee6ba5fa69bf1f0bc99afcfb68d22114e5d",
+      "size": 41410
+    },
+    {
+      "path": "assets/images/thumbs/effects/gradient-text-sweep/guide.webp",
+      "sha": "a520bd984d7a6e0a684cd82d368425f48df988d3",
+      "size": 42724
+    },
+    {
+      "path": "assets/images/thumbs/effects/grain-noise-drift/guide.webp",
+      "sha": "b44fde4450270985baf21232ffafb3f34d97e153",
+      "size": 29098
+    },
+    {
+      "path": "assets/images/thumbs/effects/hero-expand-navigation/guide.webp",
+      "sha": "ed9c942cac2fbdd2f7532cbd90104b63c6c592cf",
+      "size": 49042
+    },
+    {
+      "path": "assets/images/thumbs/effects/horizontal-scroll-gallery/guide.webp",
+      "sha": "e2301d1256bc62e4bea2b7c778e997f5745518fb",
+      "size": 25092
+    },
+    {
+      "path": "assets/images/thumbs/effects/hover-ripple-feedback/guide.webp",
+      "sha": "8bce6c01dc20d594e8b2bf73bcc33554b1767ced",
+      "size": 41074
+    },
+    {
+      "path": "assets/images/thumbs/effects/image-lightbox/guide.webp",
+      "sha": "f0edb5f30c21a620d59482a817c1e2cc47a6bae4",
+      "size": 28358
+    },
+    {
+      "path": "assets/images/thumbs/effects/inline-edit/guide.webp",
+      "sha": "0d72b5218863b954d902adb5e7e306c7b505d39e",
+      "size": 26000
+    },
+    {
+      "path": "assets/images/thumbs/effects/inline-validation/guide.webp",
+      "sha": "01b491c6188ac73c3b43a79a139c3fee017923bd",
+      "size": 25254
+    },
+    {
+      "path": "assets/images/thumbs/effects/kanban-board/guide.webp",
+      "sha": "b470c4b8d9aecfc3cd81b19f1ef42ad565c9d0d2",
+      "size": 25822
+    },
+    {
+      "path": "assets/images/thumbs/effects/layered-parallax/guide.webp",
+      "sha": "29dc8ad2ffb1eda1a920d81810152497a22a1685",
+      "size": 49186
+    },
+    {
+      "path": "assets/images/thumbs/effects/lens-zoom-hover/guide.webp",
+      "sha": "311041ee9606c4aaf5b16469f56d5658684f575a",
+      "size": 47738
+    },
+    {
+      "path": "assets/images/thumbs/effects/list-reorder-flip/guide.webp",
+      "sha": "d682f9c3226ec98698b4b3286170f90d88dd3750",
+      "size": 45752
+    },
+    {
+      "path": "assets/images/thumbs/effects/long-press-context-reveal/guide.webp",
+      "sha": "0484bbceb0d9a4bc3d9ab54623f2b5226aaa26c7",
+      "size": 34196
+    },
+    {
+      "path": "assets/images/thumbs/effects/magnetic-button/guide.webp",
+      "sha": "a5a1d26e10c29cca11bf3de481b977718b1432d8",
+      "size": 19278
+    },
+    {
+      "path": "assets/images/thumbs/effects/marquee-text-loop/guide.webp",
+      "sha": "09ebe912c19dec40bec4968acc56bf4e0779eb17",
+      "size": 38302
+    },
+    {
+      "path": "assets/images/thumbs/effects/master-detail/guide.webp",
+      "sha": "b21696bfadf704ea56fb5c955e4f592384fc3b85",
+      "size": 24044
+    },
+    {
+      "path": "assets/images/thumbs/effects/mega-menu/guide.webp",
+      "sha": "16520325b023b48c24fe9255b8223607b3478d5f",
+      "size": 25760
+    },
+    {
+      "path": "assets/images/thumbs/effects/mobile-empty-state/guide.webp",
+      "sha": "ea306ecc94998ba8e09c66968951944e5bab0139",
+      "size": 25866
+    },
+    {
+      "path": "assets/images/thumbs/effects/mobile-stepper-form/guide.webp",
+      "sha": "dfc475e4cd78d55c6514f1fe81c557ee60e1e717",
+      "size": 31244
+    },
+    {
+      "path": "assets/images/thumbs/effects/modal-dialog/guide.webp",
+      "sha": "12506925ff2a5922a8a837f316624a9f579b1d9f",
+      "size": 22380
+    },
+    {
+      "path": "assets/images/thumbs/effects/notification-center/guide.webp",
+      "sha": "7f5a0844b792a14c9afb69793178840237c4eaf6",
+      "size": 29710
+    },
+    {
+      "path": "assets/images/thumbs/effects/number-ticker/guide.webp",
+      "sha": "61c44e73b70f65db029fdee12be176ede2a6d71c",
+      "size": 30278
+    },
+    {
+      "path": "assets/images/thumbs/effects/page-turn-transition/guide.webp",
+      "sha": "03a6f59aa9924d728e8db7388fc2cc2e89c14492",
+      "size": 42612
+    },
+    {
+      "path": "assets/images/thumbs/effects/pagination/guide.webp",
+      "sha": "31d9c4ce6e306d38c6cac5876c1cf5863ac0d83e",
+      "size": 26182
+    },
+    {
+      "path": "assets/images/thumbs/effects/parallax-depth-cards/guide.webp",
+      "sha": "1652758db014817cfaf5ac8decf1e9508d62850a",
+      "size": 41800
+    },
+    {
+      "path": "assets/images/thumbs/effects/pointer-glow-border/guide.webp",
+      "sha": "73a1c76b53ddd06303d44b8c4fad16481219e6c9",
+      "size": 37296
+    },
+    {
+      "path": "assets/images/thumbs/effects/popover/guide.webp",
+      "sha": "dab15209ba8f3b6a94f6e3eb398076aa36296144",
+      "size": 26532
+    },
+    {
+      "path": "assets/images/thumbs/effects/press-scale/guide.webp",
+      "sha": "ca2f84d5b985081b4982b8a7edc10551b294f2bd",
+      "size": 24556
+    },
+    {
+      "path": "assets/images/thumbs/effects/progress-ring-completion/guide.webp",
+      "sha": "d255d3f074eb910755ddf26d9cfa4860a603ee4d",
+      "size": 42416
+    },
+    {
+      "path": "assets/images/thumbs/effects/progress-stepper/guide.webp",
+      "sha": "85ca80e2776286274a12cbafa3b988ef2870bdf6",
+      "size": 24100
+    },
+    {
+      "path": "assets/images/thumbs/effects/pull-to-refresh/guide.webp",
+      "sha": "ab5fedd95bdf2661f7e2db193e2539f215c96ea3",
+      "size": 28076
+    },
+    {
+      "path": "assets/images/thumbs/effects/resizable-sidebar/guide.webp",
+      "sha": "a319c1d138fa9d3ffb7fc68ac8708e6ff5561df1",
+      "size": 44246
+    },
+    {
+      "path": "assets/images/thumbs/effects/route-wipe-transition/guide.webp",
+      "sha": "14b7971dcc6ccbab56729ca3e336827db122321d",
+      "size": 36184
+    },
+    {
+      "path": "assets/images/thumbs/effects/scroll-linked-progress-sections/guide.webp",
+      "sha": "25268d59f320a3c598ac61d4b338a00ae763a301",
+      "size": 35254
+    },
+    {
+      "path": "assets/images/thumbs/effects/scroll-progress-indicator/guide.webp",
+      "sha": "0ec43877a53c9bfe695cd451e9eb6019af96ca0e",
+      "size": 38324
+    },
+    {
+      "path": "assets/images/thumbs/effects/scroll-reveal/guide.webp",
+      "sha": "1f5c50bcd24a16a89625185061d1fc326bcb841f",
+      "size": 27770
+    },
+    {
+      "path": "assets/images/thumbs/effects/scroll-snap-carousel/guide.webp",
+      "sha": "f83abfd36162ab4ec8551a02a7fc7771410bbf8b",
+      "size": 33582
+    },
+    {
+      "path": "assets/images/thumbs/effects/scroll-zoom-hero/guide.webp",
+      "sha": "3aac74bbae0feced0c701a7d110c310145df4d07",
+      "size": 44644
+    },
+    {
+      "path": "assets/images/thumbs/effects/segmented-control/guide.webp",
+      "sha": "223c4b410387dc84f26e5ddda4d0561e1f8db78c",
+      "size": 30610
+    },
+    {
+      "path": "assets/images/thumbs/effects/shake-validation-error/guide.webp",
+      "sha": "035d27dcdcf906609545fde196fb09a0266ddefa",
+      "size": 38396
+    },
+    {
+      "path": "assets/images/thumbs/effects/shared-element-transition/guide.webp",
+      "sha": "05f9266e1da2eb6715e0428ca72093ca20727a5c",
+      "size": 31468
+    },
+    {
+      "path": "assets/images/thumbs/effects/skeleton-loading/guide.webp",
+      "sha": "586881e155bede9f019f26a7e09c85d9a94e1205",
+      "size": 20102
+    },
+    {
+      "path": "assets/images/thumbs/effects/split-pane/guide.webp",
+      "sha": "39779aa8ed60308156814d07a841dfb7642d75ec",
+      "size": 31134
+    },
+    {
+      "path": "assets/images/thumbs/effects/split-text-reveal/guide.webp",
+      "sha": "fea849cea12d16a1d833b5bf85dc952e586341d3",
+      "size": 29296
+    },
+    {
+      "path": "assets/images/thumbs/effects/spotlight-follow/guide.webp",
+      "sha": "3d3a0f9316d995f8bf25b390d3327deca15d56fd",
+      "size": 47900
+    },
+    {
+      "path": "assets/images/thumbs/effects/spotlight-grid-background/guide.webp",
+      "sha": "8bb5a63a21fc18e4a43ed757681415fcd18ba396",
+      "size": 16702
+    },
+    {
+      "path": "assets/images/thumbs/effects/staggered-cards/guide.webp",
+      "sha": "0ba6d601f9e820b8943216664ea5360a6cdb2c41",
+      "size": 33290
+    },
+    {
+      "path": "assets/images/thumbs/effects/sticky-cta-bar/guide.webp",
+      "sha": "79eacb5cb3add2b65253f8f535baa44e473748e8",
+      "size": 25272
+    },
+    {
+      "path": "assets/images/thumbs/effects/sticky-section-reveal/guide.webp",
+      "sha": "c5130e3968ec4335bae6920e51df979fcbf8631a",
+      "size": 32932
+    },
+    {
+      "path": "assets/images/thumbs/effects/sticky-tab-bar/guide.webp",
+      "sha": "91683f098d5a23eb21e778eade4f8008b8c01ad5",
+      "size": 33784
+    },
+    {
+      "path": "assets/images/thumbs/effects/sticky-table-header/guide.webp",
+      "sha": "700a5022d0fa46c028c900b6c964b5f33f5c914d",
+      "size": 32156
+    },
+    {
+      "path": "assets/images/thumbs/effects/success-checkmark/guide.webp",
+      "sha": "5330a1cc4a57aecb73e1ea91ad20124264645499",
+      "size": 28806
+    },
+    {
+      "path": "assets/images/thumbs/effects/svg-wave-divider/guide.webp",
+      "sha": "2167709d3066ee588798aea72c278be6b1b83a03",
+      "size": 39412
+    },
+    {
+      "path": "assets/images/thumbs/effects/swipe-action/guide.webp",
+      "sha": "02461d3a93e7b71690d8de52968ac8c6c6a28413",
+      "size": 22852
+    },
+    {
+      "path": "assets/images/thumbs/effects/tabs/guide.webp",
+      "sha": "e51805cf986e77c7e2c2725b747905e2c0db12bf",
+      "size": 25332
+    },
+    {
+      "path": "assets/images/thumbs/effects/text-scramble/guide.webp",
+      "sha": "f65c1336d0fdf532147c381ef654c959402a7c4e",
+      "size": 26802
+    },
+    {
+      "path": "assets/images/thumbs/effects/tilt-hover-card/guide.webp",
+      "sha": "371ad0a798fd54c0d7cf15e5136b9bb31311e365",
+      "size": 31580
+    },
+    {
+      "path": "assets/images/thumbs/effects/toast-stack/guide.webp",
+      "sha": "3b344e57cffbd6beff2627c8ddba1d5fe768034d",
+      "size": 27946
+    },
+    {
+      "path": "assets/images/thumbs/effects/toast/guide.webp",
+      "sha": "f34c75877b8d99c9d8916f2328986e761ca3dad2",
+      "size": 26316
+    },
+    {
+      "path": "assets/images/thumbs/effects/toggle-switch-morph/guide.webp",
+      "sha": "59597886b3d61d132fe514fb9482be5567067e5f",
+      "size": 41548
+    },
+    {
+      "path": "assets/images/thumbs/effects/tooltip/guide.webp",
+      "sha": "1ba9164f61a8f7930c0cc8bffbbc1c29b7afcabf",
+      "size": 25794
+    },
+    {
+      "path": "assets/images/thumbs/effects/typewriter-caret/guide.webp",
+      "sha": "b87440cb3c51f995e9b7186b88c3152e08c5ed79",
+      "size": 36232
+    },
+    {
+      "path": "assets/images/thumbs/effects/video-scrim-hero/guide.webp",
+      "sha": "633cb80e4a6e595fd4e2ab1219bf0a43e19a19c1",
+      "size": 47470
+    },
+    {
+      "path": "assets/images/thumbs/effects/virtual-list/guide.webp",
+      "sha": "80b9586bdeb43aed82f492da7c9c62255e2ad90c",
+      "size": 31816
+    },
+    {
+      "path": "assets/images/thumbs/effects/word-rotate-swap/guide.webp",
+      "sha": "37c1d1a6713aa0469738afc92617d3e32b8cc013",
+      "size": 42392
+    },
+    {
+      "path": "assets/images/thumbs/flat-design/dashboard.webp",
+      "sha": "c41aa25576a8ca7fe2e5a8def75169ecebfc169d",
+      "size": 21818
+    },
+    {
+      "path": "assets/images/thumbs/flat-design/landing.webp",
+      "sha": "2ef197692c79abb7310ff5b3d9e7cef8891e60a6",
+      "size": 29940
+    },
+    {
+      "path": "assets/images/thumbs/flat-design/mobile-app.webp",
+      "sha": "150575801e6e6eb6496032a292a1681d7ab6c5d7",
+      "size": 14142
+    },
+    {
+      "path": "assets/images/thumbs/frutiger-aero/dashboard.webp",
+      "sha": "399c0eced1e9e637644c9310e7eab2e218c3ddbd",
+      "size": 41948
+    },
+    {
+      "path": "assets/images/thumbs/frutiger-aero/landing.webp",
+      "sha": "9d2548ced4a8d71ec8d85505ea59e32558ff986d",
+      "size": 43942
+    },
+    {
+      "path": "assets/images/thumbs/frutiger-aero/mobile-app.webp",
+      "sha": "18a3163f4f44995430133a34fcfd85a5b46661f7",
+      "size": 28390
+    },
+    {
+      "path": "assets/images/thumbs/futurism/landing.webp",
+      "sha": "c81f30effd584e64b78254c4f64b3c212fcdbde0",
+      "size": 39150
+    },
+    {
+      "path": "assets/images/thumbs/futurism/portfolio.webp",
+      "sha": "bd79b76a32807c210a18e0f5bf59739414953495",
+      "size": 49878
+    },
+    {
+      "path": "assets/images/thumbs/futurism/poster.webp",
+      "sha": "1d3ce29fae6023f06df47b8b5f7846066e78c665",
+      "size": 67004
+    },
+    {
+      "path": "assets/images/thumbs/generative-identity/agency.webp",
+      "sha": "81516966c8e9d1a8ef00d787e2df4a68323a89dd",
+      "size": 22242
+    },
+    {
+      "path": "assets/images/thumbs/generative-identity/portfolio.webp",
+      "sha": "0f83f58061298cffbd59dc8e18c938a43f12da49",
+      "size": 32030
+    },
+    {
+      "path": "assets/images/thumbs/generative-identity/pricing.webp",
+      "sha": "b76cde60fef8b63f13788d170f16a0af37b4a259",
+      "size": 32778
+    },
+    {
+      "path": "assets/images/thumbs/glassmorphism/card-ui.webp",
+      "sha": "65393ecd4e159d20b38c11b0e3429214e10c4977",
+      "size": 18908
+    },
+    {
+      "path": "assets/images/thumbs/glassmorphism/landing.webp",
+      "sha": "f8d32d6ac736677d31be6f8f8dbbe127c784b902",
+      "size": 21886
+    },
+    {
+      "path": "assets/images/thumbs/glassmorphism/mobile-app.webp",
+      "sha": "9a44c22296b36298de9e68047aa289e42a51ec72",
+      "size": 13594
+    },
+    {
+      "path": "assets/images/thumbs/gradient-aurora/landing.webp",
+      "sha": "eaea63923a5791444ae64ed15d452adb02cdbbd4",
+      "size": 22640
+    },
+    {
+      "path": "assets/images/thumbs/gradient-aurora/mobile-app.webp",
+      "sha": "a8a5d7d434a572386054cfe858285a216694e605",
+      "size": 11412
+    },
+    {
+      "path": "assets/images/thumbs/gradient-aurora/saas.webp",
+      "sha": "88ab286734561adb2666e57482388b7ca0d8daa5",
+      "size": 25064
+    },
+    {
+      "path": "assets/images/thumbs/human-crafted-web/landing.webp",
+      "sha": "c38069fe13a3c66d2bebb6d2b69c1466e0c816e9",
+      "size": 50534
+    },
+    {
+      "path": "assets/images/thumbs/human-crafted-web/portfolio.webp",
+      "sha": "df9ffa29e8bb59b1b336c0fc302af0da5f27682f",
+      "size": 41254
+    },
+    {
+      "path": "assets/images/thumbs/human-crafted-web/shop.webp",
+      "sha": "062075e85664bd45ed058295ca4463dc0adfef74",
+      "size": 27612
+    },
+    {
+      "path": "assets/images/thumbs/indie-web/blog.webp",
+      "sha": "651504bc6bce3547a39a32d3b692351bf7945f7e",
+      "size": 35652
+    },
+    {
+      "path": "assets/images/thumbs/indie-web/landing.webp",
+      "sha": "2001c0d793de84c58a6d25ac4c22a16e62d92007",
+      "size": 81822
+    },
+    {
+      "path": "assets/images/thumbs/indie-web/links.webp",
+      "sha": "8d4966c32008844667c29110788fb156f9cbee04",
+      "size": 36346
+    },
+    {
+      "path": "assets/images/thumbs/isometric-3d-ui/dashboard.webp",
+      "sha": "dabfc99547b629fbcee5bd68755afc22c4b4591b",
+      "size": 25954
+    },
+    {
+      "path": "assets/images/thumbs/isometric-3d-ui/landing.webp",
+      "sha": "5637f178743d2d84f6df56d2e79629c79dcb3e29",
+      "size": 21038
+    },
+    {
+      "path": "assets/images/thumbs/isometric-3d-ui/shop.webp",
+      "sha": "395154d011a583577aeaa4cf09cfd307f7fd9160",
+      "size": 23588
+    },
+    {
+      "path": "assets/images/thumbs/japandi/blog.webp",
+      "sha": "b82e08583c3fed6d99ad2e8f6e04034343632389",
+      "size": 24398
+    },
+    {
+      "path": "assets/images/thumbs/japandi/interior.webp",
+      "sha": "ae7fc1dbde98083344669ab9c8e6fee632b97bf0",
+      "size": 20014
+    },
+    {
+      "path": "assets/images/thumbs/japandi/landing.webp",
+      "sha": "1a1610d8e2c1d55732d6bd6b5adb89863dafb8a3",
+      "size": 19650
+    },
+    {
+      "path": "assets/images/thumbs/kawaii/landing.webp",
+      "sha": "04bb25df21ef05a15b35d9fd91586e03057d09cb",
+      "size": 25782
+    },
+    {
+      "path": "assets/images/thumbs/kawaii/mobile-app.webp",
+      "sha": "a6814b1ed61253f0ac776d726ba81fef120b76b2",
+      "size": 17502
+    },
+    {
+      "path": "assets/images/thumbs/kawaii/shop.webp",
+      "sha": "0fbdd7a68f9f595e9fc975d82abe6a1771284183",
+      "size": 27750
+    },
+    {
+      "path": "assets/images/thumbs/kinetic-typography/agency.webp",
+      "sha": "e91131bf5a869a2a89bb8956160004a16e8ee203",
+      "size": 14156
+    },
+    {
+      "path": "assets/images/thumbs/kinetic-typography/landing.webp",
+      "sha": "fc3ddf6d8f65f24fd3f9911313f09e22886f5c51",
+      "size": 33018
+    },
+    {
+      "path": "assets/images/thumbs/kinetic-typography/portfolio.webp",
+      "sha": "8bd38c9f34e0f85593feb10477ca34ef7dd0452f",
+      "size": 19774
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-content-comparison/guide.webp",
+      "sha": "1443bf25732f4943c2e3670e349222c7e759a1f0",
+      "size": 29348
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-content-pricing/guide.webp",
+      "sha": "60ef7e408d07d00089a99688fc1546a8574836a6",
+      "size": 30064
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-content-testimonial/guide.webp",
+      "sha": "bfe1d33096244421db5537251054f7c72140c066",
+      "size": 30880
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-content-timeline/guide.webp",
+      "sha": "0034d4c9b934eee5d22575023aad83497e4fc651",
+      "size": 30328
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-content-zigzag/guide.webp",
+      "sha": "35af04e2ee665220c4d80ce9507a76c3ad81e976",
+      "size": 36600
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-form-auth/guide.webp",
+      "sha": "cf0fd6b22aa4dc227407bda913209f2f67f8c7ba",
+      "size": 19948
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-form-filter-list/guide.webp",
+      "sha": "1ac0bb3698bcb07a8ac55e2d5aab66a6d795d8e4",
+      "size": 33536
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-form-multi-step/guide.webp",
+      "sha": "4f7f850d7c977934ef16101c44bf78e699f3d5ed",
+      "size": 31126
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-form-search-results/guide.webp",
+      "sha": "ef884090f8015fdd3149688396261c1e08b0c092",
+      "size": 22410
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-form-settings/guide.webp",
+      "sha": "395b920c26e5f68afe7eb5f3dcf05151453ad08f",
+      "size": 21530
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-grid-bento/guide.webp",
+      "sha": "28094f54b09ca11f361cd7e8a1ee99c062de1ba2",
+      "size": 31004
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-grid-equal/guide.webp",
+      "sha": "8a8ba60afb963e71b397b561d509b63ae7d0906e",
+      "size": 30498
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-grid-featured/guide.webp",
+      "sha": "a04420c7f06282c84f35d27b7c7ccf9beb63fb56",
+      "size": 23520
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-grid-magazine/guide.webp",
+      "sha": "dba0f8db1fb0d67df04e56593716333eec1cd78a",
+      "size": 23690
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-grid-masonry/guide.webp",
+      "sha": "fd24c660dcab0644c5100f1b15e5f60ba85ae2bc",
+      "size": 29120
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-hero-centered/guide.webp",
+      "sha": "cabdd3b5ab19dab34cde86771f0221285b6aa91c",
+      "size": 28104
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-hero-full-media/guide.webp",
+      "sha": "7b9d94036bbf6beeeab0a78c65b41799f46e9ac7",
+      "size": 29896
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-hero-interactive/guide.webp",
+      "sha": "d85236aa2c153c6e405e8ac217dbbefce12adf33",
+      "size": 26832
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-hero-split/guide.webp",
+      "sha": "339dd8b243b66c2f92f7ee478c83c8f95fcf9b14",
+      "size": 23462
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-hero-video-bg/guide.webp",
+      "sha": "cda322c2c703545b5efd6df849c73d24adead913",
+      "size": 34266
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-nav-bottom/guide.webp",
+      "sha": "7bacf51abade9c5328c1f8e10826ad8860c97a90",
+      "size": 23912
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-nav-breadcrumb/guide.webp",
+      "sha": "d2fb89245ec49f76ef505ac6adc8a34cee56292f",
+      "size": 30082
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-nav-command-palette/guide.webp",
+      "sha": "80d33b36bdc36db853f65fefbc29cabf9ecd50db",
+      "size": 27544
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-nav-sidebar/guide.webp",
+      "sha": "69513ce5f5f97fb390ef0694c829c77088782f50",
+      "size": 21874
+    },
+    {
+      "path": "assets/images/thumbs/layout/layout-nav-top-bar/guide.webp",
+      "sha": "d4fbc00fc76d65d8d1964918d2406e76dfc167c3",
+      "size": 24078
+    },
+    {
+      "path": "assets/images/thumbs/material-design/email-app.webp",
+      "sha": "2fda956e0aafae877ae8482711ee4c29ab02be96",
+      "size": 17996
+    },
+    {
+      "path": "assets/images/thumbs/material-design/landing.webp",
+      "sha": "f7ad20680bb498747221978178de2af28162c373",
+      "size": 20040
+    },
+    {
+      "path": "assets/images/thumbs/material-design/shop.webp",
+      "sha": "8e1ba6c112b23f507f45277f19f62dfa991e122c",
+      "size": 23020
+    },
+    {
+      "path": "assets/images/thumbs/maximalism/editorial.webp",
+      "sha": "fa11693460f47f88170eb894f5a512a219333e1c",
+      "size": 68066
+    },
+    {
+      "path": "assets/images/thumbs/maximalism/fashion.webp",
+      "sha": "3372b439ac2e2b0da92fbe4271743a61e36370a3",
+      "size": 85588
+    },
+    {
+      "path": "assets/images/thumbs/maximalism/landing.webp",
+      "sha": "3a821c723eafa4472e39aed9d08a1117813ed5b7",
+      "size": 89142
+    },
+    {
+      "path": "assets/images/thumbs/memphis-design/landing.webp",
+      "sha": "260bba71ef7dc94c0759a318a69e0b7bd41dfab8",
+      "size": 35322
+    },
+    {
+      "path": "assets/images/thumbs/memphis-design/poster.webp",
+      "sha": "1427db3ac7e0357bbe4d7c85e89434a8e9239d38",
+      "size": 70266
+    },
+    {
+      "path": "assets/images/thumbs/memphis-design/shop.webp",
+      "sha": "d9afcd9995ed1c13b60d8b24a17efa3077ef7240",
+      "size": 67036
+    },
+    {
+      "path": "assets/images/thumbs/minimalism/landing.webp",
+      "sha": "f618d0d5096b6024de193aa6dd1ae3d00184c357",
+      "size": 20806
+    },
+    {
+      "path": "assets/images/thumbs/minimalism/portfolio.webp",
+      "sha": "fa37b24e8bd0bca8fea5f439b63b7c367c00764a",
+      "size": 12846
+    },
+    {
+      "path": "assets/images/thumbs/minimalism/shop.webp",
+      "sha": "fbe486d8a9495d264d2907bccc74a9bf3f3bb727",
+      "size": 8344
+    },
+    {
+      "path": "assets/images/thumbs/monospace-terminal-ui/dashboard.webp",
+      "sha": "e2dd4b8234abfaf2974853288cdeb4d49fb9331a",
+      "size": 27856
+    },
+    {
+      "path": "assets/images/thumbs/monospace-terminal-ui/landing.webp",
+      "sha": "fb258266dbae8e08ca2d8fe5242f64ec6baee10f",
+      "size": 23138
+    },
+    {
+      "path": "assets/images/thumbs/monospace-terminal-ui/shop.webp",
+      "sha": "695eb1a66a90be5c2cf02eb5b45d003ccac921ee",
+      "size": 32982
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-back/guide.webp",
+      "sha": "79922173ec873def7e3d65256a38272a6f09a61f",
+      "size": 22948
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-blur-reveal/guide.webp",
+      "sha": "a5037722d9190558ae04fcc11cf0354abe3c7bf6",
+      "size": 34806
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-bounce/guide.webp",
+      "sha": "bebd709b2f7f18b1fd65bcfe9fafc7447121fd4d",
+      "size": 28506
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-ease-in-out/guide.webp",
+      "sha": "8247676ccbc6feb3d46ed60107b3eb8b3d0c1926",
+      "size": 21394
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-elastic/guide.webp",
+      "sha": "b27f29c8ba4794a7e9dea3d08f04870665cbe9c5",
+      "size": 23852
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-expand-collapse/guide.webp",
+      "sha": "c34634f530212de1192adeff3f265c878bea6b60",
+      "size": 25822
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-fade/guide.webp",
+      "sha": "291da5aaf37a6e43a41d8616c22cefdb40f1e8e7",
+      "size": 30986
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-linear/guide.webp",
+      "sha": "8dd9fe9aa264becb378ca9034133f8f93ae340d3",
+      "size": 21104
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-list-reorder/guide.webp",
+      "sha": "f26ce099d6f4fa86fb261014988a5cf366da6165",
+      "size": 27500
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-progress/guide.webp",
+      "sha": "554e9e7e3e27c4ff2466e896b71cd407d167ccac",
+      "size": 22128
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-pulse/guide.webp",
+      "sha": "2dd68fe73841359d7849025f0f0cb3f334f9af77",
+      "size": 21226
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-scale/guide.webp",
+      "sha": "dd967f34d9c1be41b5b79f6234b2872acce0a543",
+      "size": 24296
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-scroll-reveal/guide.webp",
+      "sha": "81318f202af7b9230918653ac62ab291ca6ad5b9",
+      "size": 24266
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-scroll-timeline/guide.webp",
+      "sha": "16ecc3f3db9dc2ca0db4408f74f60c4471b8bc55",
+      "size": 28060
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-skeleton-shimmer/guide.webp",
+      "sha": "456495bbd2001094dbce458bccec2cd8110ce51c",
+      "size": 20970
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-slide/guide.webp",
+      "sha": "475834f633658464abffa99bcb56853c1f90c9a8",
+      "size": 21592
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-spinner/guide.webp",
+      "sha": "add73044d723ff55271e15e2a0b63dafeb821e2d",
+      "size": 23096
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-spring/guide.webp",
+      "sha": "4387edceffe64d74063f1c6de3a08460191d6a22",
+      "size": 19504
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-sticky-transition/guide.webp",
+      "sha": "8eba1ba35c5c7e8383a6b08dbfd76cfaa42bf15c",
+      "size": 35756
+    },
+    {
+      "path": "assets/images/thumbs/motion/motion-tab-transition/guide.webp",
+      "sha": "fe88dbbf156ac561a881745d274a9a54bed132f4",
+      "size": 24220
+    },
+    {
+      "path": "assets/images/thumbs/neo-brutalism/blog.webp",
+      "sha": "ee26fc4efcd8c53d42e765004b2c979fc7a19e71",
+      "size": 34762
+    },
+    {
+      "path": "assets/images/thumbs/neo-brutalism/landing.webp",
+      "sha": "5f971816667c8dcfc89e500d011f61d54013f6e8",
+      "size": 28230
+    },
+    {
+      "path": "assets/images/thumbs/neo-brutalism/shop.webp",
+      "sha": "2f75235fbd8fe82e2b86e7b440d736bf6e970303",
+      "size": 25756
+    },
+    {
+      "path": "assets/images/thumbs/neumorphism/dashboard.webp",
+      "sha": "90ff914ad9037a4fd0178f2df5224fc804e7ffda",
+      "size": 13572
+    },
+    {
+      "path": "assets/images/thumbs/neumorphism/login.webp",
+      "sha": "a64e21374d195a4d38ef8910395c59e0097894e9",
+      "size": 3840
+    },
+    {
+      "path": "assets/images/thumbs/neumorphism/music-player.webp",
+      "sha": "2b5460b4b90f80297840c4f2185d253a5f71e802",
+      "size": 6922
+    },
+    {
+      "path": "assets/images/thumbs/organic-design/landing.webp",
+      "sha": "23b0abb7fd4c2f59f971ec1432fa9e236c58854a",
+      "size": 28652
+    },
+    {
+      "path": "assets/images/thumbs/organic-design/shop.webp",
+      "sha": "a196e2dbfcf12fbc6a443cbabb7193579c857d26",
+      "size": 27260
+    },
+    {
+      "path": "assets/images/thumbs/organic-design/wellness.webp",
+      "sha": "0f89355a91dc443778fa6abf35d6b8182141417f",
+      "size": 17096
+    },
+    {
+      "path": "assets/images/thumbs/pixel-art-ui/dashboard.webp",
+      "sha": "19da26374d448d282285dde45bf00f4f1547fd9a",
+      "size": 32812
+    },
+    {
+      "path": "assets/images/thumbs/pixel-art-ui/landing.webp",
+      "sha": "b96c592929ad29ef5c86ce5109dac9ce92ea1742",
+      "size": 42182
+    },
+    {
+      "path": "assets/images/thumbs/pixel-art-ui/shop.webp",
+      "sha": "078589efa206877b7fa634567dfca5bae7860f4b",
+      "size": 31646
+    },
+    {
+      "path": "assets/images/thumbs/pop-art/dashboard.webp",
+      "sha": "a38532cc1d6151146a9e038a26c5069aef79dbe4",
+      "size": 59416
+    },
+    {
+      "path": "assets/images/thumbs/pop-art/landing.webp",
+      "sha": "9611302b4235cf72097e74207ef57d2e399c32c6",
+      "size": 72642
+    },
+    {
+      "path": "assets/images/thumbs/pop-art/shop.webp",
+      "sha": "b1b95acf8f55c9a6aaf509732448880320a24dd3",
+      "size": 59362
+    },
+    {
+      "path": "assets/images/thumbs/psychedelic/landing.webp",
+      "sha": "aba6fba8af0dba6a8b0cff040afdfd7955f9caaa",
+      "size": 83200
+    },
+    {
+      "path": "assets/images/thumbs/psychedelic/music.webp",
+      "sha": "7a826acc787a7d50ccfec0a2fab1073d9f2e40ab",
+      "size": 129520
+    },
+    {
+      "path": "assets/images/thumbs/psychedelic/poster.webp",
+      "sha": "bc665b9cae46fe46416d8c8bfb54d7f2035717d2",
+      "size": 123422
+    },
+    {
+      "path": "assets/images/thumbs/refractive-glass-ui/dashboard.webp",
+      "sha": "f83532ea61e29f7a2ebfbb7936c523f63608c919",
+      "size": 28974
+    },
+    {
+      "path": "assets/images/thumbs/refractive-glass-ui/landing.webp",
+      "sha": "27c7e7c51769b497ff2ff0191457edb42215f4bf",
+      "size": 47150
+    },
+    {
+      "path": "assets/images/thumbs/refractive-glass-ui/mobile-app.webp",
+      "sha": "a9adf085987d326a008caf1d9f9fe7c13ffae619",
+      "size": 31080
+    },
+    {
+      "path": "assets/images/thumbs/retro-vintage/cafe.webp",
+      "sha": "b48fe60317c5b270410ead79e6323625ec03ebcf",
+      "size": 57868
+    },
+    {
+      "path": "assets/images/thumbs/retro-vintage/landing.webp",
+      "sha": "8751fac323836163202d69ed98168ac137be7805",
+      "size": 68108
+    },
+    {
+      "path": "assets/images/thumbs/retro-vintage/poster.webp",
+      "sha": "52cc17f33e4b854014243e0dca635f22727b70b7",
+      "size": 87840
+    },
+    {
+      "path": "assets/images/thumbs/skeuomorphism/bookshelf.webp",
+      "sha": "815defd307b923566c4937e76150808ab9799e28",
+      "size": 38506
+    },
+    {
+      "path": "assets/images/thumbs/skeuomorphism/calculator.webp",
+      "sha": "4f7f1db68aa76baa4905312f4fad45814ba7ebf4",
+      "size": 36508
+    },
+    {
+      "path": "assets/images/thumbs/skeuomorphism/notepad.webp",
+      "sha": "a45cba5fe68b00b4cacb282f84f71ca150cf1250",
+      "size": 33240
+    },
+    {
+      "path": "assets/images/thumbs/solarpunk/app.webp",
+      "sha": "e8f13ec70a9f8a30c55343b499c5ab4773312a72",
+      "size": 40612
+    },
+    {
+      "path": "assets/images/thumbs/solarpunk/landing.webp",
+      "sha": "79c04172f49f2f675dcd4880cd8702534acacdca",
+      "size": 61496
+    },
+    {
+      "path": "assets/images/thumbs/solarpunk/shop.webp",
+      "sha": "c3b9860b4cff4885d1de6ca501d45db0fbb138db",
+      "size": 61206
+    },
+    {
+      "path": "assets/images/thumbs/spatial-ui/dashboard.webp",
+      "sha": "075e786ec488c58d215937ef7fd5dc3c36635bcc",
+      "size": 22678
+    },
+    {
+      "path": "assets/images/thumbs/spatial-ui/landing.webp",
+      "sha": "79d97ade0148868cebd7469238e87683198e6e5a",
+      "size": 19854
+    },
+    {
+      "path": "assets/images/thumbs/spatial-ui/portfolio.webp",
+      "sha": "c2a0f9b9507710c1cd177ea345141b756232601a",
+      "size": 16344
+    },
+    {
+      "path": "assets/images/thumbs/steampunk/dashboard.webp",
+      "sha": "83a8109ab6fe9f16fffd907e575f229f28988cc7",
+      "size": 54702
+    },
+    {
+      "path": "assets/images/thumbs/steampunk/landing.webp",
+      "sha": "b1296794211589d8f888fe947513b30d9ad2029d",
+      "size": 59952
+    },
+    {
+      "path": "assets/images/thumbs/steampunk/shop.webp",
+      "sha": "984f41e80ba35b127ec085c5b60cccd7f06935cf",
+      "size": 52086
+    },
+    {
+      "path": "assets/images/thumbs/swiss-style/corporate.webp",
+      "sha": "694fbf5e34e7bd278bae33ab1a3f1db430bf55f0",
+      "size": 24374
+    },
+    {
+      "path": "assets/images/thumbs/swiss-style/magazine.webp",
+      "sha": "e9b27da98d5810e19a5ee177c84581be6cb28b7f",
+      "size": 38690
+    },
+    {
+      "path": "assets/images/thumbs/swiss-style/poster.webp",
+      "sha": "66f92a5bcbda01dbef0d206690affe0249c4fb19",
+      "size": 26318
+    },
+    {
+      "path": "assets/images/thumbs/technical-blueprint/blog.webp",
+      "sha": "161343a556dfa9c67fea532a2423760cbfe95a26",
+      "size": 32440
+    },
+    {
+      "path": "assets/images/thumbs/technical-blueprint/dashboard.webp",
+      "sha": "24b28ed4139859a481d84b4c412dca35ee379524",
+      "size": 43516
+    },
+    {
+      "path": "assets/images/thumbs/technical-blueprint/landing.webp",
+      "sha": "2d131a8d21fc217047b0c9d3b7615207e802a876",
+      "size": 34558
+    },
+    {
+      "path": "assets/images/thumbs/typography/art-deco-cinzel-montserrat/guide.webp",
+      "sha": "ec4ebf1883bd277aa8389c8cf8fc55aa187295ce",
+      "size": 40394
+    },
+    {
+      "path": "assets/images/thumbs/typography/black-han-noto-sans-kr-impact/guide.webp",
+      "sha": "7347153ac8ee5b62aae2f8cf5bf9b6cab912e26d",
+      "size": 31348
+    },
+    {
+      "path": "assets/images/thumbs/typography/brutalist-space-mono-inter/guide.webp",
+      "sha": "f770711080c784c12f87a9abe3d246b79570ca68",
+      "size": 40132
+    },
+    {
+      "path": "assets/images/thumbs/typography/cormorant-lato-luxury/guide.webp",
+      "sha": "801e33b5dfa21b70014fddcaf2cb1f18551a9914",
+      "size": 28630
+    },
+    {
+      "path": "assets/images/thumbs/typography/cyberpunk-orbitron-rajdhani/guide.webp",
+      "sha": "ce76517038e36b7e190d727815bff39775296489",
+      "size": 41528
+    },
+    {
+      "path": "assets/images/thumbs/typography/dm-serif-dm-sans-magazine/guide.webp",
+      "sha": "2c2b9e0d794071e82abc3204a0cf63aa7af61833",
+      "size": 41258
+    },
+    {
+      "path": "assets/images/thumbs/typography/fraunces-work-sans-expressive/guide.webp",
+      "sha": "6fcc9d197a1edda9df650ec52b09c5cb03dbc967",
+      "size": 36696
+    },
+    {
+      "path": "assets/images/thumbs/typography/gowun-batang-pretendard-calm/guide.webp",
+      "sha": "5373a0956f154c0477bca987d7be407eb1ec14ed",
+      "size": 30254
+    },
+    {
+      "path": "assets/images/thumbs/typography/inter-jetbrains-product/guide.webp",
+      "sha": "d8966fa320258e7e3530705c818b59c7769ac023",
+      "size": 38538
+    },
+    {
+      "path": "assets/images/thumbs/typography/jakarta-source-sans-code/guide.webp",
+      "sha": "7ece06894bdf364df01a3ef7b9a0d85e48f12598",
+      "size": 28314
+    },
+    {
+      "path": "assets/images/thumbs/typography/libre-baskerville-open-sans-readable/guide.webp",
+      "sha": "628575de88642388e96d5752560a7778198f35c3",
+      "size": 42084
+    },
+    {
+      "path": "assets/images/thumbs/typography/lora-source-sans-editorial/guide.webp",
+      "sha": "0f3ead9057348fce8f9d56ca5c3ff48c766eb21f",
+      "size": 29602
+    },
+    {
+      "path": "assets/images/thumbs/typography/manrope-inter-ibm-plex-mono/guide.webp",
+      "sha": "0c7feaf3bf43eb485c6b9899ae3ea9184ef8d602",
+      "size": 34224
+    },
+    {
+      "path": "assets/images/thumbs/typography/merriweather-roboto-news/guide.webp",
+      "sha": "cfcb84c721e833927a29f6042408410d8be9630e",
+      "size": 38826
+    },
+    {
+      "path": "assets/images/thumbs/typography/nanum-myeongjo-gothic-familiar/guide.webp",
+      "sha": "99b8bd235e067290852111692a6a3231c56cf646",
+      "size": 36058
+    },
+    {
+      "path": "assets/images/thumbs/typography/noto-serif-sans-kr-readable/guide.webp",
+      "sha": "7db8cd1b444e0330908448b25209ac994daf6502",
+      "size": 34772
+    },
+    {
+      "path": "assets/images/thumbs/typography/outfit-pretendard-product/guide.webp",
+      "sha": "29511ac714cb3c5b886cde8f1ccd468a81df4549",
+      "size": 36836
+    },
+    {
+      "path": "assets/images/thumbs/typography/playfair-source-sans-classic/guide.webp",
+      "sha": "81216b07ff33341db79f8d0b1d2b831d2cbe9808",
+      "size": 41554
+    },
+    {
+      "path": "assets/images/thumbs/typography/song-myung-noto-sans-kr-literary/guide.webp",
+      "sha": "4ebbb4eff1a595428378de67797004275bf89b07",
+      "size": 31372
+    },
+    {
+      "path": "assets/images/thumbs/typography/space-grotesk-inter-space-mono/guide.webp",
+      "sha": "8240d82ccf4820ce7efa9337167fc8d4407bbe23",
+      "size": 29636
+    },
+    {
+      "path": "assets/images/thumbs/vaporwave/landing.webp",
+      "sha": "af6fdc5ec60b77c0e702212d09504960ea56ff7a",
+      "size": 33944
+    },
+    {
+      "path": "assets/images/thumbs/vaporwave/music-player.webp",
+      "sha": "835b2888a979f3af52865547bfa123b4fec56f28",
+      "size": 42070
+    },
+    {
+      "path": "assets/images/thumbs/vaporwave/shop.webp",
+      "sha": "fa9b7117071362aa7aaa721924ee893d8975f2eb",
+      "size": 51018
+    },
+    {
+      "path": "assets/images/thumbs/variable-typography/dashboard.webp",
+      "sha": "e5df16d9cc1e9eb3d53be3969950eb62413a3bb3",
+      "size": 20870
+    },
+    {
+      "path": "assets/images/thumbs/variable-typography/landing.webp",
+      "sha": "e8447aa7bdc4e00913b397c0f02ded0d0eef1ed6",
+      "size": 16812
+    },
+    {
+      "path": "assets/images/thumbs/variable-typography/shop.webp",
+      "sha": "479b3a2818d47bea8dc77c5ef82443baa8f242a5",
+      "size": 16462
+    },
+    {
+      "path": "assets/images/thumbs/y2k/fashion.webp",
+      "sha": "2c585527c579a09605c344f54b74d0588596cd0d",
+      "size": 42282
+    },
+    {
+      "path": "assets/images/thumbs/y2k/landing.webp",
+      "sha": "e85689dd02e4590d7e9ed6a34687cc9a392d49fc",
+      "size": 46960
+    },
+    {
+      "path": "assets/images/thumbs/y2k/mobile-app.webp",
+      "sha": "059cbb4837a90e39af9d0159b18211c44a61ca49",
+      "size": 32782
+    },
+    {
+      "path": "assets/images/typography/art-deco-cinzel-montserrat/guide.png",
+      "sha": "7613fd9ef9719f79f4d953ebb23bb4c1469c8dee",
+      "size": 1997333
+    },
+    {
+      "path": "assets/images/typography/black-han-noto-sans-kr-impact/guide.png",
+      "sha": "9188a4de9048da37f7963468ddb26a2cf35dbd9f",
+      "size": 1532214
+    },
+    {
+      "path": "assets/images/typography/brutalist-space-mono-inter/guide.png",
+      "sha": "67365fa1aeecfb11941e17b6137bd6351d1a9359",
+      "size": 1821569
+    },
+    {
+      "path": "assets/images/typography/cormorant-lato-luxury/guide.png",
+      "sha": "70985d4541930ca00dff9beb7c1c72f945b8653d",
+      "size": 1447011
+    },
+    {
+      "path": "assets/images/typography/cyberpunk-orbitron-rajdhani/guide.png",
+      "sha": "3ebfa8adc9da379036f92b41fcdaeeee3c14e272",
+      "size": 1740283
+    },
+    {
+      "path": "assets/images/typography/dm-serif-dm-sans-magazine/guide.png",
+      "sha": "65215bd486a750222244dd9b190d5dcff50cea6a",
+      "size": 1670425
+    },
+    {
+      "path": "assets/images/typography/fraunces-work-sans-expressive/guide.png",
+      "sha": "c172caba3368cbb4416f514b56bdbe60a077b6af",
+      "size": 1655857
+    },
+    {
+      "path": "assets/images/typography/gowun-batang-pretendard-calm/guide.png",
+      "sha": "2d30bcf7ca3c9aedce2504b4e9ea3b65c8478c68",
+      "size": 1551977
+    },
+    {
+      "path": "assets/images/typography/inter-jetbrains-product/guide.png",
+      "sha": "17831398b504a9102669079af4b80ddbe5bdfe08",
+      "size": 1536864
+    },
+    {
+      "path": "assets/images/typography/jakarta-source-sans-code/guide.png",
+      "sha": "b38bbee36032ce1368e47466f7de8568a1f9c155",
+      "size": 1433660
+    },
+    {
+      "path": "assets/images/typography/libre-baskerville-open-sans-readable/guide.png",
+      "sha": "b630fffcef488becc55f992dc4ee5607343e0447",
+      "size": 1591373
+    },
+    {
+      "path": "assets/images/typography/lora-source-sans-editorial/guide.png",
+      "sha": "122eea593dabebf116d23ec362ee418f73d934ad",
+      "size": 1839881
+    },
+    {
+      "path": "assets/images/typography/manrope-inter-ibm-plex-mono/guide.png",
+      "sha": "25090dab51d62c47a1ea766144c5debe52919632",
+      "size": 1502414
+    },
+    {
+      "path": "assets/images/typography/merriweather-roboto-news/guide.png",
+      "sha": "4025565df63197d5660ddf867ed1d9da35d2872f",
+      "size": 1567068
+    },
+    {
+      "path": "assets/images/typography/nanum-myeongjo-gothic-familiar/guide.png",
+      "sha": "051870751ae111026927d6b673a1f20671470d09",
+      "size": 1566939
+    },
+    {
+      "path": "assets/images/typography/noto-serif-sans-kr-readable/guide.png",
+      "sha": "a7235d39ff12a618d573cb8bcc6825c179cdf3e6",
+      "size": 1540536
+    },
+    {
+      "path": "assets/images/typography/outfit-pretendard-product/guide.png",
+      "sha": "7af0d3075643f760081fa75eabc367d09d745f1d",
+      "size": 1526494
+    },
+    {
+      "path": "assets/images/typography/playfair-source-sans-classic/guide.png",
+      "sha": "efe4f9a9a35a2b99433130f03903b339c5bea673",
+      "size": 1659382
+    },
+    {
+      "path": "assets/images/typography/song-myung-noto-sans-kr-literary/guide.png",
+      "sha": "d792510709530e558c194ba518cdc5c973eb2986",
+      "size": 1459144
+    },
+    {
+      "path": "assets/images/typography/space-grotesk-inter-space-mono/guide.png",
+      "sha": "1659ed4fe168eeaa9001ab1bb9db957c71ac96c0",
+      "size": 1490720
+    },
+    {
+      "path": "assets/images/vaporwave/landing.png",
+      "sha": "0f7c9767e3653684d6be708f9c38bae0bf711dda",
+      "size": 2235394
+    },
+    {
+      "path": "assets/images/vaporwave/music-player.png",
+      "sha": "0429516042cb5b374a5958c382eaea2da5b32721",
+      "size": 1902747
+    },
+    {
+      "path": "assets/images/vaporwave/shop.png",
+      "sha": "b55b7f84dddad91f25aac9c195805aa3a48c12e1",
+      "size": 2056204
+    },
+    {
+      "path": "assets/images/variable-typography/dashboard.png",
+      "sha": "0b5f9f924c23601d0a34dd808c3d8c69a17a8fae",
+      "size": 1489154
+    },
+    {
+      "path": "assets/images/variable-typography/landing.png",
+      "sha": "3d0c2079014a2e28b722a9d4819c4c3f3647b241",
+      "size": 1313182
+    },
+    {
+      "path": "assets/images/variable-typography/shop.png",
+      "sha": "90f99d370dae5249f736dc019e32d04d8425f2af",
+      "size": 1443333
+    },
+    {
+      "path": "assets/images/y2k/fashion.png",
+      "sha": "da99512104fb85803ee72fe2aefd4755975a6508",
+      "size": 2428854
+    },
+    {
+      "path": "assets/images/y2k/landing.png",
+      "sha": "ea68eebb83d0318f3de1fa2b95059980bc34800a",
+      "size": 2138149
+    },
+    {
+      "path": "assets/images/y2k/mobile-app.png",
+      "sha": "b40beea562cb10304190707182970f0975062e48",
+      "size": 2084607
+    },
+    {
+      "path": "assets/js/app-crosslinks.js",
+      "sha": "5e5e415e5d0396c17578259afbc9442b74c11c86",
+      "size": 4156
+    },
+    {
+      "path": "assets/js/app-dialog.js",
+      "sha": "245ffe82036764eb3ce6896ccc8955132d9f4036",
+      "size": 7006
+    },
+    {
+      "path": "assets/js/app-export.js",
+      "sha": "5bf841c8053260f1588e6235f4e68c6747c8ca90",
+      "size": 21391
+    },
+    {
+      "path": "assets/js/app-guides.js",
+      "sha": "d305ff938cf1e6ece85dac0866eb4716719035b4",
+      "size": 5639
+    },
+    {
+      "path": "assets/js/app-materials.js",
+      "sha": "c909e40b588769d4f0034905eb1e7e745d2bb066",
+      "size": 5877
+    },
+    {
+      "path": "assets/js/app-runtime.js",
+      "sha": "c0604e9a06c50904bcc7a71bc905f183b92c50d2",
+      "size": 2475
+    },
+    {
+      "path": "assets/js/app.js",
+      "sha": "7cc259003e47107a2f0a309dc2d1b1687c4bf877",
+      "size": 37848
+    },
+    {
+      "path": "assets/js/catalog-shell.js",
+      "sha": "d52d003f9c77095b5d429b582d88d99a349f2dd0",
+      "size": 5293
+    },
+    {
+      "path": "assets/js/color.js",
+      "sha": "8f53eb72229483238a33db82e710d55f5e4569b0",
+      "size": 10158
+    },
+    {
+      "path": "assets/js/effects-demos.js",
+      "sha": "9faca72c114eab9ae724bbdeae08e42cdeb9d6ff",
+      "size": 21627
+    },
+    {
+      "path": "assets/js/effects-docs.js",
+      "sha": "383386f251c0ea73b8afc768ac694b6662c7b39f",
+      "size": 5240
+    },
+    {
+      "path": "assets/js/effects-filters.js",
+      "sha": "0ab2fc1a1ca6ad7153277de345145ba98fa84e67",
+      "size": 4562
+    },
+    {
+      "path": "assets/js/effects-interactions.js",
+      "sha": "008daaa27a0bafce6cf7ea74ed1a88e436b6adc7",
+      "size": 5693
+    },
+    {
+      "path": "assets/js/effects.js",
+      "sha": "3071bb248ab999c94899d7ea522ebbc44584f454",
+      "size": 17212
+    },
+    {
+      "path": "assets/js/faq.js",
+      "sha": "916d23f438f4823aa79fde6bb1e1498ec3821ecd",
+      "size": 13336
+    },
+    {
+      "path": "assets/js/finder.js",
+      "sha": "c10ca1f338f2695d162262ef5d0069f307550c21",
+      "size": 17493
+    },
+    {
+      "path": "assets/js/layout-wireframes.js",
+      "sha": "f6e79ddcde654fb1b359f6041217bcac4c856fbd",
+      "size": 13987
+    },
+    {
+      "path": "assets/js/layout.js",
+      "sha": "c1db7abd6c176d093e7d0b2ec2730cb5306a08dd",
+      "size": 10338
+    },
+    {
+      "path": "assets/js/motion-demos.js",
+      "sha": "28948f5dda2990661da55de597f9e065be93529d",
+      "size": 8033
+    },
+    {
+      "path": "assets/js/motion-interactions.js",
+      "sha": "8fc55f424f5b14014599c224a45388aebbfc1924",
+      "size": 13020
+    },
+    {
+      "path": "assets/js/motion.js",
+      "sha": "53773a80cba4ea7569697810a71a6d30f521d97d",
+      "size": 14785
+    },
+    {
+      "path": "assets/js/nav-dropdown.js",
+      "sha": "ddf2889cce583ef32d5de32af7c4d16db99ec99c",
+      "size": 3303
+    },
+    {
+      "path": "assets/js/typography-fonts.js",
+      "sha": "efc45d81c465ea9231e7bb9c08e11235710aaeb8",
+      "size": 1629
+    },
+    {
+      "path": "assets/js/typography.js",
+      "sha": "7b9e4b1be6e6de35912cd952264ffed0722fb235",
+      "size": 11222
+    },
+    {
+      "path": "color.html",
+      "sha": "0c9f6e715d486a12bfb483d4193a41e73fcb3f25",
+      "size": 5854
+    },
+    {
+      "path": "effects.html",
+      "sha": "cbe9fce371986f88ccbe5823da851ce05e9a4e29",
+      "size": 9412
+    },
+    {
+      "path": "faq.html",
+      "sha": "4df0901979271f0ca4ed2a2097f2b5297b0e9004",
+      "size": 3977
+    },
+    {
+      "path": "favicon.svg",
+      "sha": "92fb1ee6e8220fc48f32f3eb7991476198643d1c",
+      "size": 220
+    },
+    {
+      "path": "index.html",
+      "sha": "93101d8c19415e1cceb531f64d82ed0fd6ad25f7",
+      "size": 7283
+    },
+    {
+      "path": "layout.html",
+      "sha": "4a4dde8f2afdb18de9452e25f97993ffbf84c646",
+      "size": 6216
+    },
+    {
+      "path": "motion.html",
+      "sha": "1631548878a42063293cfd314310806a7b13e700",
+      "size": 6472
+    },
+    {
+      "path": "typography.html",
+      "sha": "bf365b7606db07f6450e54eb70dd30dc7bf39b77",
+      "size": 6244
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Arena"
+  short_description: "Run parallel candidates, pick a base, graft"
+  default_prompt: "Use $arena to run parallel candidates at this task, pick a base, and graft the best parts of the others."
+policy:
+  allow_implicit_invocation: true

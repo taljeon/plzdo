@@ -1,0 +1,4 @@
+interface:
+  display_name: "Minimal Blue Pitch Deck"
+  short_description: "9가지 미니멀 블루 피치덱 레이아웃을 재현합니다"
+  default_prompt: "Use $design-minimal-blue-pitchdeck to turn my content into an editable minimalist blue 16:9 pitch deck."

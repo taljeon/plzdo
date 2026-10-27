@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/alexgreensh/attention-span",
+  "commit": "2714c965e6be1fa2597510e66651e63bc67cb448",
+  "license": "AGPL-3.0",
+  "entry": "local thin Codex entry, separately authored",
+  "originals": {
+    "references/attention-kind.md": "a9da2666c64da03b28a7c1b3de8d991dda7c4b1d9e38da99dff46c009e81d8b1",
+    "references/SKILL.attention-kind.md": "9072839457ec1186ad4f7b09a7979791432f772aef516b9682be55e6b4abb868",
+    "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
+  }
+}

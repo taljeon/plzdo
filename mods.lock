@@ -1,0 +1,6 @@
+# Mods used by this PlzDo release. Check after cloning, from the clone root:
+#   git rev-parse HEAD  (must equal commit)
+#   shasum -a 256 -c <plzdo>/mods.sha256
+repo https://github.com/taljeon/plzdo-claude-mods
+commit e038473b0af0177b284f9d277098297864a07c8a
+default-on all

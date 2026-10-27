@@ -1,0 +1,10 @@
+name: taste-guided-ui
+origin: own
+upstream: none
+commit: none
+upstream_path: none
+license: MIT
+status: copy-ready
+company: yes
+note: own text inspired by Leonxlnx/taste-skill (MIT)
+Exported from the owner's live setup by maintainer/export.py.

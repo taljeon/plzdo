@@ -1,0 +1,4 @@
+interface:
+  display_name: "Astryx Design System"
+  short_description: "Use Astryx components and CLI safely"
+  default_prompt: "Use $astryx-design-system to assess Astryx fit and produce a gated implementation plan for this frontend task."

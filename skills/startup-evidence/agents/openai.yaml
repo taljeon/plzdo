@@ -1,0 +1,4 @@
+interface:
+  display_name: "Startup Evidence"
+  short_description: "Build verified startup strategy materials"
+  default_prompt: "Use $startup-evidence to build an evidence-grounded startup deliverable with an independent verification report."

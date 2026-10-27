@@ -1,200 +1,69 @@
-PlzDo helps you plan work with an AI coding assistant and check what it has done.
-It keeps the task, allowed changes, and test results together so you can see what is finished and what still needs attention.
-The basic tool runs on your computer without an AI account; connecting an AI model is a separate choice.
+# PlzDo
 
-# PlzDo Local
+PlzDo mirrors one person's (the owner's) Claude Code setup so a company machine or a new laptop can take it by copying files. It contains rules, skills, Claude agents, optional hooks, settings fragments, and a pointer to the owner's mods. There is no installer, and taking the rules, skills, and agents does not require running repository scripts. [INVENTORY.md](INVENTORY.md) describes each item's status and the company set.
 
-PlzDo's core is a local control plane for AI-assisted engineering. It adds deterministic project routing, bounded durable work, explicit authority, and evidence-backed completion. The default `plzdo` distribution contains this provider-free core and its read-only parent adapter; local model execution belongs to the separately selected runtime.
+## Requirements
 
-This source preview updates the harness only. It requires no local LLM or cloud
-provider account. Local-model runtime and external AI integrations are deferred
-and are not included in this repository. For internal use, obtain the source
-through an organization-approved channel and follow that organization's policy.
+- Claude Code for the rules, skills, and agents. Copying these files needs no additional runtime.
+- `python3` and `git` for the hooks/mods setup. Hooks require permission to execute scripts; mods run code when loaded.
+- Git is also used by the clone route below and by the implementation workflow's worktrees. Individual projects still need their own development tools.
 
-It is not an AI model, editor, deployment system, or operating-system sandbox. It gives an existing coding agent and repository a compact working contract.
+The company set needs no Codex, MCP servers, or other runtimes. Outside that set, check each item's status and dependency note. Skip `needs-runtime`, `link-only`, and `excluded` items when following the company setup.
 
-## Quick Start
+## Three ways to take it
 
-Core requirements: macOS or Linux, Python 3.9 or newer, Git 2.30 or newer, and Bash 3.2 or newer.
+### Copy one skill or agent
 
-The optional parent adapter requires Python 3.11+ for its verifier and configured
-core subprocess. The integrated verification harness uses Python 3.11+.
-Explicit `--release-matrix` and exact-commit `--acceptance` verification also
-require Python 3.9 for the core compatibility lane.
+Choose an item in the inventory. Copy a whole skill folder from `skills/<name>/` to `~/.claude/skills/<name>/`, including its references, `SOURCE.md`, and license. Agents are individual Markdown files: copy the selected file from `agents/` to `~/.claude/agents/`. Start a new Claude Code session and check that the item is listed.
 
-```bash
-git clone https://github.com/taljeon/plzdo.git
+Check the item's dependencies before using it on its own. For example, `review-change` calls both `reviewer` and `code-reviewer`; copying only the skill does not copy those agents.
+
+### Clone a release and take the company set
+
+Choose a published tag from [Releases](https://github.com/taljeon/plzdo/releases), replacing `<release-tag>` below:
+
+```sh
+git clone --branch <release-tag> --depth 1 https://github.com/taljeon/plzdo.git
 cd plzdo
-./scripts/verify
-./bin/plzdo doctor
-./bin/plzdo --help
 ```
 
-The clone is the only network-dependent step in this example. After obtaining a
-reviewed checkout through an approved source, setup, verification, state, and
-managed-resource installation run locally without package downloads or hosted
-services. See [Restricted Environment Setup](docs/restricted-environment.md).
+Follow the [Company set](INVENTORY.md#company-set) steps in order. Copy or merge the rules, copy the company skills and agents, and merge settings by hand. Enable hooks only where scripts are allowed. Record the tag you applied; see [Updating](docs/updating.md) for later changes.
 
-Use the checked-in `./bin/plzdo` wrapper from a reviewed checkout. The 0.3.0
-source also defines a `plzdo` distribution containing core and parent adapter.
-The `local` extra is reserved for a matching runtime release; it is not part of
-this source preview. The core has no runtime dependency or execution dispatch. See the
-[package and isolated launcher contract](docs/core-adapter-packaging.md).
+### Ask an agent to copy it
 
-Durable state resolves in this order:
+Give an agent access to the checkout and this instruction:
 
-1. `PLZDO_HOME`
-2. `$XDG_STATE_HOME/plzdo-local`
-3. `~/.local/state/plzdo-local`
+> Read INVENTORY.md and set up the company set; ask me before changing settings.json
 
-Inspect the selected path without writing:
+The agent can copy files with its own edit tools. No repository installer or export script is needed. It should report what it copied, merged, or skipped, and ask before settings changes.
 
-```bash
-./bin/plzdo state-root status --json
-```
+## Layers
 
-## What It Does
+Rules in `harness/CLAUDE.md` -> skills in `skills/` -> Claude agents in `agents/` -> optional hooks in `hooks/` -> mods from a separate repository.
 
-| Surface | Purpose |
-| --- | --- |
-| Project control | Catalog and registry validation, exact attach/create/ask resolution, and Quick/Plan/Goal routing |
-| Project frame | Deterministic planning and validation for `AGENTS.md`, task, requirements, design, checks, and verification files |
-| Durable work | Approved formalizations, compact/full context packs, bounded state, checkpoints, and tracking-only loops |
-| Evidence | Sanitized local memory, append-preserving findings, and bounded run metrics |
-| Local operations | Read-only repository preflight, manual snapshots, and sanitized review prepare/validate/import |
-| Managed resources | Repository-owned public skill and agent installation with marker-bound repair and uninstall |
-| Reference catalogs | Local source and design catalog search without live network access |
-| Real apply | A separate, default-disabled P5 path for one fixed managed project frame under an operator-enabled policy |
+Rules define the lead engineer's responsibilities and when to act or ask. Skills define task workflows, agents handle delegated work, hooks check tool actions, and mods add session behavior. The [architecture guide](docs/architecture.md) explains the flow and the `hn` method. [Hook setup](docs/hooks.md) explains enforcement; `settings/` holds fragments to merge, and `maintainer/` holds owner-side export tools.
 
-Examples:
+## Mods and data flow
 
-```bash
-./bin/plzdo route "Review this bounded refactor" --json
-./bin/plzdo sources list --json
-./bin/plzdo design search accessibility --json
-./bin/plzdo skills list --json
-./bin/plzdo agents list --json
-```
+The mods come from [taljeon/plzdo-claude-mods](https://github.com/taljeon/plzdo-claude-mods), pinned in `mods.lock`. All 8 mods load by default. Company set step 6 states:
 
-`init`, `new`, and `render --dry-run` only plan target bytes. `render --write` remains intentionally unsupported. The focused P5 entry point re-renders bundled templates itself and accepts no arbitrary command or caller-supplied output set. See [Real Apply](docs/real-apply.md).
+> Mods: clone the repository named in `mods.lock` at its commit, check it with `mods.sha256`, and start Claude Code with `--plugin-dir <clone>`. Read the mods README first: `where-am-i` and `duo-quiz` call Haiku every turn with parts of your prompt and answer, `usage-keeper` sends prompts on its own after 55 idle minutes, and `workbench` reads Codex CLI session files from the Codex home folder.
 
-## Architecture
+## What is not included
 
-```mermaid
-flowchart TD
-    A["Operator request"] --> B["Layer 0 boundaries"]
-    B --> C["Project resolution"]
-    C -->|"exact match"| D["Attach"]
-    C -->|"no match"| E["Create plan"]
-    C -->|"ambiguous"| F["Ask and stop"]
-    D --> G["Execution route"]
-    E --> G
-    G -->|"Quick"| H["Bounded local tool"]
-    G -->|"Plan"| I["Explicit plan"]
-    G -->|"Goal or loop"| J["Approved formalization"]
-    I --> H
-    J --> H
-    H --> K["Verification evidence"]
-    K --> L["State, memory, metrics, findings"]
-    K --> M["Completion report"]
-```
+- Codex delegation and its adapter: the kit uses Claude agents, so second-model review becomes same-model review.
+- The owner's memory runtime and private hooks: they depend on private infrastructure. The rules point to Claude Code's built-in auto-memory instead.
+- Private projects, storage configuration, and personal project data: they are outside the portable setup.
+- Anthropic's proprietary synced skills: their licenses forbid redistribution. This exclusion does not cover separately licensed open-source skills listed in the inventory.
 
-The core separates three concerns:
+## Licensing
 
-1. A compact policy kernel in `AGENTS.md`, `TASKS/current.md`, and `CHECKS.md`.
-2. A dependency-free local control plane under `plzdo_local/`.
-3. Executable evidence in schemas, negative tests, release scans, and exact hashes.
+The repository's MIT license applies only to the owner's files. Each third-party skill folder keeps its upstream license, and each skill folder carries a `SOURCE.md` describing its origin and adaptations. Check the inventory's license and origin fields before copying material.
 
-See [Architecture](docs/architecture.md) for the module and trust-boundary map.
+`attention-span` is AGPL-3.0 and stays in its own folder. Its text is not inlined into the shipped rules. `academic-research-suite` is link-only because its CC BY-NC-4.0 license restricts commercial use; it is not bundled with the company set.
 
-## Local-Only Boundary
+The export manifest marks the origin and license of `design-minimal-blue-pitchdeck` and `remove-ai-marks` as unknown. Neither belongs to the company set; the repository MIT license does not resolve those unknowns.
 
-The `plzdo` core commands use local files and explicitly bounded local subprocesses. They do not call model providers, browsers, remote APIs, package managers, mail systems, schedulers, daemons, hooks, or telemetry endpoints. The parent adapter runs only the fixed read-only core status commands.
+## Earlier versions
 
-`plzdo review prepare` creates a sanitized local bundle; `validate` checks it; `import` records an already-local answer as advisory evidence. PlzDo never sends the bundle. Manual upload or copy is an operator-owned egress event.
-
-Local-model generation and external AI integration are separate optional work.
-They are not published by this harness update and are not needed for its commands.
-This source preview makes no claim about live model execution or OS isolation.
-
-A hosted coding agent still uses its own vendor for inference. The core's local-only claim does not describe an OS firewall or the surrounding agent. See [Local-Only Boundary](docs/local-only-boundary.md) and [Data and Privacy](docs/data-and-privacy.md).
-
-No hosted CI, external AI reviewer, or remote validation service is required to
-accept a change. A Git push or pull request is an explicit code-transfer event
-and should target only a repository approved for that code. Authors and
-reviewers run the same checked-in local gate against the exact commit under
-review.
-
-## Managed Skills And Agents
-
-The repository includes four small public skills and five agent role files. List them before installing:
-
-```bash
-./bin/plzdo skills list --json
-./bin/plzdo agents list --json
-```
-
-Installation is explicit and network-free. It copies reviewed repository bytes to an explicit root or the local Codex resource root. Dry-run is available:
-
-```bash
-./bin/plzdo skills install ponytail --dry-run
-./bin/plzdo agents install code-reviewer --dry-run
-```
-
-Managed markers bind the exact inventory. Repair only applies to marker-trusted drift, and uninstall removes only bytes that still match the recorded snapshot.
-
-## Verification
-
-Run the integrated gate:
-
-```bash
-./scripts/verify
-```
-
-The core gate covers contracts, command lifecycles, routing, durable state, P5 refusal and rollback paths, managed resources, the v2 parent adapter, staged installation, local review and monitoring, privacy scanning, release inventory, and negative fixtures. Tests use temporary synthetic data and no provider credentials. The optional runtime has separate component and distribution checks.
-
-For collaboration, record the exact commit and local gate result in the pull
-request. A reviewer should check out that commit and run
-`./scripts/verify --acceptance <full-commit-sha>` locally. The acceptance mode
-rejects staged, unstaged, untracked, and mismatched-HEAD states.
-Remote status checks may be added by a downstream repository under its own
-policy, but they are not part of PlzDo Local's acceptance contract.
-
-Before publishing a Git checkout, use an external private denylist whose values never enter the repository or scanner output:
-
-```bash
-./scripts/check-publication \
-  --private-denylist /absolute/path/to/private-denylist.json
-```
-
-The publication gate scans the bounded history reachable from `HEAD`, requires every local ref target to remain in that history, and inspects raw commit metadata, ref names, annotated tag objects, tree paths, and unique blobs. `SHA256SUMS` binds the current release tree.
-
-## Design Principles
-
-- Keep authority explicit and proportional to risk.
-- Prefer progressive disclosure over loading every rule into every prompt.
-- Treat memory, metrics, delegated work, and external review as non-authoritative inputs.
-- Use schemas for structure and runtime validators for stricter semantic contracts.
-- Make high-risk paths fail closed and cover refusal, interruption, drift, and rollback.
-- Do not automate irreversible or external effects by default.
-
-See [What Not to Automate](docs/what-not-to-automate.md).
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Command Reference](docs/command-reference.md)
-- [State and Memory](docs/state-and-memory.md)
-- [Real Apply](docs/real-apply.md)
-- [Data and Privacy](docs/data-and-privacy.md)
-- [Portability](docs/portability.md)
-- [Restricted Environment Setup](docs/restricted-environment.md)
-- [Contributing](CONTRIBUTING.md)
-- [Checks](CHECKS.md)
-- [Security Policy](SECURITY.md)
-
-## License
-
-The original core retains its existing MIT notice in [LICENSE](LICENSE). Models,
-provider tools and the deferred runtime/integration projects are not included
-or licensed by this repository.
+The 0.x releases were **PlzDo Local**. Version 1.0.0 replaces that content with this copy-based Claude Code setup. See [CHANGELOG.md](CHANGELOG.md) for the rewrite and [Updating](docs/updating.md) before moving an existing local copy.
