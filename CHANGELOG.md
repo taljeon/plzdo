@@ -1,44 +1,25 @@
 # Changelog
 
-## 0.3.0
+## 1.0.0 (unreleased)
 
-Harness source preview. Local-model runtime and external AI integration publication are deferred.
+### Added
 
-- Preserve valid approval reuse and early deterministic apply-gate denials.
-- Bind new P5 writes to the complete approved repository profile while preserving legacy status and rollback.
-- Preserve standalone core Python 3.9+ support; the optional adapter and release harness require Python 3.11+.
-- Package core and the fixed parent adapter together, with an optional exact-version local runtime.
-- Keep core-only installation provider-free and carry the compact Ponytail minimality guidance.
-- Provide the fixed read-only parent adapter without model/provider dispatch in core.
-- Distinguish source verification from local-model execution and OS-isolation validation.
+- A `skills/` mirror with per-folder `SOURCE.md` provenance and upstream license files, plus inventory statuses, origins, dependency notes, and company-set eligibility.
+- Claude-only `review-change` and `implement-change` skills and adapted agent roles in `agents/`.
+- `maintainer/export.py`, the owner's export tool (its config and private identifier list stay outside the repository), for checking changed sources, re-copying sanitized files, and regenerating inventory tables.
+- A separate mods dependency from `taljeon/plzdo-claude-mods`, with 8 mods pinned through `mods.lock`, integrity data in `mods.sha256`, and data-flow guidance.
+- English guides for copying the kit, request flow, hook setup, and manual three-way updates in `README.md` and `docs/`.
 
-## 0.2.2
+### Changed
 
-- Make the checked-in local gate authoritative for changes and releases.
-- Remove the bundled hosted-CI workflow and remote status-check dependency.
-- Add restricted-environment setup guidance using only repository-owned skills and agents.
-- Add an evidence-oriented pull-request template and reviewer-local verification flow.
-- Keep Git remotes as explicit operator-owned collaboration surfaces rather than runtime dependencies.
-- Fix first-time managed agent installation and create missing local roots with no-follow descriptor traversal.
-- Bind acceptance evidence to a clean exact commit and reject staged, unstaged, untracked, or mismatched states.
+- Replaced the 0.x PlzDo Local content with a copy-based mirror of the owner's Claude Code setup, using top-level `skills/`, `agents/`, `hooks/`, `harness/`, `settings/`, and `maintainer/` directories.
+- Folded shared rules into `harness/CLAUDE.md`, with Claude delegation and a document-based `hn` method that needs no private harness runtime.
+- Replaced `skill-nudge` with `workflow-skill-gate`: a prompt nudge plus a gate before the first code edit. Kept the adapted public `release-gate` for checkable canonical publishing forms, in its own settings file outside the company set.
+- Made hook and permission settings manual merges, with hooks optional where scripts are forbidden.
+- Scoped repository MIT licensing to the owner's files; retained upstream licenses, isolated `attention-span` under AGPL-3.0, and made `academic-research-suite` link-only under CC BY-NC-4.0.
 
-## 0.2.1
+### Removed
 
-- Pin GitHub Actions to immutable commit SHAs.
-- Separate contributor checks from maintainer-only privacy and release procedures.
-- Scan a Git-free export with an external private denylist before publication.
-- Keep release state in `VERSION`, Git, and GitHub instead of `TASKS/current.md`.
-- Make generated requirements and technical-design files product-specific while retaining safety policy in `AGENTS.md`.
-- Add executable template/example parity and release-document separation checks.
-
-## 0.2.0
-
-- First full local release of the PlzDo control plane.
-- Deterministic project routing, formalization, context, bounded state, local memory, findings, metrics, and manual monitoring.
-- Repository-owned public skills and agent role files, local review preparation/import, monitoring, static reference catalogs, and repository-local runtime use.
-- Default-disabled real-apply workflow with exact planning, confirmation, backup, verification, and rollback evidence.
-- Bounded Git-object publication auditing plus integrated privacy, portability, contract, negative-test, and release gates.
-
-## 0.1.0
-
-- Initial public policy kernel, project template, and local verification preview.
+- The 0.x installer and its managed setup flow.
+- The Codex adapter, Codex delegation integration, and `codex-worker` agent.
+- The owner's private memory runtime, private project configuration, and proprietary Anthropic synced skills from the distributed kit.

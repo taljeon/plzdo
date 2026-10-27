@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design -isms 원본 디자인"
+  short_description: "49개 디자인 사조와 전체 카탈로그에서 원본 시안 그대로 보여주기"
+  default_prompt: "$design-isms-reference로 요청한 디자인에 맞는 원본 후보 3개를 이미지로 보여줘. 재해석하거나 새로 그리지 말고 원본 그대로 제시해줘."
+policy:
+  allow_implicit_invocation: true

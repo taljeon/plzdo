@@ -1,0 +1,4 @@
+interface:
+  display_name: "Academic Research Router"
+  short_description: "Route academic research work safely"
+  default_prompt: "Use $academic-research-router to plan a source-grounded academic research task."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Start"
+  short_description: "Start projects with specs, harness, and agent review."
+  default_prompt: "/작업개시\\nTarget project: <name>\\nGoal: <goal>"

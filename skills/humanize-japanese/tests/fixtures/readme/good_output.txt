@@ -1,0 +1,21 @@
+# kakeibo-cli
+
+家計簿のCSVを月ごとに集計するコマンドラインツールです。本ツールでは、銀行の明細ファイルを滞りなく読み込むことができます。
+
+## インストール
+
+Python 3.11以上が必要です。次のコマンドを実行します:
+
+```bash
+pip install kakeibo-cli
+# 設定ファイルの作成を行う
+kakeibo init --config ~/.kakeibo.toml
+```
+
+## 使い方
+
+`kakeibo sum` コマンドで、月ごとの合計を表示できます。また、`--month 2026-09` を指定すると、その月だけを集計します。結果は `out/summary.csv` に保存されます。詳しい説明は https://example.com/kakeibo/docs にあります。
+
+## ライセンス
+
+MIT

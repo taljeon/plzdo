@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh release:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(rm -rf:*)",
+      "Bash(npm install:*)",
+      "Bash(npm add:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(yarn add:*)",
+      "Bash(pip install:*)",
+      "Bash(pipx install:*)",
+      "Bash(uv pip install:*)",
+      "Bash(brew install:*)"
+    ],
+    "deny": []
+  }
+}

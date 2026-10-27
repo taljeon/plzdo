@@ -1,0 +1,4 @@
+interface:
+  display_name: "Obsidian Memory Router"
+  short_description: "Route Obsidian and memory work"
+  default_prompt: "Use $obsidian-memory-router to decide safe Obsidian memory actions."

@@ -1,0 +1,11 @@
+{
+  "library_file_id": "libfile_1ed99527c738819195b65314ff207a90",
+  "file_id": "file_0000000019bc81fd9fa580c052cf7e51",
+  "size_bytes": 3646,
+  "total_lines": 120,
+  "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
+  "downloadedOriginalBytes": true,
+  "fullReadContentEqual": true,
+  "onlyReadNormalization": "read strips original EOF LF",
+  "lines": 120
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cybersecurity Skill Router"
+  short_description: "Route defensive security work safely"
+  default_prompt: "Use $cybersecurity-skill-router to scope a defensive security task safely."

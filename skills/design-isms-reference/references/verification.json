@@ -1,0 +1,175 @@
+{
+  "date": "2026-09-19",
+  "tool": "playwright-cli 0.1.19",
+  "source_blob_files_verified": 744,
+  "live_non_image_files_checked": 82,
+  "live_hash_mismatches": [],
+  "page_errors": [],
+  "broken_visible_images": [],
+  "screenshots": [
+    {
+      "screen": "color",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "effects",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "faq",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "index",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "layout",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "minimalism",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 329160,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "motion",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    },
+    {
+      "screen": "typography",
+      "viewport": [
+        1280,
+        900
+      ],
+      "changed_pixels": 0,
+      "total_pixels": 1152000,
+      "changed_percent": 0.0,
+      "mean_channel_difference": 0.0
+    }
+  ],
+  "finder_parity_cases": [
+    {
+      "answers": {},
+      "results": [
+        {
+          "id": "minimalism",
+          "score": 0
+        },
+        {
+          "id": "bauhaus",
+          "score": 0
+        },
+        {
+          "id": "flat-design",
+          "score": 0
+        }
+      ]
+    },
+    {
+      "answers": {
+        "project": "saas",
+        "mood": "technical",
+        "brightness": "light"
+      },
+      "results": [
+        {
+          "id": "technical-blueprint",
+          "score": 30
+        },
+        {
+          "id": "minimalism",
+          "score": 20
+        },
+        {
+          "id": "bento-grid",
+          "score": 18
+        }
+      ]
+    },
+    {
+      "answers": {
+        "project": "portfolio",
+        "mood": "bold",
+        "brightness": "dark"
+      },
+      "results": [
+        {
+          "id": "brutalism",
+          "score": 21
+        },
+        {
+          "id": "dark-mode",
+          "score": 15
+        },
+        {
+          "id": "cyberpunk",
+          "score": 15
+        }
+      ]
+    }
+  ],
+  "helper_checks": "All 233 catalog entries and 662 image paths present; list/show/preview per domain pass; invalid IDs/variants/criteria rejected. Three recommend cases match live DesignFinder.score.",
+  "skill_validation": "quick_validate.py passed",
+  "project_checks": "21 existing MCP tests passed; pip check passed",
+  "evidence_directory": "../assets/verification"
+}

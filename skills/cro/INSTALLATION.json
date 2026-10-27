@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/coreyhaines31/marketingskills",
+  "revision": "5b2c0007766c6a1cf1d53fd8fc73e979e0821022",
+  "source_path": "skills/cro",
+  "installer": "Codex bundled skill-installer",
+  "installed_for": "landing page messaging and conversion",
+  "hooks_enabled_by_install": false,
+  "runtime_code_executed": false
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Source Router"
+  short_description: "Route UI design sources safely"
+  default_prompt: "Use $design-source-router to choose UI references for this frontend task."

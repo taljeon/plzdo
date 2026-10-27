@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I -B \"{{PLZDO}}/hooks/workflow-skill-gate.py\" hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I -B \"{{PLZDO}}/hooks/workflow-skill-gate.py\" nudge",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

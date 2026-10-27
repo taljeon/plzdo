@@ -1,134 +1,68 @@
 # Architecture
 
-PlzDo Local is a local-first control plane for AI-assisted engineering. It does not replace the coding agent, editor, test runner, or Git. It gives those tools a small policy kernel, deterministic project identity, bounded durable state, and evidence-oriented completion rules.
-
-## Control Flow
-
-```mermaid
-flowchart TD
-    A["Operator request"] --> B["Layer 0 boundaries"]
-    B --> C["Project resolution"]
-    C -->|exact identity| D["Attach"]
-    C -->|no match| E["Create plan"]
-    C -->|ambiguous| F["Ask and stop"]
-    D --> G["Execution route"]
-    E --> G
-    G -->|Quick| H["Bounded local tool"]
-    G -->|Plan| I["Explicit plan"]
-    G -->|Goal or loop| J["Approved formalization"]
-    I --> H
-    J --> H
-    H --> K["Verification evidence"]
-    K --> L["State / memory / metrics / findings"]
-    K --> M["Completion report"]
-```
-
-The runtime is intentionally split into three layers:
-
-1. **Policy kernel:** root `AGENTS.md`, `TASKS/current.md`, and `CHECKS.md`. Each attached project owns its project-specific requirements and technical design; those files are product source of truth, not reusable global policy.
-2. **Local control plane:** catalog, registry, route selection, formalization, context, state, memory, findings, metrics, monitoring, review preparation, and managed resources.
-3. **Evidence layer:** executable checks, exact hashes, typed reports, rollback artifacts, and release scans.
-
-## Module Map
-
-| Module | Responsibility | Persistent writes |
-| --- | --- | --- |
-| `catalog.py` | Repository policy and apply eligibility | None by itself |
-| `registry.py` | User project identity and deterministic resolution | Registry document |
-| `execution_rules.py` | Quick, Plan, Goal, and bounded-loop classification | None |
-| `renderer.py` | Exact in-memory project-frame rendering | None |
-| `formalization.py` | Draft, approval, completion, and supersession lifecycle | Formalization documents |
-| `context.py` | Compact and full context packs from a fixed source set | Context pack |
-| `state.py` | Bounded recovery state and archive-first compaction | State and archives |
-| `local_memory.py` | Sanitized, local, non-authoritative reusable notes | Local memory store |
-| `findings.py` | Append-preserving finding decisions | Findings ledger |
-| `metrics.py` | Bounded retrospective run metadata | Metrics records |
-| `monitor.py` | Manual read-only repository observations | Snapshot only |
-| `review_bundle.py` | Local sanitized review preparation and response import | Advisory artifacts |
-| `managed_install.py` | Exact managed copies of bundled skills and role files | Explicit destination only |
-| `apply_gate.py` | Default-disabled exact target mutation and recovery | Approved target and evidence state |
-
-The command layer is deliberately thin. `cli.py` routes core commands, while the durable, resource, local-operations, and apply command modules translate CLI input into validated library calls. They do not carry independent policy.
-
-## Authority
-
-| Input | Authority |
-| --- | --- |
-| Layer 0 safety and privacy rules | Hard boundary |
-| Latest operator request | Highest task intent below Layer 0 |
-| Current task and approved formalization | Active work contract |
-| Attached-project requirements and technical design | Product intent for that project |
-| Code and tests | Implementation facts |
-| Catalog and registry | Project identity and apply policy |
-| Context, state, memory, metrics, monitoring | Non-authoritative support data |
-| Worker or imported review output | Advisory data only |
-
-If policy text and implementation disagree, the disagreement is a blocker. A summary never overrides newer source or tests.
-
-## Project Identity
-
-Resolution is deterministic:
+PlzDo preserves the owner's lead-engineer workflow in a Claude-only kit. Claude owns requirements, design, specifications, and final acceptance. Skills select the procedure; agents do bounded delegated work. Optional hooks enforce checks at tool boundaries, and separately loaded mods add session behavior.
 
 ```text
-exact id or alias -> attach
-else exact domain and area -> attach
-else multiple matches -> ask and stop
-else -> produce a creation plan
+Request
+  -> Rules: harness/CLAUDE.md
+  -> Skills: selection, workflow skills, task procedure
+  -> Claude agents: implementer / reviewer / code-reviewer
+  -> Optional hooks: checks before tool actions
+  -> Mods: session behavior from a pinned separate repository
+  -> Evidence and lead-engineer acceptance
 ```
 
-Archived projects do not auto-attach. Catalog policy and the user registry remain separate so a local work area cannot silently redefine repository policy.
+Hooks intercept relevant events during work. Mods operate during the session rather than only after review; the diagram shows their place in the setup, not a strict execution order.
 
-## Durable State
+## Rules and authority
 
-All durable documents use explicit schema versions, exact-key validation where authority is involved, deterministic JSON, bounded size, atomic replacement, and writer locks. Project-local state lives under `.plzdo/`; user-level state follows `PLZDO_HOME`, then XDG state, then the platform-neutral home fallback documented in [portability.md](portability.md).
+Copy or merge [harness/CLAUDE.md](../harness/CLAUDE.md) into the Claude configuration's `CLAUDE.md`. It folds shared rules into one file and replaces the owner's Codex routes with Claude skills and agents. The current request takes priority, and repository-specific rules take priority over these global rules.
 
-State and memory are recovery aids, not source of truth. Compaction is archive-first. Findings use durable IDs and explicit terminal decisions. Metrics are retrospective signals, never permissions.
+The act-or-ask list permits investigation, tests, Markdown edits, and reversible in-project code edits directly. Multi-file features need a 3-5 line plan and approval before execution. Deletes, destructive Git operations, actions leaving the machine, installations, and global settings changes require asking first. A skill or an agent's output cannot grant those permissions.
 
-### Storage layout
+The delegation table routes design to `design-spec`, unclear features to `requirements-clarification`, `hn` requests to `adaptive-project-harness`, approved core work to `implement-change`, and code review to `review-change`. It also names agents for coding practice, documentation, document artifacts, readiness checks, and bounded side tasks. Small single-file edits and short answers stay with Claude directly.
 
-The default user-level root is resolved in this order:
+## Skills
 
-1. `PLZDO_HOME`;
-2. `$XDG_STATE_HOME/plzdo-local`;
-3. `~/.local/state/plzdo-local`.
+The rules call for zero or the smallest useful set of complementary skills. Selection follows the task, project constraints, and available tools, rather than a keyword alone. Read the selected skill and only the references needed for the current phase.
 
-Project-local managed files remain inside the project. User-level records stay under the resolved state root. Commands expose the resolved location through `plzdo state-root status`; callers should not infer it.
+For code tasks, load these three workflow skills once at the start:
 
-### Write discipline
+- `ponytail` lite: before editing, choose the smallest change that meets the request.
+- `anti-slop`: while editing, preserve behavior and use the project's checks.
+- `verification-before-completion`: before claiming completion, run and read the relevant checks.
 
-Durable writers follow the same sequence:
+The rules also require `pr-oss` before PR titles or descriptions and `leak-check` before public pushes, PRs, or releases. Hooks do not replace that preflight.
 
-1. validate input and the current document;
-2. acquire a bounded writer lock;
-3. revalidate relevant identity or freshness;
-4. write a temporary regular file with bounded bytes;
-5. flush and atomically replace;
-6. return typed evidence.
+## Claude delegation
 
-Symlinks, special files, duplicate JSON keys, unknown fields on authority-bearing documents, and out-of-root paths fail closed.
+[review-change](../skills/review-change/SKILL.md) starts `reviewer` and `code-reviewer` in parallel. The first checks specification conformance, including missing or unrequested behavior and weakened tests. The second checks security, performance, and bugs with file and line evidence. Give both the code and specification, plus the implementer's report when available, but not the lead's verdict. The lead verifies findings, fixes confirmed problems, and reports rejected findings and coverage gaps. The `reviewer` cannot run commands, so the lead runs any needed verification.
 
-## High-Risk Writes
+[implement-change](../skills/implement-change/SKILL.md) sends approved implementation work to an `implementer` in a Git worktree. Record the base commit and existing changes first: a worktree does not include uncommitted work. The packet names the objective, requirements, allowed paths, tests, and acceptance command. After implementation, run `review-change` against the recorded base. The lead reads the diff, reruns acceptance, and merges only with the user's approval for that merge.
 
-Default commands inspect, render in memory, or write PlzDo-owned state. Mutating another repository is a separate P5 path with a plan, operator-enabled catalog policy, clean Git identity, exact source and target fingerprints, typed confirmation, atomic file replacement, byte verification, and rollback evidence. See [real-apply.md](real-apply.md).
+The `explorer` agent handles read-only search across many files. The other agent definitions cover coding-test coaching, technical writing, document generation, readiness checks, and bounded side work. Their reports are evidence to examine, not final acceptance or permission to widen the task.
 
-P5 is not a general command runner. Its output set is fixed to the managed project frame, and its rollback data is evidence for those exact bytes only. A failed prerequisite produces a typed refusal rather than a best-effort write.
+## hn routing
 
-## External Review
+Start a request with `hn` or `HN`, or ask for the harness method, to select [adaptive-project-harness](../skills/adaptive-project-harness/SKILL.md). It uses `Input -> Brain -> Tool -> Evidence` and returns a task weight plus a separate unattended-work flag:
 
-PlzDo Local can prepare a sanitized, byte-bounded local review bundle and import a local response. It has no provider adapter and no send command. Imported responses remain advisory, non-instructional, and without tool authority.
+- One-shot: small, reversible work with a quick check.
+- Plan: bounded work with multiple steps that fits one session.
+- Goal: durable state, architecture, significant implementation risk, or costly uncertainty. Formalize the task and obtain approval first.
+- UW: bounded repeated work. It requires approved loop limits, stopping rules, a timeout, checkpoints, and evidence for each iteration.
 
-The preparation path records both source and sanitized hashes so later review can distinguish source drift from redaction. A bundle is never proof that its contents are safe to upload; the operator still owns the final disclosure decision.
+Goal and UW approval binds to the written formalization and its SHA-256. Changes to approved sections require renewed approval. The kit expresses this method in project documents and ordinary tools; it does not include the owner's harness CLI, registry, or memory runtime. The skill contains the routing precedence, recovery rules, and route-feedback format.
 
-## Failure Semantics
+## Hooks and mods
 
-- **Ask:** required operator input is missing or project identity is ambiguous.
-- **Blocked:** a policy, authority, integrity, or safety prerequisite is not satisfied.
-- **Deferred:** a bounded recoverable availability or freshness prerequisite is pending.
-- **Failed:** an attempted operation did not complete; evidence records whether any rollback occurred.
-- **Complete:** declared checks and output evidence agree with the frozen work contract.
+The optional `workflow-skill-gate` checks that the three workflow skills are loaded before the first code edit. The optional `release-gate` checks publishing commands in supported canonical forms. See [Hooks](hooks.md) for events, failure behavior, and manual configuration.
 
-No support document can upgrade one terminal state into another. Retry requires a new invocation against current state.
+Mods stay in [taljeon/plzdo-claude-mods](https://github.com/taljeon/plzdo-claude-mods); `mods.lock` pins the commit and `mods.sha256` supplies the integrity check. All 8 load by default. Read [Company set step 6](../INVENTORY.md#company-set) and the mods README before loading them: some transmit prompt and answer content, send prompts after idle time, or read local session files.
 
-## Deliberate Omissions
+## Differences from the owner's live setup
 
-There is no daemon, scheduler, watcher, hook installer, telemetry client, browser automation, provider login, package downloader, auto-update path, or Obsidian integration. These omissions are product boundaries, not unfinished defaults.
+Second-model review becomes same-model review. Separate Claude agents have separate assignments, but provide less model independence than the owner's Claude-to-Codex delegation. Supplying the specification without the lead's conclusion remains important.
+
+Hook enforcement exists only when hooks are enabled and allowed to execute. Without them, the workflow instructions are text rules. Even when enabled, the workflow gate fails open on internal errors; the release gate fails closed. The public release gate is an adaptation, not the owner's larger gate bound to private configuration.
+
+The owner's private memory runtime, private project data, and Codex delegation are omitted. Built-in Claude auto-memory is the rules file's suggested substitute, not a reproduction of that runtime.
