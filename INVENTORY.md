@@ -17,7 +17,7 @@ The repository's MIT license covers only the owner's own files. Every third-part
 
 ## Company set
 
-Rows with `yes` in the Company column form the Claude-only set: Claude Code, python3 and git, no Codex, no MCP servers, no other runtimes.
+Rows with `yes` in the Company column form the Claude-only set: Claude Code, python3 and git (2.45 or newer for the `workbench` changed-files list), no Codex, no MCP servers, no other runtimes.
 
 1. Rules: copy `harness/CLAUDE.md` to `~/.claude/CLAUDE.md`, or merge it into yours.
 2. Skills: copy each company skill folder from `skills/` to `~/.claude/skills/`.
