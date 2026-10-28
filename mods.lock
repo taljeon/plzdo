@@ -2,5 +2,5 @@
 #   git rev-parse HEAD  (must equal commit)
 #   shasum -a 256 -c <plzdo>/mods.sha256
 repo https://github.com/taljeon/plzdo-claude-mods
-commit e038473b0af0177b284f9d277098297864a07c8a
+commit d9d97051dac0afea882f405d851a328e513898d6
 default-on all

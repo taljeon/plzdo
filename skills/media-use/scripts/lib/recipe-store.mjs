@@ -1,14 +1,14 @@
 import {
   cpSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   renameSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { globalMediaDir } from "./media-home.mjs";
 import { appendRecord, mediaDir, nextId } from "./manifest.mjs";
 import { regenerateIndex } from "./index-gen.mjs";
@@ -184,6 +184,15 @@ function briefWorkflow(root) {
   return undefined;
 }
 
+function readJsonObject(path) {
+  try {
+    const parsed = JSON.parse(readFileSync(path, "utf8"));
+    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function readRecipeJson(dir) {
   try {
     const parsed = JSON.parse(readFileSync(join(dir, "recipe.json"), "utf8"));
@@ -220,13 +229,57 @@ export function freezeRecipe({ projectDir, name, workflow, blocks }) {
   if (!existsSync(frameSpec)) throw new Error("no frame.md to freeze — run the design step first");
   if (!existsSync(storyboard)) throw new Error("no STORYBOARD.md to freeze");
 
-  const dir = join(projectRecipesDir(root), slug);
+  const recipesDir = resolve(projectRecipesDir(root));
+  const dir = join(recipesDir, slug);
+  if (dirname(resolve(dir)) !== recipesDir || basename(resolve(dir)) !== slug) {
+    throw new Error(`recipe "${slug}" is not a direct child of the recipes folder`);
+  }
+  // A cloned project can plant links; writes below must stay in its own recipes folder.
+  for (const folder of [mediaDir(root), recipesDir]) {
+    if (lstatSync(folder, { throwIfNoEntry: false })?.isSymbolicLink()) {
+      throw new Error(`${folder} is a symbolic link; nothing was changed`);
+    }
+  }
+  const storedDir = lstatSync(dir, { throwIfNoEntry: false });
+  if (storedDir?.isSymbolicLink()) {
+    throw new Error(`recipe "${slug}" folder is a symbolic link; nothing was changed`);
+  }
+  if (storedDir) {
+    for (const file of ["recipe.json", "frame.md", "storyboard-skeleton.md", "brief-skeleton.md"]) {
+      const stat = lstatSync(join(dir, file), { throwIfNoEntry: false });
+      if (stat && !stat.isFile()) {
+        throw new Error(`recipe "${slug}" ${file} is not a regular file; nothing was changed`);
+      }
+    }
+  }
   let version = 1;
-  const previous = existsSync(dir) ? readRecipeJson(dir) : null;
+  // Check a stored version even when the rest of recipe.json is unusable, so a bad value never gets overwritten silently.
+  const stored = storedDir ? readJsonObject(join(dir, "recipe.json")) : null;
+  const previous = storedDir ? readRecipeJson(dir) : null;
+  if (stored && Object.hasOwn(stored, "version") && !previous) {
+    if (!Number.isSafeInteger(stored.version) || stored.version < 1) {
+      throw new Error(
+        `recipe "${slug}" has an invalid stored version; fix or remove .media/recipes/${slug}/recipe.json`,
+      );
+    }
+  }
   if (previous) {
-    version = (Number.isInteger(previous.version) ? previous.version : 1) + 1;
-    const archive = `${dir}@v${previous.version ?? 1}`;
-    rmSync(archive, { recursive: true, force: true });
+    const n = Object.hasOwn(previous, "version") ? previous.version : 1;
+    if (!Number.isSafeInteger(n) || n < 1 || !Number.isSafeInteger(n + 1)) {
+      throw new Error(
+        `recipe "${slug}" has an invalid stored version or cannot safely increment it; fix or remove .media/recipes/${slug}/recipe.json`,
+      );
+    }
+    version = n + 1;
+    const archiveName = `${slug}@v${n}`;
+    const archive = join(projectRecipesDir(root), archiveName);
+    if (dirname(resolve(archive)) !== recipesDir || basename(resolve(archive)) !== archiveName) {
+      throw new Error(`recipe "${slug}" archive is not a direct child of the recipes folder`);
+    }
+    if (lstatSync(archive, { throwIfNoEntry: false })) {
+      throw new Error(`recipe archive "${archiveName}" already exists; nothing was changed`);
+    }
+    // Renaming happens inside the recipes folder only.
     renameSync(dir, archive);
   }
   mkdirSync(dir, { recursive: true });

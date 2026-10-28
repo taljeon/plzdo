@@ -195,6 +195,84 @@ class ReleaseGateTests(HookCase):
         self.git("remote", "set-url", "origin", "https://git.corp.example.attacker.com/x")
         self.deny()
 
+    def test_f6_private_prefix_components(self):
+        # Build userinfo at runtime so fixtures do not resemble email addresses.
+        cases = (
+            ("https://git.corp.example", "https://git.corp.example:443" + chr(64) + "external.example/repo", False),
+            ("https://git.corp.example", "https://git.corp.example.evil.example/repo", False),
+            ("https://git.corp.example", "https://git.corp.example" + chr(64) + "evil.example/r", False),
+            ("https://git.corp.example/team", "https://git.corp.example/team-other/r", False),
+            ("https://git.corp.example/team", "https://git.corp.example/team/r", True),
+            ("https://git.corp.example/team", "https://GIT.corp.example:443/team/r", True),
+            ("https://git.corp.example:8443/team", "https://git.corp.example:8443/team/r", True),
+            ("https://git.corp.example/team", "https://git.corp.example:8443/team/r", False),
+            ("ssh://git.corp.example/team", "ssh://git" + chr(64) + "git.corp.example/team/r", True),
+            ("git" + chr(64) + "git.corp.example:team/", "git" + chr(64) + "git.corp.example:team/r", True),
+            ("git.corp.example:", "git" + chr(64) + "git.corp.example:team/r", True),
+            ("https://git.corp.example", "git" + chr(64) + "git.corp.example:team/r", False),
+            ("ssh://git.corp.example/team", "git" + chr(64) + "git.corp.example:team/r", False),
+            ("ssh://git.corp.example/team", "git+ssh://git" + chr(64) + "git.corp.example:22/team/r", True),
+            ("ssh://git.corp.example/team", "ssh+git://git.corp.example/team/r", True),
+            ("http://git.corp.example/team", "http://git.corp.example:80/team/r", True),
+            ("git://git.corp.example/team", "git://git.corp.example:9418/team/r", True),
+            ("https://user" + chr(64) + "git.corp.example/team/", "https://other" + chr(64) + "git.corp.example/team/r", True),
+        )
+        for prefix, url, private in cases:
+            with self.subTest(prefix=prefix, url=url):
+                self.private_config({"private_url_prefixes": [prefix]})
+                self.git("remote", "set-url", "origin", url)
+                (self.quiet if private else self.deny)()
+
+    def test_f6_malformed_urls_are_not_private(self):
+        urls = (
+            "https://git.corp.example:bad/team", "https://git.corp.example:65536/team",
+            "https:///team", "https://git.corp.example/team with-space",
+            "https://git.corp.example/team\tfile", "https://git.corp.example/team\x7ffile",
+            "https://git.corp.example/team\\file", "https://user%40x" + chr(64) + "git.corp.example/team",
+            "https://git.corp.example/team/../outside", "https://git.corp.example/./team",
+            "ftp://git.corp.example/team", "git" + chr(64) + "other" + chr(64) + "git.corp.example:team/r",
+            "git" + chr(64) + "[git.corp.example]:team/r", "git" + chr(64) + "git.corp.example:team/../r",
+        )
+        self.private_config({"private_hosts": ["git.corp.example"],
+                             "private_url_prefixes": ["https://git.corp.example"]})
+        for url in urls:
+            with self.subTest(url=url):
+                self.git("remote", "set-url", "origin", url)
+                self.deny()
+
+    def test_f6_percent_encoded_paths_are_not_private(self):
+        base = self.base / "private"
+        for prefix, url in (
+            (base.as_uri(), base.as_uri() + "/%2e%2e/public.git"),
+            ("https://git.corp.example/team", "https://git.corp.example/team/%2e%2e/outside"),
+            ("https://git.corp.example/team", "https://git.corp.example/team/%2fother"),
+        ):
+            with self.subTest(url=url):
+                self.private_config({"private_url_prefixes": [prefix]})
+                self.git("remote", "set-url", "origin", url)
+                self.deny()
+
+    def test_f6_local_prefixes_and_casefolded_hosts(self):
+        path = str(self.remote)
+        for prefix, url, private in (
+            (str(self.base), path, True),
+            (self.base.as_uri(), path, True),
+            ("file://", path, True),
+            (str(self.base), self.remote.as_uri(), True),
+            (path, path + "-other/repo", False),
+            (str(self.base), str(self.base) + "/../elsewhere", False),
+            (self.base.as_uri(), self.base.as_uri() + "/../elsewhere", False),
+            (str(self.base) + "/.", path, True),
+        ):
+            with self.subTest(prefix=prefix, url=url):
+                self.private_config({"private_url_prefixes": [prefix]})
+                self.git("remote", "set-url", "origin", url)
+                (self.quiet if private else self.deny)()
+        self.private_config({"private_hosts": ["GIT.CORP.EXAMPLE"]})
+        for url in ("https://GIT.corp.example/r", "git" + chr(64) + "GIT.corp.example:r"):
+            self.git("remote", "set-url", "origin", url)
+            self.quiet()
+
     def test_private_skip_requires_every_push_url(self):
         self.private_config({"private_hosts": ["git.corp.example"]})
         self.git("remote", "set-url", "origin", "https://git.corp.example/x")
@@ -388,6 +466,127 @@ class ReleasePassTests(HookCase):
         self.git("add", "-f", path)
         self.git("commit", "-m", "sample")
         return self.git("rev-parse", "HEAD")
+
+    def pushed_history(self, token=True):
+        if token:
+            commit = self.add_token()
+            self.git("rm", "secret.txt")
+            self.git("commit", "-m", "remove sample")
+        else:
+            (self.repo / "file.txt").write_text("clean again\n")
+            self.git("commit", "-am", "clean")
+            commit = self.git("rev-parse", "HEAD")
+        self.git("push", "origin", "main")
+        self.assertEqual(self.git("rev-parse", "refs/remotes/origin/main"), self.git("rev-parse", "HEAD"))
+        return commit
+
+    def empty_remote(self):
+        remote = self.base / "second.git"
+        subprocess.run(["git", "init", "--bare", str(remote)], env=self.env,
+                       capture_output=True, check=True)
+        return str(remote)
+
+    def assert_history_finding(self, commit):
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("github-token " + commit[:7] + ":secret.txt:1", result.stdout)
+        self.assertNotIn(TOKEN_SAMPLE.decode().strip(), result.stdout + result.stderr)
+        self.assertFalse(self.pass_file.exists())
+
+    def test_f5_changed_destination_scans_stale_tracking_history(self):
+        commit = self.pushed_history()
+        before = self.git("show-ref")
+        self.git("remote", "set-url", "origin", self.empty_remote())
+        self.assert_history_finding(commit)
+        self.assertEqual(self.git("show-ref"), before)
+
+    def test_f5_clean_history_at_changed_destination_passes(self):
+        self.pushed_history(token=False)
+        self.git("remote", "set-url", "origin", self.empty_remote())
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(self.pass_file.exists())
+        self.quiet()
+
+    def test_f5_same_destination_excludes_pushed_history(self):
+        self.pushed_history()
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(self.pass_file.exists())
+
+    def test_f5_unavailable_destination_scans_full_history(self):
+        commit = self.pushed_history()
+        self.git("remote", "set-url", "origin", str(self.base / "missing.git"))
+        self.assert_history_finding(commit)
+
+    def test_f5_multiple_destinations_scan_union(self):
+        commit = self.pushed_history()
+        self.git("config", "--add", "remote.origin.url", self.empty_remote())
+        self.assert_history_finding(commit)
+
+    def test_f5_advertised_tag_commit_excludes_history_without_tracking_refs(self):
+        self.pushed_history()
+        self.git("tag", "-a", "v1", "-m", "clean tag")
+        self.git("push", "origin", "v1")
+        self.git("push", "origin", ":main")
+        self.assertEqual(self.git("for-each-ref", "refs/remotes/origin"), "")
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(self.pass_file.exists())
+
+    def test_f7_follow_tags_local_and_global_refused(self):
+        self.git("tag", "-a", "v1", "-m", TOKEN_SAMPLE.decode())
+        for scope in ("--local", "--global"):
+            with self.subTest(scope=scope):
+                self.git("config", scope, "push.followTags", "true")
+                result = self.scan("--remote", "origin")
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("push.followTags is not supported", result.stdout)
+                self.assertNotIn(TOKEN_SAMPLE.decode().strip(), result.stdout + result.stderr)
+                self.assertFalse(self.pass_file.exists())
+                self.write_pass()
+                self.deny()
+                self.pass_file.unlink()
+                self.git("config", scope, "--unset", "push.followTags")
+
+    def test_f5_url_rewrite_refused_for_release_pass(self):
+        for key in ("insteadOf", "pushInsteadOf"):
+            with self.subTest(key=key):
+                self.git("config", f"url.{self.base}/other.{key}", "unused-prefix:")
+                result = self.scan("--remote", "origin")
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("URL rewriting is not supported", result.stdout)
+                self.assertFalse(self.pass_file.exists())
+                self.git("config", "--unset", f"url.{self.base}/other.{key}")
+        self.assertEqual(self.scan("--remote", "origin").returncode, 0)
+
+    def test_f7_hook_rechecks_follow_tags_after_pass(self):
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        before = self.pass_file.read_bytes()
+        self.quiet()
+        for scope in ("--local", "--global"):
+            with self.subTest(scope=scope):
+                self.git("config", scope, "push.followTags", "true")
+                self.deny()
+                self.git("config", scope, "--unset", "push.followTags")
+                self.quiet()
+        self.assertEqual(self.pass_file.read_bytes(), before)
+
+    def test_f7_invalid_follow_tags_config_refused(self):
+        self.git("config", "push.followTags", "invalid")
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertFalse(self.pass_file.exists())
+        self.write_pass()
+        self.deny()
+
+    def test_f7_explicit_false_overrides_global_true(self):
+        self.git("config", "--global", "push.followTags", "true")
+        self.git("config", "--local", "push.followTags", "false")
+        result = self.scan("--remote", "origin")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.quiet()
 
     def test_hidden_index_flags_refused(self):
         for flag in ("assume-unchanged", "skip-worktree"):
