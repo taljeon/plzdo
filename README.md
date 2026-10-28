@@ -5,7 +5,7 @@ PlzDo mirrors one person's (the owner's) Claude Code setup so a company machine 
 ## Requirements
 
 - Claude Code for the rules, skills, and agents. Copying these files needs no additional runtime.
-- `python3` and `git` for the hooks/mods setup. Hooks require permission to execute scripts; mods run code when loaded.
+- `python3` and `git` for the hooks/mods setup. The `workbench` mod's changed-files list needs git 2.45 or newer (check with `git --version`); on older git, or in a repository with a non-empty `info/attributes`, it shows a hold notice instead of the files. Hooks require permission to execute scripts; mods run code when loaded.
 - Git is also used by the clone route below and by the implementation workflow's worktrees. Individual projects still need their own development tools.
 
 The company set needs no Codex, MCP servers, or other runtimes. Outside that set, check each item's status and dependency note. Skip `needs-runtime`, `link-only`, and `excluded` items when following the company setup.
