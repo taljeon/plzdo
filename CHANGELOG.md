@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Security
+
+- `skills/media-use`: recipe freeze now rejects an invalid stored `version` before changing any file, never deletes an existing archive, and refuses a recipe folder that is a symbolic link. The fix lives in `maintainer/patches/media-use/` so exports keep it.
+- `checks/scan.py`: a release pass skips only history that each push URL reports having (`git ls-remote`), not history known from local remote-tracking refs.
+- `hooks/release-gate.py`: private URL prefixes are compared by scheme, host, port and path segments, so a user name before `@` can no longer pose as a private host.
+- `hooks/release-gate.py` and `checks/scan.py`: an effective `push.followTags=true` is refused, since it would send tags the pass did not scan.
+- `maintainer/export.py`: private identifiers in output file and folder names stop the export before anything is written.
+- Mods pinned to a new `plzdo-claude-mods` commit with workbench's safe git reads, symlink-aware blast-radius file checks, and approvals bound to the fully shown held command.
+
 ## 1.0.0 (unreleased)
 
 ### Added

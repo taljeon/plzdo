@@ -83,7 +83,7 @@ Skip any row whose status is `needs-runtime`, `link-only` or `excluded`.
 | library-docs |  | copy-ready | own | - | MIT | `skills/library-docs` | patterns paraphrased from addyosmani/agent-skills and upstash/context7 (MIT) |
 | local-first-coding |  | excluded | own | - | MIT | - | needs the owner's private local-model runner |
 | loop-library |  | copy-ready | vendored | github.com/Forward-Future/loop-library | MIT | `skills/loop-library` | upstream LICENSE added |
-| media-use |  | needs-runtime | vendored | github.com/heygen-com/hyperframes | Apache-2.0 | `skills/media-use` | needs the hyperframes CLI; upstream LICENSE added |
+| media-use |  | needs-runtime | modified | github.com/heygen-com/hyperframes | Apache-2.0 | `skills/media-use` | needs the hyperframes CLI; upstream LICENSE added; security fix: recipe freeze validates the stored version and never deletes an archive (scripts/lib/recipe-store.mjs, kept in maintainer/patches/media-use) |
 | motion-graphics |  | needs-runtime | vendored | github.com/heygen-com/hyperframes | Apache-2.0 | `skills/motion-graphics` | needs the hyperframes CLI; upstream LICENSE added |
 | obsidian-memory-router |  | needs-runtime | own | - | MIT | `skills/obsidian-memory-router` | needs the owner's memory runtime |
 | oh-my-mermaid |  | link-only | vendored | github.com/oh-my-mermaid/oh-my-mermaid | MIT | - | comes with the npm package |

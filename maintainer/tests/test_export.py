@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import io
+from contextlib import redirect_stdout
 import json
 import os
 from pathlib import Path
@@ -260,8 +262,83 @@ class ExportTests(unittest.TestCase):
         self.assertIn("skills/sample/secret.txt:3: private-id 1", result.stdout)
         for identifier in ("private-example-one", "private-example-two"):
             self.assertNotIn(identifier, result.stdout + result.stderr)
-        self.assertTrue((self.root / "skills/sample/secret.txt").exists())
+        # A content hit now fails before writing, so the earlier output stays as it was.
+        self.assertFalse((self.root / "skills/sample/secret.txt").exists())
         self.assertFalse((self.root / "maintainer/export.lock.json").exists())
+
+    def test_content_hit_keeps_previous_output_and_lock(self):
+        self.put("keep.txt", "clean")
+        self.run_cli()
+        dest = self.root / "skills/sample"
+        lock = self.root / "maintainer/export.lock.json"
+        before = {p.relative_to(self.root): p.read_bytes() for p in dest.rglob("*") if p.is_file()}
+        lock_before = lock.read_bytes()
+        self.put("keep.txt", "now private-example-one")
+        result = self.run_cli(expected=1)
+        self.assertIn("skills/sample/keep.txt:1: private-id 1", result.stdout)
+        self.assertEqual({p.relative_to(self.root): p.read_bytes() for p in dest.rglob("*") if p.is_file()}, before)
+        self.assertEqual(lock.read_bytes(), lock_before)
+
+    def assert_path_refused_without_writes(self):
+        dest = self.root / self.entry["dest"]
+        dest.mkdir(parents=True, exist_ok=True)
+        (dest / "old.bin").write_bytes(b"old output\x00")
+        lock = self.root / "maintainer/export.lock.json"
+        lock.write_bytes(b"existing lock\n")
+        before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+        directories = {p.relative_to(self.root) for p in self.root.rglob("*") if p.is_dir()}
+        result = self.run_cli(expected=1)
+        self.assertIn("output path of entry 1: private-id 1", result.stdout)
+        self.assertNotIn("private-example-one", result.stdout + result.stderr)
+        self.assertEqual({p.relative_to(self.root): p.read_bytes() for p in self.root.rglob("*") if p.is_file()}, before)
+        self.assertEqual({p.relative_to(self.root) for p in self.root.rglob("*") if p.is_dir()}, directories)
+
+    def test_f8_private_file_name_preserves_output_and_lock(self):
+        self.put("prefix-private-example-one.txt", "clean")
+        self.assert_path_refused_without_writes()
+
+    def test_f8_private_empty_directory_preserves_output_and_lock(self):
+        (self.source / "private-example-one").mkdir()
+        self.assert_path_refused_without_writes()
+
+    def test_f8_private_dest_preserves_output_and_lock(self):
+        self.entry["dest"] = "skills/private-example-one"
+        self.assert_path_refused_without_writes()
+
+    def test_f8_private_add_target_preserves_output_and_lock(self):
+        (self.root / "LICENSE").write_text("safe")
+        self.entry["add"] = {"nested/private-example-one.txt": "LICENSE"}
+        self.assert_path_refused_without_writes()
+
+    def test_f8_later_entry_checked_before_first_removal(self):
+        other = dict(self.entry, name="other", dest="skills/other")
+        self.config["entries"].append(other)
+        self.entry["dest"] = "skills/private-example-one"
+        self.config["entries"].reverse()
+        first = self.root / "skills/other"
+        first.mkdir(parents=True)
+        (first / "keep").write_bytes(b"unchanged")
+        result = self.run_cli(expected=1)
+        self.assertIn("output path of entry 2: private-id 1", result.stdout)
+        self.assertEqual(list(first.iterdir()), [first / "keep"])
+        self.assertEqual((first / "keep").read_bytes(), b"unchanged")
+        self.assertFalse((self.root / "maintainer/export.lock.json").exists())
+
+    def test_f8_scan_private_checks_paths_and_redacts(self):
+        dest = self.root / "skills/private-example-one"
+        dest.mkdir(parents=True)
+        (dest / "file.txt").write_text("clean")
+        output = io.StringIO()
+        with redirect_stdout(output):
+            found = export.scan_private(dest, self.root.resolve(), [b"private-example-one"])
+        self.assertTrue(found)
+        self.assertEqual(output.getvalue(), "skills/[private]/file.txt: private-id 1 in path\n")
+
+    def test_f8_normal_paths_write_lock(self):
+        self.put("normal/file.txt", "clean")
+        self.run_cli()
+        self.assertTrue((self.root / "maintainer/export.lock.json").is_file())
+        self.assertEqual((self.root / "skills/sample/normal/file.txt").read_text(), "clean")
 
     def test_private_scan_case_sensitive_and_binary(self):
         self.put("case.txt", "PRIVATE-EXAMPLE-ONE")
@@ -501,8 +578,13 @@ class ExportTests(unittest.TestCase):
         self.put("private-example-one.txt", "private-example-two")
         result = self.run_cli(expected=1)
         self.assertIn("skipped directory symlink: prefix-[private]-link", result.stdout)
+        self.assertIn("output path of entry 1: private-id 1", result.stdout)
+        self.assertNotIn("private-example-one", result.stdout + result.stderr)
+        self.assertFalse((self.root / "maintainer/export.lock.json").exists())
+        (self.source / "private-example-one.txt").rename(self.source / "safe.txt")
+        result = self.run_cli(expected=1)
         self.assertIn("orphan: skills/[private]-orphan", result.stdout)
-        self.assertIn("skills/sample/[private].txt:1: private-id 2", result.stdout)
+        self.assertIn("skills/sample/safe.txt:1: private-id 2", result.stdout)
         self.assertNotIn("private-example-one", result.stdout + result.stderr)
         self.assertNotIn("private-example-two", result.stdout + result.stderr)
 
@@ -604,15 +686,19 @@ class ExportTests(unittest.TestCase):
 
     def test_add_overlays_tree_before_generated_source_note_and_is_scanned(self):
         source = self.root / "maintainer/license.txt"
-        source.write_text("private-example-one")
+        source.write_text("added license")
         self.put("LICENSE", "upstream license")
         self.config["replacements"] = [["private-example-one", "public"]]
         self.entry["add"] = {"LICENSE": "maintainer/license.txt", "SOURCE.md": "maintainer/license.txt"}
+        self.run_cli()
+        self.assertEqual((self.root / "skills/sample/LICENSE").read_text(), "added license")
+        self.assertIn("origin: vendored", (self.root / "skills/sample/SOURCE.md").read_text())
+        # Added files skip replacements, and their bytes are checked before anything is written.
+        source.write_text("private-example-one")
         result = self.run_cli(expected=1)
         self.assertIn("skills/sample/LICENSE:1: private-id 1", result.stdout)
         self.assertNotIn("private-example-one", result.stdout + result.stderr)
-        self.assertEqual((self.root / "skills/sample/LICENSE").read_text(), "private-example-one")
-        self.assertIn("origin: vendored", (self.root / "skills/sample/SOURCE.md").read_text())
+        self.assertEqual((self.root / "skills/sample/LICENSE").read_text(), "added license")
 
     def test_add_target_cannot_escape_through_existing_symlink(self):
         dest = self.root / "skills/sample"
@@ -639,6 +725,20 @@ class ExportTests(unittest.TestCase):
         self.config["entries"].append(dict(self.entry, name="other", dest="skills/other", add={}))
         self.run_cli(expected=2)
         self.assertEqual(keep.read_text(), "keep license")
+
+
+
+class PatchCopyTests(unittest.TestCase):
+    def test_patch_copies_match_shipped_files(self):
+        # export.py re-applies maintainer/patches/<name>/ over the copied source; a stale copy would undo a fix.
+        root = Path(__file__).resolve().parents[2]
+        patches = root / "maintainer/patches"
+        copies = sorted(p for p in patches.rglob("*") if p.is_file())
+        self.assertTrue(copies)
+        for copy in copies:
+            name, *rest = copy.relative_to(patches).parts
+            with self.subTest(copy=copy.relative_to(root).as_posix()):
+                self.assertEqual(copy.read_bytes(), (root / "skills" / name / Path(*rest)).read_bytes())
 
 
 if __name__ == "__main__":

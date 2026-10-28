@@ -96,10 +96,42 @@ def destination(cwd: Path, remote: str, branch: str | None) -> dict:
         raise ValueError("mirror pushes are not supported")
     if git(repo, "config", "--get", "push.default", optional=True) == "matching":
         raise ValueError("matching pushes are not supported")
+    if git(repo, "config", "--type=bool", "--get", "push.followTags", optional=True) == "true":
+        raise ValueError("push.followTags is not supported")
     urls = sorted(git(repo, "remote", "get-url", "--push", "--all", remote).splitlines())
     if not urls or any(not url for url in urls):
         raise ValueError("remote has no push URL")
     return {"repo": str(repo), "ref": ref, "commit": commit, "remote": remote, "push_urls": urls}
+
+
+def url_parts(url: str) -> tuple:
+    # Git decodes %-escapes in some URL forms (file://.../%2e%2e/x opens a sibling), so none count as private.
+    if not url or any(c.isspace() or ord(c) < 32 or 127 <= ord(c) < 160 for c in url) or "\\" in url or "%" in url:
+        raise ValueError("invalid destination")
+    if url.startswith("/"):
+        if ".." in url.split("/"):
+            raise ValueError("invalid local path")
+        return "file", None, None, os.path.normpath(url)
+    if "://" in url:
+        value = urlsplit(url)
+        scheme = {"git+ssh": "ssh", "ssh+git": "ssh"}.get(value.scheme, value.scheme)
+        defaults = {"https": 443, "http": 80, "ssh": 22, "git": 9418, "file": None}
+        if (scheme not in defaults or "%" in value.netloc or
+                (scheme != "file" and not value.hostname) or
+                any(part in {".", ".."} for part in value.path.split("/"))):
+            raise ValueError("invalid destination")
+        port = value.port if value.port is not None else defaults[scheme]
+        path = os.path.normpath(value.path) if scheme == "file" and value.path else value.path
+        return scheme, value.hostname, port, path
+    match = re.fullmatch(r"(?:[^@/:]+@)?([^@/:\[\]]+):(.*)", url)
+    if not match or any(part in {".", ".."} for part in match[2].split("/")):
+        raise ValueError("invalid scp destination")
+    return "scp", match[1].lower(), None, match[2]
+
+
+def path_prefix(path: str, prefix: str) -> bool:
+    prefix = prefix.rstrip("/")
+    return not prefix or path == prefix or path.startswith(prefix + "/")
 
 
 def private_destination(config: Path, url: str) -> bool:
@@ -110,15 +142,10 @@ def private_destination(config: Path, url: str) -> bool:
         if not all(isinstance(items, list) and all(isinstance(item, str) for item in items)
                    for items in (hosts, prefixes)):
             return False
-        if "://" in url:
-            host = urlsplit(url).hostname
-        else:
-            match = re.fullmatch(r"(?:[^@/:]+@)?([^/:]+):.+", url)
-            host = match.group(1) if match else None
-        return (host is not None and host in hosts) or any(
-            prefix and url.startswith(prefix) and
-            (url == prefix or prefix[-1] in "/:" or url[len(prefix):len(prefix) + 1] in {"/", ":"})
-            for prefix in prefixes)
+        target = url_parts(url)
+        parsed = [url_parts(prefix) for prefix in prefixes]
+        return (target[1] is not None and target[1] in {host.lower() for host in hosts}) or any(
+            target[:3] == prefix[:3] and path_prefix(target[3], prefix[3]) for prefix in parsed)
     except (OSError, ValueError, AttributeError):
         return False
 

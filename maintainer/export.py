@@ -227,10 +227,23 @@ def source_note(entry: dict) -> bytes:
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def private_path_ids(path: Path, identifiers: list[bytes]) -> list[int]:
+    parts = [part.encode("utf-8") for part in path.parts]
+    return [index for index, identifier in enumerate(identifiers, 1)
+            if any(identifier in part for part in parts)]
+
+
 def scan_private(dest: Path, root: Path, identifiers: list[bytes]) -> bool:
     found = False
     # Scan all output bytes, including binary files and SOURCE.md.
     for _, path in files_at(dest, skip_defaults=False):
+        relative = path.relative_to(root)
+        for index in private_path_ids(relative, identifiers):
+            report(f"{relative.as_posix()}: private-id {index} in path", identifiers)
+            found = True
+        if str(Path.home()) in relative.as_posix():
+            report("output path: home-path", identifiers)
+            found = True
         for number, line in enumerate(path.read_bytes().split(b"\n"), 1):
             for index, identifier in enumerate(identifiers, 1):
                 if identifier in line:
@@ -240,6 +253,16 @@ def scan_private(dest: Path, root: Path, identifiers: list[bytes]) -> bool:
                 report(f"{path.relative_to(root).as_posix()}:{number}: home-path", identifiers)
                 found = True
     return found
+
+
+def report_orphans(config: dict, root: Path, say) -> None:
+    configured = {PurePosixPath(entry["dest"]).as_posix() for entry in config["entries"] if entry["dest"]}
+    candidates = [p for p in (root / "skills").glob("*") if p.is_dir()]
+    candidates += list((root / "agents").glob("*.md")) + list((root / "hooks").glob("*.py"))
+    for path in sorted(candidates):
+        relative = path.relative_to(root).as_posix()
+        if relative not in configured:
+            say(f"orphan: {relative}")
 
 
 def export(config: dict, root: Path, identifiers: list[bytes]) -> int:
@@ -261,7 +284,44 @@ def export(config: dict, root: Path, identifiers: list[bytes]) -> int:
             for resolved in [source] + [path for _, path in files + additions[entry["name"]]]:
                 if any(inside(resolved, dest) or inside(dest, resolved) for dest in dests):
                     raise ConfigError("source and destination overlap")
+    # Validate every planned name before removing any existing destination.
     problems = False
+    for number, entry in enumerate(config["entries"], 1):
+        if entry["status"] not in COPY:
+            continue
+        source, files, directories = sources[entry["name"]]
+        dest = Path(entry["dest"])
+        paths = [dest]
+        if source.is_dir():
+            paths += [dest / relative for relative in directories]
+            paths += [dest / relative for relative, _ in files + additions[entry["name"]]]
+            paths.append(dest / "SOURCE.md")
+        for path in paths:
+            for index in private_path_ids(path, identifiers):
+                say(f"output path of entry {number}: private-id {index}")
+                problems = True
+            if str(Path.home()) in path.as_posix():
+                say(f"output path of entry {number}: home-path")
+                problems = True
+        # The bytes each output file will get, so a content hit also fails before any removal.
+        planned = {relative: replaced(path.read_bytes(), config["replacements"]) for relative, path in files
+                   if not (source.is_dir() and relative == "SOURCE.md")}
+        if source.is_dir():
+            planned.update((relative, path.read_bytes()) for relative, path in additions[entry["name"]])
+            planned["SOURCE.md"] = replaced(source_note(entry), config["replacements"])
+        for relative, data in sorted(planned.items()):
+            shown = (dest / relative).as_posix() if source.is_dir() else dest.as_posix()
+            for line_number, line in enumerate(data.split(b"\n"), 1):
+                for index, identifier in enumerate(identifiers, 1):
+                    if identifier in line:
+                        say(f"{shown}:{line_number}: private-id {index}")
+                        problems = True
+                if str(Path.home()).encode("utf-8") in line:
+                    say(f"{shown}:{line_number}: home-path")
+                    problems = True
+    if problems:
+        report_orphans(config, root, say)
+        return 1
     written = []
     for entry in config["entries"]:
         dest = root / entry["dest"] if entry["dest"] else None
@@ -303,14 +363,7 @@ def export(config: dict, root: Path, identifiers: list[bytes]) -> int:
         written.append(dest)
     for dest in written:
         problems = scan_private(dest, root, identifiers) or problems
-    configured = {PurePosixPath(entry["dest"]).as_posix() for entry in config["entries"] if entry["dest"]}
-    candidates = list((root / "skills").glob("*"))
-    candidates = [p for p in candidates if p.is_dir()]
-    candidates += list((root / "agents").glob("*.md")) + list((root / "hooks").glob("*.py"))
-    for path in sorted(candidates):
-        relative = path.relative_to(root).as_posix()
-        if relative not in configured:
-            say(f"orphan: {relative}")
+    report_orphans(config, root, say)
     if problems:
         return 1
     entries = {}

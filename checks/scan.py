@@ -122,9 +122,9 @@ def scan(root: Path, paths: list[str] | None = None) -> list[Finding]:
     return [finding for path in selected_files(root, paths) for finding in scan_file(root, path)]
 
 
-def git_bytes(root: Path, *args: str) -> bytes:
+def git_bytes(root: Path, *args: str, optional: bool = False) -> bytes:
     result = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=30)
-    if result.returncode:
+    if result.returncode and not (optional and result.returncode == 1):
         raise ValueError("git " + args[0] + " failed")
     return result.stdout
 
@@ -143,6 +143,11 @@ def release_details(root: Path, remote: str, ref: str | None) -> dict:
         raise ValueError("hidden index flags (assume-unchanged or skip-worktree)")
     if remote not in git("remote").splitlines():
         raise ValueError("a configured remote is required")
+    if git_bytes(root, "config", "--type=bool", "--get", "push.followTags", optional=True).strip() == b"true":
+        raise ValueError("push.followTags is not supported")
+    # ls-remote follows fetch rewrites, so its tips could come from a different repository than the push.
+    if git_bytes(root, "config", "--get-regexp", r"^url\..*\.(insteadof|pushinsteadof)$", optional=True).strip():
+        raise ValueError("URL rewriting is not supported")
     ref = ref if ref is not None else git("symbolic-ref", "--quiet", "HEAD")
     if ref == "HEAD" or (ref.startswith("refs/") and not ref.startswith("refs/heads/")):
         raise ValueError("--ref must name a branch")
@@ -168,8 +173,29 @@ def scan_release(details: dict) -> list[Finding]:
             _, kind, sha = metadata.split()
             if kind == b"blob":
                 blobs.add((commit, path, sha))
-    commits = git_bytes(root, "rev-list", commit, "--not", "--remotes=" + details["remote"]).splitlines()
-    for revision in commits:
+    commits = set()
+    # Destinations are read at scan time; the hook's 30 min TTL bounds drift.
+    for url in details["push_urls"]:
+        tips = set()
+        try:
+            result = subprocess.run(["git", "-C", str(root), "ls-remote", "--", url],
+                                    env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+                                    capture_output=True, timeout=30)
+            lines = result.stdout.splitlines() if result.returncode == 0 else []
+        except (OSError, subprocess.TimeoutExpired):
+            lines = []
+        for line in lines:
+            oid = line.split(b"\t", 1)[0]
+            if not re.fullmatch(rb"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}", oid):
+                continue
+            try:
+                tip = git_bytes(root, "rev-parse", "--verify", "--end-of-options",
+                                oid.decode("ascii") + "^{commit}")
+                tips.add(tip.decode("ascii").strip())
+            except ValueError:
+                continue
+        commits.update(git_bytes(root, "rev-list", commit, "--not", *sorted(tips)).splitlines())
+    for revision in sorted(commits):
         current = revision.decode("ascii")
         # Compare merges against each parent so merge-only additions are scanned too.
         entries = git_bytes(root, "diff-tree", "-r", "--root", "--no-commit-id",
